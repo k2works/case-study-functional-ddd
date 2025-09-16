@@ -1,0 +1,2508 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="F#の関数型プログラミングとドメイン駆動設計による注文受付システムの実装ガイド">
+      
+      
+        <meta name="author" content="Project Team">
+      
+      
+      
+        <link rel="prev" href="../../design/test_strategy/">
+      
+      
+        <link rel="next" href="../F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>F# アプリケーション環境構築ガイド - 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../docs/mkdocs/assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#f" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-header__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              F# アプリケーション環境構築ガイド
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ホーム
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../requirements/requirements_definition/" class="md-tabs__link">
+          
+  
+  
+  要件定義
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/architecture/" class="md-tabs__link">
+          
+  
+  
+  設計
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  実装ガイド
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-tabs__link">
+          
+  
+  
+  F# 学習教材
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-tabs__link">
+          
+  
+  
+  開発理念
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-nav__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ホーム
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            要件定義
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/requirements_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/business_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ビジネスユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/system_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    システムユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/user_story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ユーザーストーリー
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    設計
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            設計
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/domain_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ドメインモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    データモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/tech_stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    技術スタック
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/test_strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    実装ガイド
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            実装ガイド
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    F# アプリケーション環境構築ガイド
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# アプリケーション環境構築ガイド
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      概要
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      前提条件
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 基本環境のセットアップ
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 基本環境のセットアップ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-net-90-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 .NET 9.0 SDK のインストール
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1.1 .NET 9.0 SDK のインストール">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Windows の場合
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macos" class="md-nav__link">
+    <span class="md-ellipsis">
+      macOS の場合
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      Linux の場合
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 インストールの確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 開発ツールのセットアップ
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 開発ツールのセットアップ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-ide" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 推奨 IDE
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 推奨 IDE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visual-studio-code-ionide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Visual Studio Code + Ionide（推奨）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jetbrains-rider" class="md-nav__link">
+    <span class="md-ellipsis">
+      JetBrains Rider（代替案）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-f" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 F# 特有の設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2 F# 特有の設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#editorconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      .editorconfig ファイルの作成
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. プロジェクト構造のセットアップ
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. プロジェクト構造のセットアップ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 ソリューションとプロジェクトの作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 プロジェクト構造
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 依存関係の設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 依存関係の設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-ordertaking" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 ドメインライブラリ（OrderTaking）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-web-api-ordertakingwebapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Web API プロジェクト（OrderTaking.WebApi）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-ordertakingtests" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 テストプロジェクト（OrderTaking.Tests）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-f" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. F# 特有の設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. F# 特有の設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-f-90" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1 F# 9.0 機能の有効化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-f" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2 F# ファイルの編集順序
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. 開発ツールの設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 開発ツールの設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 テスト自動化の設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.1 テスト自動化の設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-automationjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      test-automation.json の作成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsharplintjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      fsharplint.json の作成
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 コードフォーマッターの設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 コードフォーマッターの設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configdotnet-toolsjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      .config/dotnet-tools.json
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#editorconfig-fantomas" class="md-nav__link">
+    <span class="md-ellipsis">
+      .editorconfig での Fantomas 設定
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Git 設定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Git 設定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-gitignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.1 .gitignore ファイル
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      7.2 初期コミット
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. ビルドとテストの実行
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. ビルドとテストの実行">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.1 依存関係の復元
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.2 ビルド
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.3 テスト実行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84" class="md-nav__link">
+    <span class="md-ellipsis">
+      8.4 フォーマットとリント
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. サンプルコードの実装
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. サンプルコードの実装">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-commonsimpletypesfs" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.1 基本型の定義（Common.SimpleTypes.fs）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-programfs-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      9.2 Program.fs（最小 API）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. 動作確認
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. 動作確認">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.1 アプリケーションの起動
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102" class="md-nav__link">
+    <span class="md-ellipsis">
+      10.2 エンドポイントの確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. トラブルシューティング
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. トラブルシューティング">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.1 よくある問題
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11.1 よくある問題">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      F# コンパイルエラー
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nuget" class="md-nav__link">
+    <span class="md-ellipsis">
+      NuGet パッケージエラー
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112" class="md-nav__link">
+    <span class="md-ellipsis">
+      11.2 パフォーマンス最適化
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      まとめ
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# API構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../UI%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UI設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E6%88%A6%E7%95%A5%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    F# 学習教材
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            F# 学習教材
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第1部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%802/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第2部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%803/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第3部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%804/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第4部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発理念
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            開発理念
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    よいソフトウェアとは
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    エクストリームプログラミング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="f">F# アプリケーション環境構築ガイド<a class="headerlink" href="#f" title="Permanent link">&para;</a></h1>
+<h2 id="_1">概要<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>本ガイドは「Domain Modeling Made Functional」の F# による関数型ドメインモデリングを基に、ASP.NET Core 最小 API を組み合わせた注文受付システムの開発環境構築手順を説明します。</p>
+<h2 id="_2">前提条件<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Windows 10/11 または macOS 10.15+ または Linux</li>
+<li>インターネット接続環境</li>
+<li>管理者権限（インストール時）</li>
+</ul>
+<h2 id="1">1. 基本環境のセットアップ<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="11-net-90-sdk">1.1 .NET 9.0 SDK のインストール<a class="headerlink" href="#11-net-90-sdk" title="Permanent link">&para;</a></h3>
+<h4 id="windows">Windows の場合<a class="headerlink" href="#windows" title="Permanent link">&para;</a></h4>
+<ol>
+<li><a href="https://dotnet.microsoft.com/download">.NET 公式サイト</a> から .NET 9.0 SDK をダウンロード</li>
+<li>インストーラーを実行し、指示に従ってインストール</li>
+<li>コマンドプロンプトまたは PowerShell で確認：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="n">dotnet</span> <span class="p">-</span><span class="n">-version</span>
+</code></pre></div>
+<h4 id="macos">macOS の場合<a class="headerlink" href="#macos" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Homebrew を使用</span>
+brew<span class="w"> </span>install<span class="w"> </span>--cask<span class="w"> </span>dotnet
+
+<span class="c1"># または公式インストーラーを使用</span>
+<span class="c1"># https://dotnet.microsoft.com/download からダウンロード</span>
+</code></pre></div>
+<h4 id="linux">Linux の場合<a class="headerlink" href="#linux" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Ubuntu/Debian の場合</span>
+wget<span class="w"> </span>https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb<span class="w"> </span>-O<span class="w"> </span>packages-microsoft-prod.deb
+sudo<span class="w"> </span>dpkg<span class="w"> </span>-i<span class="w"> </span>packages-microsoft-prod.deb
+sudo<span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>dotnet-sdk-9.0
+</code></pre></div>
+<h3 id="12">1.2 インストールの確認<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>--info
+</code></pre></div>
+<p>以下の出力が表示されることを確認：
+- .NET SDK: 9.0.x
+- Runtime: Microsoft.NETCore.App 9.0.x</p>
+<h2 id="2">2. 開発ツールのセットアップ<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21-ide">2.1 推奨 IDE<a class="headerlink" href="#21-ide" title="Permanent link">&para;</a></h3>
+<h4 id="visual-studio-code-ionide">Visual Studio Code + Ionide（推奨）<a class="headerlink" href="#visual-studio-code-ionide" title="Permanent link">&para;</a></h4>
+<ol>
+<li><a href="https://code.visualstudio.com/">Visual Studio Code</a> をインストール</li>
+<li>
+<p>Ionide 拡張機能をインストール：
+   <div class="highlight"><pre><span></span><code>code<span class="w"> </span>--install-extension<span class="w"> </span>Ionide.Ionide-fsharp
+</code></pre></div></p>
+</li>
+<li>
+<p>推奨拡張機能の追加インストール：
+   <div class="highlight"><pre><span></span><code>code<span class="w"> </span>--install-extension<span class="w"> </span>ms-dotnettools.vscode-dotnet-runtime
+code<span class="w"> </span>--install-extension<span class="w"> </span>humao.rest-client
+code<span class="w"> </span>--install-extension<span class="w"> </span>ms-vscode.vscode-json
+</code></pre></div></p>
+</li>
+</ol>
+<h4 id="jetbrains-rider">JetBrains Rider（代替案）<a class="headerlink" href="#jetbrains-rider" title="Permanent link">&para;</a></h4>
+<ul>
+<li><a href="https://www.jetbrains.com/rider/">Rider</a> をダウンロード・インストール</li>
+<li>F# プラグインが標準で含まれているため追加設定不要</li>
+</ul>
+<h3 id="22-f">2.2 F# 特有の設定<a class="headerlink" href="#22-f" title="Permanent link">&para;</a></h3>
+<h4 id="editorconfig">.editorconfig ファイルの作成<a class="headerlink" href="#editorconfig" title="Permanent link">&para;</a></h4>
+<p>プロジェクトルートに <code>.editorconfig</code> ファイルを作成：</p>
+<div class="highlight"><pre><span></span><code><span class="na">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+
+<span class="k">[*]</span>
+<span class="na">charset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">utf-8</span>
+<span class="na">end_of_line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">crlf</span>
+<span class="na">insert_final_newline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">indent_style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">space</span>
+<span class="na">indent_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+<span class="na">trim_trailing_whitespace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+
+<span class="k">[*.fs]</span>
+<span class="na">indent_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+
+<span class="k">[*.fsx]</span>
+<span class="na">indent_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+
+<span class="k">[*.{json,yml,yaml}]</span>
+<span class="na">indent_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+</code></pre></div>
+<h2 id="3">3. プロジェクト構造のセットアップ<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 ソリューションとプロジェクトの作成<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># ソリューションの作成</span>
+dotnet<span class="w"> </span>new<span class="w"> </span>sln<span class="w"> </span>-n<span class="w"> </span>DomainModelingMadeFunctional
+
+<span class="c1"># ディレクトリ構造の作成</span>
+mkdir<span class="w"> </span>src
+mkdir<span class="w"> </span>tests
+mkdir<span class="w"> </span>docs
+
+<span class="c1"># メインプロジェクト（ドメインライブラリ）</span>
+<span class="nb">cd</span><span class="w"> </span>src
+dotnet<span class="w"> </span>new<span class="w"> </span>classlib<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking
+
+<span class="c1"># Web API プロジェクト</span>
+dotnet<span class="w"> </span>new<span class="w"> </span>web<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking.WebApi
+
+<span class="c1"># テストプロジェクト</span>
+<span class="nb">cd</span><span class="w"> </span>../tests
+dotnet<span class="w"> </span>new<span class="w"> </span>xunit<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking.Tests
+
+<span class="c1"># ソリューションにプロジェクトを追加</span>
+<span class="nb">cd</span><span class="w"> </span>..
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>src/OrderTaking/OrderTaking.fsproj
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>src/OrderTaking.WebApi/OrderTaking.WebApi.fsproj
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>tests/OrderTaking.Tests/OrderTaking.Tests.fsproj
+</code></pre></div>
+<h3 id="32">3.2 プロジェクト構造<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>DomainModelingMadeFunctional/
+├── src/
+│   ├── OrderTaking/                    # ドメインライブラリ
+│   │   ├── Common.SimpleTypes.fs       # 基本型定義
+│   │   ├── Common.CompoundTypes.fs     # 複合型定義
+│   │   ├── PlaceOrder.PublicTypes.fs   # パブリック型
+│   │   ├── PlaceOrder.Implementation.fs # ビジネスロジック
+│   │   ├── PlaceOrder.Dto.fs           # データ転送オブジェクト
+│   │   └── PlaceOrder.Api.fs           # API 層
+│   └── OrderTaking.WebApi/             # Web API プロジェクト
+│       ├── Program.fs                  # エントリーポイント
+│       └── Controllers/                # API コントローラー
+├── tests/
+│   └── OrderTaking.Tests/              # テストプロジェクト
+├── docs/                               # ドキュメント
+└── DomainModelingMadeFunctional.sln    # ソリューション
+</code></pre></div>
+<h2 id="4">4. 依存関係の設定<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41-ordertaking">4.1 ドメインライブラリ（OrderTaking）<a class="headerlink" href="#41-ordertaking" title="Permanent link">&para;</a></h3>
+<p><code>src/OrderTaking/OrderTaking.fsproj</code> を編集：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net9.0<span class="nt">&lt;/TargetFramework&gt;</span>
+<span class="w">    </span><span class="nt">&lt;GenerateDocumentationFile&gt;</span>true<span class="nt">&lt;/GenerateDocumentationFile&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Nullable&gt;</span>enable<span class="nt">&lt;/Nullable&gt;</span>
+<span class="w">    </span><span class="nt">&lt;TreatWarningsAsErrors&gt;</span>true<span class="nt">&lt;/TreatWarningsAsErrors&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Common.SimpleTypes.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Common.CompoundTypes.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;PlaceOrder.PublicTypes.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;PlaceOrder.Implementation.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;PlaceOrder.Dto.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;PlaceOrder.Api.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+
+<span class="nt">&lt;/Project&gt;</span>
+</code></pre></div>
+<h3 id="42-web-api-ordertakingwebapi">4.2 Web API プロジェクト（OrderTaking.WebApi）<a class="headerlink" href="#42-web-api-ordertakingwebapi" title="Permanent link">&para;</a></h3>
+<p><code>src/OrderTaking.WebApi/OrderTaking.WebApi.fsproj</code> を編集：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk.Web&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net9.0<span class="nt">&lt;/TargetFramework&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Nullable&gt;</span>enable<span class="nt">&lt;/Nullable&gt;</span>
+<span class="w">    </span><span class="nt">&lt;TreatWarningsAsErrors&gt;</span>true<span class="nt">&lt;/TreatWarningsAsErrors&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Program.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Microsoft.AspNetCore.OpenApi&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;9.0.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Microsoft.EntityFrameworkCore.InMemory&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;9.0.3&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;NSwag.AspNetCore&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;14.2.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;System.Text.Json&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;5.0.2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking/OrderTaking.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+
+<span class="nt">&lt;/Project&gt;</span>
+</code></pre></div>
+<h3 id="43-ordertakingtests">4.3 テストプロジェクト（OrderTaking.Tests）<a class="headerlink" href="#43-ordertakingtests" title="Permanent link">&para;</a></h3>
+<p><code>tests/OrderTaking.Tests/OrderTaking.Tests.fsproj</code> を編集：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;TargetFramework&gt;</span>net9.0<span class="nt">&lt;/TargetFramework&gt;</span>
+<span class="w">    </span><span class="nt">&lt;IsPackable&gt;</span>false<span class="nt">&lt;/IsPackable&gt;</span>
+<span class="w">    </span><span class="nt">&lt;GenerateDocumentationFile&gt;</span>false<span class="nt">&lt;/GenerateDocumentationFile&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Nullable&gt;</span>enable<span class="nt">&lt;/Nullable&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Tests.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Compile</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Program.fs&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Microsoft.NET.Test.Sdk&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;17.12.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;xunit&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.9.2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;xunit.runner.visualstudio&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.8.2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;FsUnit.xUnit&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.0.1&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;coverlet.collector&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.0.2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../../src/OrderTaking/OrderTaking.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+
+<span class="nt">&lt;/Project&gt;</span>
+</code></pre></div>
+<h2 id="5-f">5. F# 特有の設定<a class="headerlink" href="#5-f" title="Permanent link">&para;</a></h2>
+<h3 id="51-f-90">5.1 F# 9.0 機能の有効化<a class="headerlink" href="#51-f-90" title="Permanent link">&para;</a></h3>
+<p>各プロジェクトファイルで以下の設定を確認：</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;PropertyGroup&gt;</span>
+<span class="w">  </span><span class="nt">&lt;TargetFramework&gt;</span>net9.0<span class="nt">&lt;/TargetFramework&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Nullable&gt;</span>enable<span class="nt">&lt;/Nullable&gt;</span>
+<span class="w">  </span><span class="nt">&lt;TreatWarningsAsErrors&gt;</span>true<span class="nt">&lt;/TreatWarningsAsErrors&gt;</span>
+<span class="nt">&lt;/PropertyGroup&gt;</span>
+</code></pre></div>
+<h3 id="52-f">5.2 F# ファイルの編集順序<a class="headerlink" href="#52-f" title="Permanent link">&para;</a></h3>
+<p>F# はコンパイル順序が重要です。依存関係を考慮した順序で <code>&lt;Compile Include=""&gt;</code> を設定してください。</p>
+<h2 id="6">6. 開発ツールの設定<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 テスト自動化の設定<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<h4 id="test-automationjson">test-automation.json の作成<a class="headerlink" href="#test-automationjson" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;testFramework&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xunit&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;testProjects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/OrderTaking.Tests/OrderTaking.Tests.fsproj&quot;</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;coverage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tool&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;coverlet&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;formats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;html&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;cobertura&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;linting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;tool&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FSharpLint&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;configFile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fsharplint.json&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="fsharplintjson">fsharplint.json の作成<a class="headerlink" href="#fsharplintjson" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;typographyRules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;indentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;numberOfIndentationSpaces&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;maxLinesInFile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;maxLines&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;conventionRules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;naming&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;pattern&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^[A-Z][a-zA-Z0-9]*$&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;applies&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;modules&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="62">6.2 コードフォーマッターの設定<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<h4 id="configdotnet-toolsjson">.config/dotnet-tools.json<a class="headerlink" href="#configdotnet-toolsjson" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;isRoot&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fantomas&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6.3.9&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;commands&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;fantomas&quot;</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;fsharplint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.21.7&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;commands&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">&quot;fsharplint&quot;</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="editorconfig-fantomas">.editorconfig での Fantomas 設定<a class="headerlink" href="#editorconfig-fantomas" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">[*.fs]</span>
+<span class="na">fsharp_space_before_parameter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">fsharp_space_before_lowercase_invocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">fsharp_space_before_uppercase_invocation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">fsharp_space_before_class_constructor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">fsharp_space_before_member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">fsharp_space_before_colon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">fsharp_space_after_comma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">fsharp_space_before_semicolon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">fsharp_space_after_semicolon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">fsharp_indent_on_try_with</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">fsharp_space_around_delimiter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+</code></pre></div>
+<h2 id="7-git">7. Git 設定<a class="headerlink" href="#7-git" title="Permanent link">&para;</a></h2>
+<h3 id="71-gitignore">7.1 .gitignore ファイル<a class="headerlink" href="#71-gitignore" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>## Ignore Visual Studio temporary files, build results, and
+## files generated by popular Visual Studio add-ons.
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# StyleCop
+StyleCopReport.xml
+
+# Files built by Visual Studio
+*_i.c
+*_p.c
+*_i.h
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+.builds
+*.pidb
+*.svclog
+*.scc
+
+# Chutzpah Test files
+_Chutzpah*
+
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# TFS 2012 Local Workspace
+$tf/
+
+# Guidance Automation Toolkit
+*.gpState
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# JustCode is a .NET coding add-in
+.JustCode
+
+# TeamCity is a build add-in
+_TeamCity*
+
+# DotCover is a Code Coverage Tool
+*.dotCover
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+# MightyMoose
+*.mm.*
+AutoTest.Net/
+
+# Web workbench (sass)
+.sass-cache/
+
+# Installshield output folder
+[Ee]xpress/
+
+# DocProject is a documentation generator add-in
+DocProject/buildhelp/
+DocProject/Help/*.HxT
+DocProject/Help/*.HxC
+DocProject/Help/*.hhc
+DocProject/Help/*.hhk
+DocProject/Help/*.hhp
+DocProject/Help/Html2
+DocProject/Help/html
+
+# Click-Once directory
+publish/
+
+# Publish Web Output
+*.[Pp]ublish.xml
+*.azurePubxml
+# TODO: Comment the next line if you want to checkin your web deploy settings
+# but database connection strings (with potential passwords) will be unencrypted
+*.pubxml
+*.publishproj
+
+# Microsoft Azure Web App publish settings. Comment the next line if you want to
+# checkin your Azure Web App publish settings, but sensitive information contained
+# in these files may be inadvertently shared
+*.azurePubxml
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/packages/repositories.config
+# NuGet v3&#39;s project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
+
+# Microsoft Azure Build Output
+csx/
+*.build.csdef
+
+# Microsoft Azure Emulator
+ecf/
+rcf/
+
+# Windows Store app package directories and files
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+
+# Visual Studio cache files
+# files ending in .cache can be ignored
+*.[Cc]ache
+# but keep track of directories ending in .cache
+!*.[Cc]ache/
+
+# Others
+ClientBin/
+~$*
+*~
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+orleans.codegen.cs
+
+# Since there are multiple workflows, uncomment the next line to ignore bower_components
+# (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)
+#bower_components/
+
+# RIA/Silverlight projects
+Generated_Code/
+
+# Backup &amp; report files from converting an old project file
+# to a newer Visual Studio version. Backup files are not needed,
+# because we have git ;-)
+_UpgradeReport_Files/
+Backup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Business Intelligence projects
+*.rdl.data
+*.bim.layout
+*.bim_*.settings
+
+# Microsoft Fakes
+FakesAssemblies/
+
+# GhostDoc plugin setting file
+*.GhostDoc.xml
+
+# Node.js Tools for Visual Studio
+.ntvs_analysis.dat
+node_modules/
+
+# Typescript v1 declaration files
+typings/
+
+# Visual Studio 6 build log
+*.plg
+
+# Visual Studio 6 workspace options file
+*.opt
+
+# Visual Studio 6 auto-generated workspace file (contains which files were open etc.)
+*.vbw
+
+# Visual Studio LightSwitch build output
+**/*.HTMLClient/GeneratedArtifacts
+**/*.DesktopClient/GeneratedArtifacts
+**/*.DesktopClient/ModelManifest.xml
+**/*.Server/GeneratedArtifacts
+**/*.Server/ModelManifest.xml
+_Pvt_Extensions
+
+# Paket dependency manager
+.paket/paket.exe
+paket-files/
+
+# FAKE - F# Make
+.fake/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# CodeRush
+.cr/
+
+# Python Tools for Visual Studio (PTVS)
+__pycache__/
+*.pyc
+
+# Cake - Uncomment if you are using it
+# tools/**
+# !tools/packages.config
+
+# Telerik&#39;s JustMock configuration file
+*.jmconfig
+
+# BizTalk build output
+*.btp.cs
+*.btm.cs
+*.odx.cs
+*.xsd.cs
+
+# F# project-specific
+.ionide/
+</code></pre></div>
+<h3 id="72">7.2 初期コミット<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>init
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: initial F# project setup with domain modeling structure&quot;</span>
+</code></pre></div>
+<h2 id="8">8. ビルドとテストの実行<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<h3 id="81">8.1 依存関係の復元<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>restore
+</code></pre></div>
+<h3 id="82">8.2 ビルド<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>build
+</code></pre></div>
+<h3 id="83">8.3 テスト実行<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span><span class="nb">test</span>
+</code></pre></div>
+<h3 id="84">8.4 フォーマットとリント<a class="headerlink" href="#84" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># コードフォーマット</span>
+dotnet<span class="w"> </span>fantomas<span class="w"> </span>.<span class="w"> </span>--recurse
+
+<span class="c1"># リント実行</span>
+dotnet<span class="w"> </span>fsharplint<span class="w"> </span>lint<span class="w"> </span>--format<span class="w"> </span>msbuild
+</code></pre></div>
+<h2 id="9">9. サンプルコードの実装<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="91-commonsimpletypesfs">9.1 基本型の定義（Common.SimpleTypes.fs）<a class="headerlink" href="#91-commonsimpletypesfs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span><span class="w"> </span><span class="nn">OrderTaking</span><span class="p">.</span><span class="n">Common</span>
+
+<span class="c1">// 制約付き基本型</span>
+<span class="k">type</span><span class="w"> </span><span class="nc">String50</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">String50</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="kt">string</span>
+
+<span class="k">module</span><span class="w"> </span><span class="nn">String50</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">create</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nn">String</span><span class="p">.</span><span class="n">length</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="o">(</span><span class="nn">String</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="w"> </span><span class="n">str</span><span class="o">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="n">Ok</span><span class="w"> </span><span class="o">(</span><span class="n">String50</span><span class="w"> </span><span class="n">str</span><span class="o">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">            </span><span class="n">Error</span><span class="w"> </span><span class="s">&quot;String must be 1-50 characters&quot;</span>
+
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">(</span><span class="n">String50</span><span class="w"> </span><span class="n">str</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">str</span>
+
+<span class="k">type</span><span class="w"> </span><span class="nc">EmailAddress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">EmailAddress</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="kt">string</span>
+
+<span class="k">module</span><span class="w"> </span><span class="nn">EmailAddress</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">create</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">String</span><span class="p">.</span><span class="n">contains</span><span class="w"> </span><span class="s">&quot;@&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">String</span><span class="p">.</span><span class="n">contains</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="n">Ok</span><span class="w"> </span><span class="o">(</span><span class="n">EmailAddress</span><span class="w"> </span><span class="n">str</span><span class="o">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">            </span><span class="n">Error</span><span class="w"> </span><span class="s">&quot;Invalid email format&quot;</span>
+
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">(</span><span class="n">EmailAddress</span><span class="w"> </span><span class="n">email</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">email</span>
+
+<span class="k">type</span><span class="w"> </span><span class="nc">OrderId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">private</span><span class="w"> </span><span class="n">OrderId</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="kt">string</span>
+
+<span class="k">module</span><span class="w"> </span><span class="nn">OrderId</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">create</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="o">(</span><span class="nn">String</span><span class="p">.</span><span class="n">IsNullOrWhiteSpace</span><span class="w"> </span><span class="n">str</span><span class="o">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="n">Ok</span><span class="w"> </span><span class="o">(</span><span class="n">OrderId</span><span class="w"> </span><span class="n">str</span><span class="o">)</span>
+<span class="w">        </span><span class="k">else</span>
+<span class="w">            </span><span class="n">Error</span><span class="w"> </span><span class="s">&quot;OrderId cannot be empty&quot;</span>
+
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">(</span><span class="n">OrderId</span><span class="w"> </span><span class="n">id</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">id</span>
+</code></pre></div>
+<h3 id="92-programfs-api">9.2 Program.fs（最小 API）<a class="headerlink" href="#92-programfs-api" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">open</span><span class="w"> </span><span class="nn">Microsoft.AspNetCore.Builder</span>
+<span class="k">open</span><span class="w"> </span><span class="nn">Microsoft.Extensions.DependencyInjection</span>
+<span class="k">open</span><span class="w"> </span><span class="nn">Microsoft.Extensions.Hosting</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">WebApplication</span><span class="p">.</span><span class="n">CreateBuilder</span><span class="bp">()</span>
+
+<span class="c1">// サービス設定</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">Services</span><span class="o">.</span><span class="n">AddOpenApi</span><span class="bp">()</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">ignore</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="o">.</span><span class="n">Build</span><span class="bp">()</span>
+
+<span class="c1">// 開発環境でのみ Swagger UI を有効化</span>
+<span class="k">if</span><span class="w"> </span><span class="n">app</span><span class="o">.</span><span class="n">Environment</span><span class="o">.</span><span class="n">IsDevelopment</span><span class="bp">()</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="n">app</span><span class="o">.</span><span class="n">MapOpenApi</span><span class="bp">()</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">ignore</span>
+
+<span class="c1">// ヘルスチェックエンドポイント</span>
+<span class="n">app</span><span class="o">.</span><span class="n">MapGet</span><span class="o">(</span><span class="s">&quot;/health&quot;</span><span class="o">,</span><span class="w"> </span><span class="k">fun</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;OK&quot;</span><span class="w"> </span><span class="o">})</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">ignore</span>
+
+<span class="c1">// 注文エンドポイント（プレースホルダー）</span>
+<span class="n">app</span><span class="o">.</span><span class="n">MapGet</span><span class="o">(</span><span class="s">&quot;/orders&quot;</span><span class="o">,</span><span class="w"> </span><span class="k">fun</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="bp">[]</span><span class="w"> </span><span class="o">})</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">ignore</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">Run</span><span class="bp">()</span>
+</code></pre></div>
+<h2 id="10">10. 動作確認<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="101">10.1 アプリケーションの起動<a class="headerlink" href="#101" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>src/OrderTaking.WebApi
+dotnet<span class="w"> </span>run
+</code></pre></div>
+<h3 id="102">10.2 エンドポイントの確認<a class="headerlink" href="#102" title="Permanent link">&para;</a></h3>
+<p>ブラウザまたは curl で以下にアクセス：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ヘルスチェック</span>
+curl<span class="w"> </span>http://localhost:5000/health
+
+<span class="c1"># Swagger UI（開発環境）</span>
+<span class="c1"># http://localhost:5000/swagger にアクセス</span>
+</code></pre></div>
+<h2 id="11">11. トラブルシューティング<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<h3 id="111">11.1 よくある問題<a class="headerlink" href="#111" title="Permanent link">&para;</a></h3>
+<h4 id="f_1">F# コンパイルエラー<a class="headerlink" href="#f_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>error FS0039: The field, constructor or member &#39;X&#39; is not defined.
+</code></pre></div>
+<p><strong>解決策</strong>: ファイルの順序を確認し、依存関係順に並べる</p>
+<h4 id="nuget">NuGet パッケージエラー<a class="headerlink" href="#nuget" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># パッケージキャッシュのクリア</span>
+dotnet<span class="w"> </span>nuget<span class="w"> </span>locals<span class="w"> </span>all<span class="w"> </span>--clear
+
+<span class="c1"># 依存関係の再復元</span>
+dotnet<span class="w"> </span>restore<span class="w"> </span>--force
+</code></pre></div>
+<h3 id="112">11.2 パフォーマンス最適化<a class="headerlink" href="#112" title="Permanent link">&para;</a></h3>
+<ul>
+<li>プロジェクトファイル内でのコンパイル順序最適化</li>
+<li>不要な依存関係の除去</li>
+<li>F# Interactive (FSI) の活用</li>
+</ul>
+<h2 id="_3">まとめ<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>本ガイドに従って環境構築を行うことで、F# による関数型ドメインモデリングと ASP.NET Core 最小 API を組み合わせた開発環境が整います。</p>
+<p>次のステップとして、以下のドキュメントを参照してください：</p>
+<ul>
+<li><a href="../%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E3%83%A2%E3%83%87%E3%83%AB%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/">ドメインモデル設計ガイド</a></li>
+<li><a href="../%E3%83%86%E3%82%B9%E3%83%88%E6%88%A6%E7%95%A5%E3%82%AC%E3%82%A4%E3%83%89/">テスト戦略ガイド</a></li>
+<li><a href="../%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/">アーキテクチャ設計ガイド</a></li>
+</ul>
+<p>環境構築で問題が発生した場合は、本ガイドのトラブルシューティングセクションを参照するか、プロジェクトの Issue トラッカーに報告してください。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/k2works" target="_blank" rel="noopener" title="GitHub Repository/claude-code-booster" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+      
+        <script src="../../docs/assets/js/extra.js"></script>
+      
+    
+  </body>
+</html>
