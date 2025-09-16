@@ -33,48 +33,48 @@ type OrderRepositoryTests() =
                         .Options
         new OrderContext(options)
 
-    let createValidPricedOrder() : PricedOrder =
-        let orderId = OrderId.create "ORDER001" |> function | Ok v -> v | Error e -> failwith e
-        let name = String50.create "田中太郎" |> function | Ok v -> v | Error e -> failwith e
-        let email = EmailAddress.create "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
+    let createValidPricedOrder() : 価格計算済注文 =
+        let orderId = 注文ID.作成 "ORDER001" |> function | Ok v -> v | Error e -> failwith e
+        let name = 文字列50.作成 "田中太郎" |> function | Ok v -> v | Error e -> failwith e
+        let email = メールアドレス.作成 "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
 
-        let address : Address = {
-            AddressLine1 = String50.create "東京都渋谷区" |> function | Ok v -> v | Error e -> failwith e
-            AddressLine2 = None
-            City = String50.create "渋谷区" |> function | Ok v -> v | Error e -> failwith e
-            ZipCode = String50.create "150-0002" |> function | Ok v -> v | Error e -> failwith e
+        let address : 住所 = {
+            住所行1 = 文字列50.作成 "東京都渋谷区" |> function | Ok v -> v | Error e -> failwith e
+            住所行2 = None
+            都市 = 文字列50.作成 "渋谷区" |> function | Ok v -> v | Error e -> failwith e
+            郵便番号 = 文字列50.作成 "150-0002" |> function | Ok v -> v | Error e -> failwith e
         }
 
-        let widgetCode = WidgetCode.create "W1234" |> function | Ok v -> v | Error e -> failwith e
-        let quantity = UnitQuantity.create 5 |> function | Ok v -> v | Error e -> failwith e
+        let widgetCode = ウィジェットコード.作成 "W1234" |> function | Ok v -> v | Error e -> failwith e
+        let quantity = 単位数量.作成 5 |> function | Ok v -> v | Error e -> failwith e
 
         {
-            OrderId = orderId
-            CustomerInfo = {
-                Name = name
-                Email = email
+            注文ID = orderId
+            顧客情報 = {
+                名前 = name
+                メール = email
             }
-            ShippingAddress = address
-            BillingAddress = address
-            Lines = [
+            配送先住所 = address
+            請求先住所 = address
+            明細 = [
                 {
-                    OrderLineId = "LINE001"
-                    ProductCode = Widget widgetCode
-                    Quantity = Unit quantity
-                    LinePrice = 500.00m
+                    注文明細ID = "LINE001"
+                    商品コード = ウィジェット widgetCode
+                    数量 = 単位 quantity
+                    明細価格 = 500.00m
                 }
             ]
-            AmountToBill = 500.00m
+            請求金額 = 500.00m
         }
 
     [<Test>]
     member _.``注文を正常に保存できる``() =
         async {
             use context = createInMemoryContext()
-            let repository = OrderRepository(context) :> IOrderRepository
+            let repository = 注文リポジトリ(context) :> I注文リポジトリ
             let pricedOrder = createValidPricedOrder()
 
-            do! repository.SaveOrder(pricedOrder) |> Async.AwaitTask
+            do! repository.注文を保存(pricedOrder) |> Async.AwaitTask
 
             let savedOrder = context.Orders.FirstOrDefault(fun o -> o.OrderId = "ORDER001")
             Assert.That(savedOrder, Is.Not.Null)
@@ -85,7 +85,7 @@ type OrderRepositoryTests() =
             let savedLine = context.OrderLines.FirstOrDefault(fun l -> l.OrderId = "ORDER001")
             Assert.That(savedLine, Is.Not.Null)
             Assert.That(savedLine.OrderLineId, Is.EqualTo("LINE001"))
-            Assert.That(savedLine.ProductCode, Is.EqualTo("Widget W1234"))
+            Assert.That(savedLine.ProductCode, Is.EqualTo("ウィジェット W1234"))
             Assert.That(savedLine.Quantity, Is.EqualTo(5m))
             Assert.That(savedLine.LinePrice, Is.EqualTo(500.00m))
         } |> Async.RunSynchronously
@@ -94,50 +94,50 @@ type OrderRepositoryTests() =
     member _.``複数の注文明細を持つ注文を保存できる``() =
         async {
             use context = createInMemoryContext()
-            let repository = OrderRepository(context) :> IOrderRepository
+            let repository = 注文リポジトリ(context) :> I注文リポジトリ
 
-            let orderId = OrderId.create "ORDER002" |> function | Ok v -> v | Error e -> failwith e
-            let name = String50.create "佐藤花子" |> function | Ok v -> v | Error e -> failwith e
-            let email = EmailAddress.create "hanako@example.com" |> function | Ok v -> v | Error e -> failwith e
+            let orderId = 注文ID.作成 "ORDER002" |> function | Ok v -> v | Error e -> failwith e
+            let name = 文字列50.作成 "佐藤花子" |> function | Ok v -> v | Error e -> failwith e
+            let email = メールアドレス.作成 "hanako@example.com" |> function | Ok v -> v | Error e -> failwith e
 
-            let address : Address = {
-                AddressLine1 = String50.create "大阪府大阪市" |> function | Ok v -> v | Error e -> failwith e
-                AddressLine2 = None
-                City = String50.create "大阪市" |> function | Ok v -> v | Error e -> failwith e
-                ZipCode = String50.create "530-0001" |> function | Ok v -> v | Error e -> failwith e
+            let address : 住所 = {
+                住所行1 = 文字列50.作成 "大阪府大阪市" |> function | Ok v -> v | Error e -> failwith e
+                住所行2 = None
+                都市 = 文字列50.作成 "大阪市" |> function | Ok v -> v | Error e -> failwith e
+                郵便番号 = 文字列50.作成 "530-0001" |> function | Ok v -> v | Error e -> failwith e
             }
 
-            let widgetCode = WidgetCode.create "W5678" |> function | Ok v -> v | Error e -> failwith e
-            let gizmoCode = GizmoCode.create "G123" |> function | Ok v -> v | Error e -> failwith e
-            let unitQuantity = UnitQuantity.create 3 |> function | Ok v -> v | Error e -> failwith e
-            let kgQuantity = KilogramQuantity.create 2.5m |> function | Ok v -> v | Error e -> failwith e
+            let widgetCode = ウィジェットコード.作成 "W5678" |> function | Ok v -> v | Error e -> failwith e
+            let gizmoCode = ギズモコード.作成 "G123" |> function | Ok v -> v | Error e -> failwith e
+            let unitQuantity = 単位数量.作成 3 |> function | Ok v -> v | Error e -> failwith e
+            let kgQuantity = キログラム数量.作成 2.5m |> function | Ok v -> v | Error e -> failwith e
 
-            let pricedOrder : PricedOrder = {
-                OrderId = orderId
-                CustomerInfo = {
-                    Name = name
-                    Email = email
+            let pricedOrder : 価格計算済注文 = {
+                注文ID = orderId
+                顧客情報 = {
+                    名前 = name
+                    メール = email
                 }
-                ShippingAddress = address
-                BillingAddress = address
-                Lines = [
+                配送先住所 = address
+                請求先住所 = address
+                明細 = [
                     {
-                        OrderLineId = "LINE001"
-                        ProductCode = Widget widgetCode
-                        Quantity = Unit unitQuantity
-                        LinePrice = 300.00m
+                        注文明細ID = "LINE001"
+                        商品コード = ウィジェット widgetCode
+                        数量 = 単位 unitQuantity
+                        明細価格 = 300.00m
                     }
                     {
-                        OrderLineId = "LINE002"
-                        ProductCode = Gizmo gizmoCode
-                        Quantity = Kilogram kgQuantity
-                        LinePrice = 125.00m
+                        注文明細ID = "LINE002"
+                        商品コード = ギズモ gizmoCode
+                        数量 = キログラム kgQuantity
+                        明細価格 = 125.00m
                     }
                 ]
-                AmountToBill = 425.00m
+                請求金額 = 425.00m
             }
 
-            do! repository.SaveOrder(pricedOrder) |> Async.AwaitTask
+            do! repository.注文を保存(pricedOrder) |> Async.AwaitTask
 
             let savedOrder = context.Orders.FirstOrDefault(fun o -> o.OrderId = "ORDER002")
             Assert.That(savedOrder, Is.Not.Null)
@@ -148,12 +148,12 @@ type OrderRepositoryTests() =
             Assert.That(savedLines.Length, Is.EqualTo(2))
 
             let widgetLine = savedLines |> Seq.find (fun l -> l.OrderLineId = "LINE001")
-            Assert.That(widgetLine.ProductCode, Is.EqualTo("Widget W5678"))
+            Assert.That(widgetLine.ProductCode, Is.EqualTo("ウィジェット W5678"))
             Assert.That(widgetLine.Quantity, Is.EqualTo(3m))
             Assert.That(widgetLine.LinePrice, Is.EqualTo(300.00m))
 
             let gizmoLine = savedLines |> Seq.find (fun l -> l.OrderLineId = "LINE002")
-            Assert.That(gizmoLine.ProductCode, Is.EqualTo("Gizmo G123"))
+            Assert.That(gizmoLine.ProductCode, Is.EqualTo("ギズモ G123"))
             Assert.That(gizmoLine.Quantity, Is.EqualTo(2.5m))
             Assert.That(gizmoLine.LinePrice, Is.EqualTo(125.00m))
         } |> Async.RunSynchronously

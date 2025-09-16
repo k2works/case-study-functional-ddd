@@ -8,83 +8,88 @@ open System.Threading.Tasks
 // テスト用のヘルパー関数とモック
 module TestHelpers =
 
-    let createValidUnvalidatedOrder() : UnvalidatedOrder = {
-        OrderId = "ORDER001"
-        CustomerInfo = {
-            FirstName = "太郎"
-            LastName = "田中"
-            EmailAddress = "taro@example.com"
+    let createValidUnvalidatedOrder() : 未検証注文 = {
+        注文ID = "ORDER001"
+        顧客情報 = {
+            名 = "太郎"
+            姓 = "田中"
+            メールアドレス = "taro@example.com"
         }
-        ShippingAddress = {
-            AddressLine1 = "東京都渋谷区"
-            AddressLine2 = ""
-            City = "渋谷区"
-            ZipCode = "150-0002"
+        配送先住所 = {
+            住所行1 = "東京都渋谷区"
+            住所行2 = ""
+            都市 = "渋谷区"
+            郵便番号 = "150-0002"
         }
-        BillingAddress = {
-            AddressLine1 = "東京都港区"
-            AddressLine2 = ""
-            City = "港区"
-            ZipCode = "106-0032"
+        請求先住所 = {
+            住所行1 = "東京都港区"
+            住所行2 = ""
+            都市 = "港区"
+            郵便番号 = "106-0032"
         }
-        Lines = [
+        明細 = [
             {
-                OrderLineId = "LINE001"
-                ProductCode = "W1234"
-                Quantity = 5m
+                注文明細ID = "LINE001"
+                商品コード = "W1234"
+                数量 = 5m
             }
         ]
     }
 
-    let createValidAddress() : Address = {
-        AddressLine1 = String50.create "東京都渋谷区" |> function | Ok v -> v | Error e -> failwith e
-        AddressLine2 = None
-        City = String50.create "渋谷区" |> function | Ok v -> v | Error e -> failwith e
-        ZipCode = String50.create "150-0002" |> function | Ok v -> v | Error e -> failwith e
+    let createValidAddress() : 住所 = {
+        住所行1 = 文字列50.作成 "東京都渋谷区" |> function | Ok v -> v | Error e -> failwith e
+        住所行2 = None
+        都市 = 文字列50.作成 "渋谷区" |> function | Ok v -> v | Error e -> failwith e
+        郵便番号 = 文字列50.作成 "150-0002" |> function | Ok v -> v | Error e -> failwith e
     }
 
     // モック関数の作成
-    let mockCheckProductCodeExists: CheckProductCodeExists =
+    let mockCheckProductCodeExists: 商品コード存在確認 =
         fun productCode -> true
 
-    let mockGetProductPrice: GetProductPrice =
+    let mockGetProductPrice: 商品価格取得 =
         fun productCode ->
             match productCode with
-            | Widget _ -> Some 100.00m
-            | Gizmo _ -> Some 50.00m
+            | ウィジェット _ -> Some 100.00m
+            | ギズモ _ -> Some 50.00m
 
-    let mockCheckAddressExists: CheckAddressExists =
+    let mockCheckAddressExists: 住所存在確認 =
         fun unvalidatedAddress ->
             async {
-                let line1Result = String50.create unvalidatedAddress.AddressLine1 |> Result.mapError (fun _ -> FieldIsMissing "AddressLine1")
-                let cityResult = String50.create unvalidatedAddress.City |> Result.mapError (fun _ -> FieldIsMissing "City")
-                let zipResult = String50.create unvalidatedAddress.ZipCode |> Result.mapError (fun _ -> FieldIsMissing "ZipCode")
+                let line1Result = 文字列50.作成 unvalidatedAddress.住所行1 |> Result.mapError (fun _ -> フィールド欠如 "AddressLine1")
+                let cityResult = 文字列50.作成 unvalidatedAddress.都市 |> Result.mapError (fun _ -> フィールド欠如 "City")
+                let zipResult = 文字列50.作成 unvalidatedAddress.郵便番号 |> Result.mapError (fun _ -> フィールド欠如 "ZipCode")
 
                 match line1Result, cityResult, zipResult with
                 | Ok line1, Ok city, Ok zip ->
                     let line2 =
-                        if System.String.IsNullOrWhiteSpace(unvalidatedAddress.AddressLine2)
+                        if System.String.IsNullOrWhiteSpace(unvalidatedAddress.住所行2)
                         then None
-                        else String50.create unvalidatedAddress.AddressLine2 |> Result.toOption
+                        else
+                            match 文字列50.作成 unvalidatedAddress.住所行2 with
+                            | Ok value -> Some value
+                            | Error _ -> None
 
-                    return Ok {
-                        AddressLine1 = line1
-                        AddressLine2 = line2
-                        City = city
-                        ZipCode = zip
+                    let 住所: 住所 = {
+                        住所行1 = line1
+                        住所行2 = line2
+                        都市 = city
+                        郵便番号 = zip
                     }
+                    return Ok 住所
                 | Error e, _, _ -> return Error e
                 | _, Error e, _ -> return Error e
                 | _, _, Error e -> return Error e
             }
 
-    let mockSendOrderAcknowledgment: SendOrderAcknowledgment =
+    let mockSendOrderAcknowledgment: 注文確認送信 =
         fun pricedOrder ->
             async {
-                return Ok {
-                    OrderId = pricedOrder.OrderId
-                    EmailAddress = pricedOrder.CustomerInfo.Email
+                let 確認: 確認送信完了 = {
+                    注文ID = pricedOrder.注文ID
+                    メールアドレス = pricedOrder.顧客情報.メール
                 }
+                return Ok 確認
             }
 
 [<TestFixture>]
@@ -95,16 +100,16 @@ type ValidateOrderTests() =
         async {
             let unvalidatedOrder = TestHelpers.createValidUnvalidatedOrder()
 
-            let! result = OrderWorkflows.validateOrder
+            let! result = 注文ワークフロー.注文を検証
                             TestHelpers.mockCheckProductCodeExists
                             TestHelpers.mockCheckAddressExists
                             unvalidatedOrder
 
             match result with
             | Ok validatedOrder ->
-                Assert.That(OrderId.value validatedOrder.OrderId, Is.EqualTo("ORDER001"))
-                Assert.That(String50.value validatedOrder.CustomerInfo.Name, Does.Contain("太郎"))
-                Assert.That(validatedOrder.Lines.Length, Is.EqualTo(1))
+                Assert.That(注文ID.値 validatedOrder.注文ID, Is.EqualTo("ORDER001"))
+                Assert.That(文字列50.値 validatedOrder.顧客情報.名前, Does.Contain("太郎"))
+                Assert.That(validatedOrder.明細.Length, Is.EqualTo(1))
             | Error error ->
                 Assert.Fail($"検証に失敗しました: {error}")
         } |> Async.RunSynchronously
@@ -114,10 +119,10 @@ type ValidateOrderTests() =
         async {
             let invalidOrder = {
                 TestHelpers.createValidUnvalidatedOrder() with
-                    Lines = [{ OrderLineId = "1"; ProductCode = "INVALID"; Quantity = 1m }]
+                    明細 = [{ 注文明細ID = "1"; 商品コード = "INVALID"; 数量 = 1m }]
             }
 
-            let! result = OrderWorkflows.validateOrder
+            let! result = 注文ワークフロー.注文を検証
                             TestHelpers.mockCheckProductCodeExists
                             TestHelpers.mockCheckAddressExists
                             invalidOrder
@@ -133,87 +138,87 @@ type PriceOrderTests() =
 
     [<Test>]
     member _.``注文の価格計算が正しく行われる``() =
-        let validatedOrder : ValidatedOrder = {
-            OrderId = OrderId.create "ORDER001" |> function | Ok v -> v | Error e -> failwith e
-            CustomerInfo = {
-                Name = String50.create "田中太郎" |> function | Ok v -> v | Error e -> failwith e
-                Email = EmailAddress.create "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
+        let validatedOrder : 検証済注文 = {
+            注文ID = 注文ID.作成 "ORDER001" |> function | Ok v -> v | Error e -> failwith e
+            顧客情報 = {
+                名前 = 文字列50.作成 "田中太郎" |> function | Ok v -> v | Error e -> failwith e
+                メール = メールアドレス.作成 "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
             }
-            ShippingAddress = TestHelpers.createValidAddress()
-            BillingAddress = TestHelpers.createValidAddress()
-            Lines = [
+            配送先住所 = TestHelpers.createValidAddress()
+            請求先住所 = TestHelpers.createValidAddress()
+            明細 = [
                 {
-                    OrderLineId = "LINE001"
-                    ProductCode = Widget (WidgetCode.create "W1234" |> function | Ok v -> v | Error e -> failwith e)
-                    Quantity = Unit (UnitQuantity.create 5 |> function | Ok v -> v | Error e -> failwith e)
+                    注文明細ID = "LINE001"
+                    商品コード = ウィジェット (ウィジェットコード.作成 "W1234" |> function | Ok v -> v | Error e -> failwith e)
+                    数量 = 単位 (単位数量.作成 5 |> function | Ok v -> v | Error e -> failwith e)
                 }
             ]
         }
 
-        let result = OrderWorkflows.priceOrder TestHelpers.mockGetProductPrice validatedOrder
+        let result = 注文ワークフロー.注文価格を計算 TestHelpers.mockGetProductPrice validatedOrder
 
         match result with
         | Ok pricedOrder ->
-            Assert.That(pricedOrder.AmountToBill, Is.EqualTo(500.00m))
-            Assert.That(pricedOrder.Lines.Head.LinePrice, Is.EqualTo(500.00m))
+            Assert.That(pricedOrder.請求金額, Is.EqualTo(500.00m))
+            Assert.That(pricedOrder.明細.Head.明細価格, Is.EqualTo(500.00m))
         | Error error ->
             Assert.Fail($"価格計算に失敗しました: {error}")
 
     [<Test>]
     member _.``存在しない商品の価格計算はエラーになる``() =
-        let mockGetProductPriceNotFound: GetProductPrice = fun _ -> None
+        let mockGetProductPriceNotFound: 商品価格取得 = fun _ -> None
 
-        let validatedOrder : ValidatedOrder = {
-            OrderId = OrderId.create "ORDER001" |> function | Ok v -> v | Error e -> failwith e
-            CustomerInfo = {
-                Name = String50.create "田中太郎" |> function | Ok v -> v | Error e -> failwith e
-                Email = EmailAddress.create "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
+        let validatedOrder : 検証済注文 = {
+            注文ID = 注文ID.作成 "ORDER001" |> function | Ok v -> v | Error e -> failwith e
+            顧客情報 = {
+                名前 = 文字列50.作成 "田中太郎" |> function | Ok v -> v | Error e -> failwith e
+                メール = メールアドレス.作成 "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
             }
-            ShippingAddress = TestHelpers.createValidAddress()
-            BillingAddress = TestHelpers.createValidAddress()
-            Lines = [
+            配送先住所 = TestHelpers.createValidAddress()
+            請求先住所 = TestHelpers.createValidAddress()
+            明細 = [
                 {
-                    OrderLineId = "LINE001"
-                    ProductCode = Widget (WidgetCode.create "W1234" |> function | Ok v -> v | Error e -> failwith e)
-                    Quantity = Unit (UnitQuantity.create 5 |> function | Ok v -> v | Error e -> failwith e)
+                    注文明細ID = "LINE001"
+                    商品コード = ウィジェット (ウィジェットコード.作成 "W1234" |> function | Ok v -> v | Error e -> failwith e)
+                    数量 = 単位 (単位数量.作成 5 |> function | Ok v -> v | Error e -> failwith e)
                 }
             ]
         }
 
-        let result = OrderWorkflows.priceOrder mockGetProductPriceNotFound validatedOrder
+        let result = 注文ワークフロー.注文価格を計算 mockGetProductPriceNotFound validatedOrder
 
         match result with
         | Ok _ -> Assert.Fail("存在しない商品でも価格計算が成功しました")
-        | Error (ProductNotFound _) -> Assert.Pass()
+        | Error (商品が見つからない _) -> Assert.Pass()
 
 [<TestFixture>]
 type CreateEventsTests() =
 
     [<Test>]
     member _.``イベントが正しく生成される``() =
-        let pricedOrder : PricedOrder = {
-            OrderId = OrderId.create "ORDER001" |> function | Ok v -> v | Error e -> failwith e
-            CustomerInfo = {
-                Name = String50.create "田中太郎" |> function | Ok v -> v | Error e -> failwith e
-                Email = EmailAddress.create "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
+        let pricedOrder : 価格計算済注文 = {
+            注文ID = 注文ID.作成 "ORDER001" |> function | Ok v -> v | Error e -> failwith e
+            顧客情報 = {
+                名前 = 文字列50.作成 "田中太郎" |> function | Ok v -> v | Error e -> failwith e
+                メール = メールアドレス.作成 "taro@example.com" |> function | Ok v -> v | Error e -> failwith e
             }
-            ShippingAddress = TestHelpers.createValidAddress()
-            BillingAddress = TestHelpers.createValidAddress()
-            Lines = []
-            AmountToBill = 1000.00m
+            配送先住所 = TestHelpers.createValidAddress()
+            請求先住所 = TestHelpers.createValidAddress()
+            明細 = []
+            請求金額 = 1000.00m
         }
 
         let acknowledgment = Some {
-            OrderId = pricedOrder.OrderId
-            EmailAddress = pricedOrder.CustomerInfo.Email
+            注文ID = pricedOrder.注文ID
+            メールアドレス = pricedOrder.顧客情報.メール
         }
 
-        let events = OrderWorkflows.createEvents pricedOrder acknowledgment
+        let events = 注文ワークフロー.イベントを作成 pricedOrder acknowledgment
 
         Assert.That(events.Length, Is.GreaterThanOrEqualTo(2))
-        Assert.That(events |> List.exists (function OrderPlaced _ -> true | _ -> false), Is.True)
-        Assert.That(events |> List.exists (function BillableOrderPlaced _ -> true | _ -> false), Is.True)
-        Assert.That(events |> List.exists (function AcknowledgmentSent _ -> true | _ -> false), Is.True)
+        Assert.That(events |> List.exists (function 注文受付 _ -> true | _ -> false), Is.True)
+        Assert.That(events |> List.exists (function 請求対象注文受付 _ -> true | _ -> false), Is.True)
+        Assert.That(events |> List.exists (function 確認送信完了 _ -> true | _ -> false), Is.True)
 
 [<TestFixture>]
 type PlaceOrderWorkflowTests() =
@@ -223,7 +228,7 @@ type PlaceOrderWorkflowTests() =
         async {
             let unvalidatedOrder = TestHelpers.createValidUnvalidatedOrder()
 
-            let workflow = OrderWorkflows.placeOrder
+            let workflow = 注文ワークフロー.注文を受け付け
                             TestHelpers.mockCheckProductCodeExists
                             TestHelpers.mockGetProductPrice
                             TestHelpers.mockCheckAddressExists
@@ -235,9 +240,9 @@ type PlaceOrderWorkflowTests() =
             | Ok events ->
                 Assert.That(events.Length, Is.GreaterThan(0))
                 Assert.That(
-                    events |> List.exists (function OrderPlaced _ -> true | _ -> false),
+                    events |> List.exists (function 注文受付 _ -> true | _ -> false),
                     Is.True,
-                    "OrderPlacedイベントが生成されていません"
+                    "注文受付イベントが生成されていません"
                 )
             | Error error ->
                 Assert.Fail($"ワークフローが失敗しました: {error}")
