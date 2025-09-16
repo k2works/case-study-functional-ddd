@@ -1,0 +1,3120 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="F#の関数型プログラミングとドメイン駆動設計による注文受付システムの実装ガイド">
+      
+      
+        <meta name="author" content="Project Team">
+      
+      
+      
+        <link rel="prev" href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/">
+      
+      
+        <link rel="next" href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%803/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>テスト駆動開発から始めるF#入門2 - 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../docs/mkdocs/assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#f" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-header__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              テスト駆動開発から始めるF#入門2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ホーム
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../requirements/requirements_definition/" class="md-tabs__link">
+          
+  
+  
+  要件定義
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/architecture/" class="md-tabs__link">
+          
+  
+  
+  設計
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-tabs__link">
+          
+  
+  
+  実装ガイド
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-tabs__link">
+          
+  
+  
+  F# 学習教材
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-tabs__link">
+          
+  
+  
+  開発理念
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-nav__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ホーム
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            要件定義
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/requirements_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/business_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ビジネスユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/system_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    システムユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/user_story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ユーザーストーリー
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    設計
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            設計
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/domain_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ドメインモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    データモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/tech_stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    技術スタック
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/test_strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    実装ガイド
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            実装ガイド
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# API構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../UI%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UI設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E6%88%A6%E7%95%A5%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    F# 学習教材
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            F# 学習教材
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第1部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第2部
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第2部
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      序章: ソフトウェア開発の三種の神器とは
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="序章: ソフトウェア開発の三種の神器とは">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      よいソフトウェアを支える基盤技術
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      なぜこれらが「神器」なのか
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      F#開発における現代的な開発環境
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      本記事の進め方
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      第1章: バージョン管理（Git）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="第1章: バージョン管理（Git）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      バージョン管理の必要性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gitの基本概念
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fgit" class="md-nav__link">
+    <span class="md-ellipsis">
+      F#プロジェクトでのGit活用
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="F#プロジェクトでのGit活用">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      プロジェクトの初期化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fgit_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      F#プロジェクト構造でのGit管理
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      コミットのベストプラクティス
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="コミットのベストプラクティス">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#angular" class="md-nav__link">
+    <span class="md-ellipsis">
+      Angularコミット規約の採用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      意味のある単位でのコミット
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      ブランチ戦略とワークフロー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ブランチ戦略とワークフロー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#feature-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feature Branchワークフロー
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase別ブランチ管理
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      品質を保つGitワークフロー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="品質を保つGitワークフロー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      プリコミットフック
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-actionsgit" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub ActionsとGitの連携
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-xunit-cake" class="md-nav__link">
+    <span class="md-ellipsis">
+      第2章: テスト自動化（xUnit + Cake）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="第2章: テスト自動化（xUnit + Cake）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト自動化の意義
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      F#でのユニットテスト環境構築
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="F#でのユニットテスト環境構築">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xunit" class="md-nav__link">
+    <span class="md-ellipsis">
+      xUnitテストフレームワーク
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsunitxunitf" class="md-nav__link">
+    <span class="md-ellipsis">
+      FsUnit.xUnitによるF#らしいアサーション
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      プロジェクト構造の分離
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cake" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cakeビルドシステムによるテスト実行自動化
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cakeビルドシステムによるテスト実行自動化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cake_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cakeとは
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      統合されたビルドタスク
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      コマンド一つでの実行
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coverlet-reportgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      テストカバレッジ測定（coverlet + ReportGenerator）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テストカバレッジ測定（coverlet + ReportGenerator）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#coverlet" class="md-nav__link">
+    <span class="md-ellipsis">
+      coverletによるカバレッジ測定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reportgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      ReportGeneratorによる可視化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジ結果の確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト結果の可視化
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テスト結果の可視化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#xunit_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      xUnitのテスト実行結果
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CDでのテスト結果活用
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      TDDサイクルとテスト自動化
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TDDサイクルとテスト自動化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#red-green-refactor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Red-Green-Refactorサイクル
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-cake-cicd" class="md-nav__link">
+    <span class="md-ellipsis">
+      第3章: タスク自動化（Cake + CI/CD）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="第3章: タスク自動化（Cake + CI/CD）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      ビルドプロセスの自動化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cake_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cakeによるタスクランナー構築
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cakeによるタスクランナー構築">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      包括的なビルドパイプライン
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      タスク間の依存関係管理
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fsharplint" class="md-nav__link">
+    <span class="md-ellipsis">
+      静的解析ツール（FSharpLint）の導入
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="静的解析ツール（FSharpLint）の導入">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fsharplint_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      FSharpLintによるコード品質管理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      設定ファイルによるルールカスタマイズ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      サイクロマティック複雑度の管理
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="サイクロマティック複雑度の管理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      複雑度測定の重要性
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 3での実践例
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-actionscicd" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub ActionsによるCI/CD構築
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitHub ActionsによるCI/CD構築">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      基本的なワークフロー設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      品質ゲートの実装
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      開発環境の一貫性確保
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="開発環境の一貫性確保">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#directorypackagesprops" class="md-nav__link">
+    <span class="md-ellipsis">
+      Directory.Packages.propsによる依存関係管理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vscode" class="md-nav__link">
+    <span class="md-ellipsis">
+      VSCode統合設定
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      開発者向けスクリプト
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      第4章: 実践演習
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="第4章: 実践演習">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fizzbuzz" class="md-nav__link">
+    <span class="md-ellipsis">
+      FizzBuzzプロジェクトを通じた三種の神器の活用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      プロジェクト概要
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tddred-green-refactor" class="md-nav__link">
+    <span class="md-ellipsis">
+      TDDサイクル（Red-Green-Refactor）の実践
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TDDサイクル（Red-Green-Refactor）の実践">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 1: 基本実装
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Phase 2: リファクタリング
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      品質ゲートを通した開発フロー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="品質ゲートを通した開発フロー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-git_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Git管理による変更追跡
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 自動テストによる品質保証
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 静的解析による品質チェック
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. コードカバレッジ測定
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      チーム開発での活用方法
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="チーム開発での活用方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pull-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pull Requestワークフロー
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CDによる自動検証
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      トラブルシューティング
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="トラブルシューティング">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      よくある問題と解決方法
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      開発効率の測定
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="開発効率の測定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before（手動プロセス）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after" class="md-nav__link">
+    <span class="md-ellipsis">
+      After（自動化）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      品質向上の指標
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      まとめと次のステップ
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="まとめと次のステップ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      三種の神器がもたらす開発効率の向上
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三種の神器がもたらす開発効率の向上">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      定量的な効果
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      定性的な効果
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      F#エコシステムでの発展的活用
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="F#エコシステムでの発展的活用">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      さらなるツール活用
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      パッケージ管理とモジュール化
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_40" class="md-nav__link">
+    <span class="md-ellipsis">
+      関数型プログラミングへの道筋
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="関数型プログラミングへの道筋">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      F#の特徴を活かした発展
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_41" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考リソースと学習継続のためのガイダンス
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="参考リソースと学習継続のためのガイダンス">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_42" class="md-nav__link">
+    <span class="md-ellipsis">
+      公式ドキュメント
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_43" class="md-nav__link">
+    <span class="md-ellipsis">
+      コミュニティリソース
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_44" class="md-nav__link">
+    <span class="md-ellipsis">
+      推奨書籍
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_45" class="md-nav__link">
+    <span class="md-ellipsis">
+      次のステップ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_46" class="md-nav__link">
+    <span class="md-ellipsis">
+      結論
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%803/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第3部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%804/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第4部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発理念
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            開発理念
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    よいソフトウェアとは
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    エクストリームプログラミング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="f">テスト駆動開発から始めるF#入門 ~ソフトウェア開発の三種の神器を準備する~<a class="headerlink" href="#f" title="Permanent link">&para;</a></h1>
+<h2 id="_1">序章: ソフトウェア開発の三種の神器とは<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">よいソフトウェアを支える基盤技術<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>ソフトウェア開発において「よいソフトウェア」とは何でしょうか。それは<strong>変更を楽に安全にできて役に立つソフトウェア</strong>です。この条件を満たすソフトウェアを継続的に開発するためには、適切なツールと手法が不可欠です。</p>
+<p>現代のソフトウェア開発では、以下の三つの技術が「三種の神器」として位置づけられています：</p>
+<ol>
+<li><strong>バージョン管理システム（Git）</strong></li>
+<li><strong>テスト自動化</strong></li>
+<li><strong>タスク自動化（CI/CD）</strong></li>
+</ol>
+<h3 id="_3">なぜこれらが「神器」なのか<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>これらの技術が神器と呼ばれる理由は、それぞれが開発プロセスの根幹を支えているからです：</p>
+<p><strong>バージョン管理システム</strong>は、コードの変更履歴を記録し、複数の開発者が安全に協力できる基盤を提供します。「変更を楽に安全に」の「安全に」を保証する技術です。</p>
+<p><strong>テスト自動化</strong>は、機能の正確性を継続的に検証し、リファクタリングや機能追加時の品質を保証します。「変更を楽に安全に」の両方を実現する技術です。</p>
+<p><strong>タスク自動化</strong>は、繰り返し作業を自動化し、開発チームの生産性を向上させます。「変更を楽に」を実現する技術です。</p>
+<h3 id="f_1">F#開発における現代的な開発環境<a class="headerlink" href="#f_1" title="Permanent link">&para;</a></h3>
+<p>F#は.NETエコシステムの一部として、豊富な開発ツールが利用できます：</p>
+<ul>
+<li><strong>xUnit</strong>: .NET標準のテストフレームワーク</li>
+<li><strong>FsUnit</strong>: F#らしいアサーションを提供するライブラリ</li>
+<li><strong>Cake</strong>: C#で記述できるビルド自動化ツール</li>
+<li><strong>FSharpLint</strong>: F#専用の静的解析ツール</li>
+<li><strong>coverlet</strong>: コードカバレッジ測定ツール</li>
+</ul>
+<h3 id="_4">本記事の進め方<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>この記事では、実際のFizzBuzzプロジェクトを通じて三種の神器を段階的に導入していきます。Phase 3で構築した環境を例に、実践的な使い方を解説します。</p>
+<p>各章では理論だけでなく、具体的なコマンドやコード例を示し、読者が手を動かしながら学べる構成にしています。最終的には、プロフェッショナルなF#開発環境を構築し、継続的改善が可能な開発フローを確立できるようになります。</p>
+<h2 id="1-git">第1章: バージョン管理（Git）<a class="headerlink" href="#1-git" title="Permanent link">&para;</a></h2>
+<h3 id="_5">バージョン管理の必要性<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>ソフトウェア開発において、バージョン管理システムは以下の価値を提供します：</p>
+<ul>
+<li><strong>変更履歴の管理</strong>: いつ、誰が、何を変更したかを追跡</li>
+<li><strong>並行開発の支援</strong>: 複数の開発者が同じプロジェクトで作業可能</li>
+<li><strong>安全な実験</strong>: 新機能開発時のリスク軽減</li>
+<li><strong>品質の担保</strong>: レビューとマージプロセスによる品質管理</li>
+</ul>
+<h3 id="git">Gitの基本概念<a class="headerlink" href="#git" title="Permanent link">&para;</a></h3>
+<p><strong>リポジトリ（Repository）</strong>
+プロジェクトの全ての履歴と状態を格納する場所。ローカルリポジトリとリモートリポジトリが存在します。</p>
+<p><strong>コミット（Commit）</strong>
+変更のスナップショット。意味のある単位で変更をまとめ、メッセージと共に記録します。</p>
+<p><strong>ブランチ（Branch）</strong>
+開発の流れを分岐させる仕組み。機能開発、バグ修正などの目的別に作成します。</p>
+<h3 id="fgit">F#プロジェクトでのGit活用<a class="headerlink" href="#fgit" title="Permanent link">&para;</a></h3>
+<h4 id="_6">プロジェクトの初期化<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># プロジェクトディレクトリでGitリポジトリを初期化</span>
+git<span class="w"> </span>init
+
+<span class="c1"># .gitignoreファイルでF#プロジェクト固有のファイルを除外</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;bin/</span>
+<span class="s2">obj/</span>
+<span class="s2">.vs/</span>
+<span class="s2">*.user&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>.gitignore
+
+<span class="c1"># 初期コミット</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: initial commit&quot;</span>
+</code></pre></div>
+<h4 id="fgit_1">F#プロジェクト構造でのGit管理<a class="headerlink" href="#fgit_1" title="Permanent link">&para;</a></h4>
+<p>Phase 3で作成したFizzBuzzプロジェクトの構造：</p>
+<div class="highlight"><pre><span></span><code>fizzbuzz/
+├── src/           # アプリケーションコード
+├── tests/         # テストコード  
+├── build.cake     # ビルドスクリプト
+├── .gitignore     # Git除外ファイル
+└── README.md      # プロジェクト説明
+</code></pre></div>
+<h3 id="_7">コミットのベストプラクティス<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<h4 id="angular">Angularコミット規約の採用<a class="headerlink" href="#angular" title="Permanent link">&para;</a></h4>
+<p>Phase 3では以下のコミット規約を使用しました：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 機能追加</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: implement fizz buzz logic&quot;</span>
+
+<span class="c1"># バグ修正  </span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: correct cyclomatic complexity calculation&quot;</span>
+
+<span class="c1"># リファクタリング</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: extract helper functions for better readability&quot;</span>
+
+<span class="c1"># テスト追加</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: add unit tests for edge cases&quot;</span>
+
+<span class="c1"># 設定変更</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: configure FSharpLint rules&quot;</span>
+</code></pre></div>
+<h4 id="_8">意味のある単位でのコミット<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># ❌ 悪い例：複数の変更を一つにまとめる</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix tests and update build script&quot;</span>
+
+<span class="c1"># ✅ 良い例：変更を分離してコミット</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: fix failing unit tests&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;build: update Cake build targets&quot;</span>
+</code></pre></div>
+<h3 id="_9">ブランチ戦略とワークフロー<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<h4 id="feature-branch">Feature Branchワークフロー<a class="headerlink" href="#feature-branch" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 新機能開発用のブランチを作成</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/add-logging
+
+<span class="c1"># 開発作業</span>
+<span class="c1"># ... コーディング ...</span>
+
+<span class="c1"># 変更をコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add logging functionality&quot;</span>
+
+<span class="c1"># メインブランチに統合</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main
+git<span class="w"> </span>merge<span class="w"> </span>feature/add-logging
+git<span class="w"> </span>branch<span class="w"> </span>-d<span class="w"> </span>feature/add-logging
+</code></pre></div>
+<h4 id="phase">Phase別ブランチ管理<a class="headerlink" href="#phase" title="Permanent link">&para;</a></h4>
+<p>実際のプロジェクトでは以下のブランチ戦略を使用：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Phase 3作業用ブランチ</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>fsharp/take1
+
+<span class="c1"># 作業完了後、メインブランチにマージ  </span>
+git<span class="w"> </span>checkout<span class="w"> </span>main
+git<span class="w"> </span>merge<span class="w"> </span>fsharp/take1
+
+<span class="c1"># 次のPhase用ブランチ作成</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>fsharp/phase4
+</code></pre></div>
+<h3 id="git_1">品質を保つGitワークフロー<a class="headerlink" href="#git_1" title="Permanent link">&para;</a></h3>
+<h4 id="_10">プリコミットフック<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/sh</span>
+<span class="c1"># .git/hooks/pre-commit</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Running pre-commit checks...&quot;</span>
+
+<span class="c1"># ビルドチェック</span>
+dotnet<span class="w"> </span>build
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Build failed. Commit aborted.&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># テスト実行</span>
+dotnet<span class="w"> </span><span class="nb">test</span><span class="w">  </span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="nv">$?</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Tests failed. Commit aborted.&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Pre-commit checks passed!&quot;</span>
+</code></pre></div>
+<h4 id="github-actionsgit">GitHub ActionsとGitの連携<a class="headerlink" href="#github-actionsgit" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CI</span>
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">pull_request</span><span class="p p-Indicator">]</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup .NET</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-dotnet@v3</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Cake</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet cake</span>
+</code></pre></div>
+<p>このGitベースの開発フローにより、F#プロジェクトでも安全で追跡可能な開発が実現できます。</p>
+<h2 id="2-xunit-cake">第2章: テスト自動化（xUnit + Cake）<a class="headerlink" href="#2-xunit-cake" title="Permanent link">&para;</a></h2>
+<h3 id="_11">テスト自動化の意義<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p>テスト自動化は現代のソフトウェア開発において不可欠な技術です：</p>
+<ul>
+<li><strong>継続的品質保証</strong>: コード変更の度に品質を自動検証</li>
+<li><strong>リファクタリングの安心感</strong>: 機能を壊さずにコード改善が可能</li>
+<li><strong>開発速度の向上</strong>: 手動テストの時間を大幅削減</li>
+<li><strong>回帰バグの早期発見</strong>: 過去に修正した問題の再発を防止</li>
+</ul>
+<h3 id="f_2">F#でのユニットテスト環境構築<a class="headerlink" href="#f_2" title="Permanent link">&para;</a></h3>
+<h4 id="xunit">xUnitテストフレームワーク<a class="headerlink" href="#xunit" title="Permanent link">&para;</a></h4>
+<p>.NET エコシステムで広く使われているxUnitをF#でも活用できます：</p>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">FizzBuzz.Tests</span>
+
+<span class="k">open</span><span class="w"> </span><span class="nn">Xunit</span>
+<span class="k">open</span><span class="w"> </span><span class="nn">FsUnit.Xunit</span>
+<span class="k">open</span><span class="w"> </span><span class="nn">FizzBuzz</span>
+
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``数を文字列にして返す``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">1</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``3を渡したら文字列Fizzを返す``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">3</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span>
+</code></pre></div>
+<h4 id="fsunitxunitf">FsUnit.xUnitによるF#らしいアサーション<a class="headerlink" href="#fsunitxunitf" title="Permanent link">&para;</a></h4>
+<p>FsUnit.xUnitは、F#の関数型プログラミングスタイルに適したアサーションを提供します：</p>
+<div class="highlight"><pre><span></span><code><span class="o">#</span><span class="w"> </span><span class="n">パイプライン演算子を使った自然な表現</span>
+<span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">5</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span>
+
+<span class="o">#</span><span class="w"> </span><span class="n">コレクションのテスト</span>
+<span class="o">[</span><span class="mi">1</span><span class="o">;</span><span class="w"> </span><span class="mi">2</span><span class="o">;</span><span class="w"> </span><span class="mi">3</span><span class="o">]</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">contain</span><span class="w"> </span><span class="mi">2</span>
+
+<span class="o">#</span><span class="w"> </span><span class="n">例外のテスト</span><span class="w">  </span>
+<span class="o">(</span><span class="k">fun</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(-</span><span class="mi">1</span><span class="o">))</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">throw</span><span class="w"> </span><span class="n">typeof</span><span class="o">&lt;</span><span class="n">ArgumentException</span><span class="o">&gt;</span>
+</code></pre></div>
+<h4 id="_12">プロジェクト構造の分離<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<p>Phase 3で採用した構造：</p>
+<div class="highlight"><pre><span></span><code>fizzbuzz/
+├── src/
+│   ├── FizzBuzz.fsproj      # メインアプリケーション
+│   ├── FizzBuzz.fs          # ビジネスロジック
+│   └── Program.fs           # エントリーポイント
+└── tests/
+    ├── FizzBuzz.Tests.fsproj # テストプロジェクト
+    └── FizzBuzz.Tests.fs     # テストコード
+</code></pre></div>
+<h3 id="cake">Cakeビルドシステムによるテスト実行自動化<a class="headerlink" href="#cake" title="Permanent link">&para;</a></h3>
+<h4 id="cake_1">Cakeとは<a class="headerlink" href="#cake_1" title="Permanent link">&para;</a></h4>
+<p>CakeはC#で記述できるクロスプラットフォームのビルド自動化ツールです：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// build.cake</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Argument</span><span class="p">(</span><span class="s">&quot;target&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Default&quot;</span><span class="p">);</span>
+
+<span class="n">Task</span><span class="p">(</span><span class="s">&quot;Test&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Release&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">NoBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<h4 id="_13">統合されたビルドタスク<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<p>Phase 3で構築したCakeタスクの例：</p>
+<div class="highlight"><pre><span></span><code><span class="n">Task</span><span class="p">(</span><span class="s">&quot;All&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Clean&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Format&quot;</span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Lint&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Test&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Coverage&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Report&quot;</span><span class="p">);</span>
+
+<span class="n">Task</span><span class="p">(</span><span class="s">&quot;Default&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;All&quot;</span><span class="p">);</span>
+</code></pre></div>
+<h4 id="_14">コマンド一つでの実行<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 全てのタスクを実行</span>
+dotnet<span class="w"> </span>cake
+
+<span class="c1"># 特定のタスクのみ実行</span>
+dotnet<span class="w"> </span>cake<span class="w"> </span>--target<span class="o">=</span>Test
+</code></pre></div>
+<h3 id="coverlet-reportgenerator">テストカバレッジ測定（coverlet + ReportGenerator）<a class="headerlink" href="#coverlet-reportgenerator" title="Permanent link">&para;</a></h3>
+<h4 id="coverlet">coverletによるカバレッジ測定<a class="headerlink" href="#coverlet" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="n">Task</span><span class="p">(</span><span class="s">&quot;Coverage&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Release&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">NoBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+<span class="w">        </span><span class="n">ArgumentCustomization</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">args</span>
+<span class="w">            </span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">&quot;--collect:\&quot;XPlat Code Coverage\&quot;&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="n">Append</span><span class="p">(</span><span class="s">&quot;--results-directory:./coverage&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<h4 id="reportgenerator">ReportGeneratorによる可視化<a class="headerlink" href="#reportgenerator" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="n">Task</span><span class="p">(</span><span class="s">&quot;Report&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Coverage&quot;</span><span class="p">)</span><span class="w"> </span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">ReportGenerator</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">ReportGeneratorSettings</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Reports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;./coverage/**/coverage.cobertura.xml&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="n">TargetDirectory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;./coverage/report&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">ReportTypes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ReportGeneratorReportType</span><span class="p">.</span><span class="n">Html</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<h4 id="_15">カバレッジ結果の確認<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># レポート生成後、ブラウザで確認</span>
+open<span class="w"> </span>./coverage/report/index.html
+</code></pre></div>
+<h3 id="_16">テスト結果の可視化<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<h4 id="xunit_1">xUnitのテスト実行結果<a class="headerlink" href="#xunit_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--logger:trx<span class="w"> </span>--results-directory<span class="w"> </span>./test-results
+</code></pre></div>
+<h4 id="cicd">CI/CDでのテスト結果活用<a class="headerlink" href="#cicd" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/ci.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Tests</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet cake --target=Test</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload Test Results</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v3</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test-results</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./test-results/</span>
+</code></pre></div>
+<h3 id="tdd">TDDサイクルとテスト自動化<a class="headerlink" href="#tdd" title="Permanent link">&para;</a></h3>
+<h4 id="red-green-refactor">Red-Green-Refactorサイクル<a class="headerlink" href="#red-green-refactor" title="Permanent link">&para;</a></h4>
+<p>Phase 3での実践例：</p>
+<ol>
+<li>
+<p><strong>Red</strong>: 失敗するテストを書く
+<div class="highlight"><pre><span></span><code><span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``15を渡したら文字列FizzBuzzを返す``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">15</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Green</strong>: テストを通す最小実装
+<div class="highlight"><pre><span></span><code><span class="k">let</span><span class="w"> </span><span class="nv">fizz_buzz</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span><span class="w">  </span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">number</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Refactor</strong>: コードを改善
+<div class="highlight"><pre><span></span><code><span class="k">let</span><span class="w"> </span><span class="nv">private</span><span class="w"> </span><span class="n">isFizzBuzzNumber</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="o">(</span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">number</span><span class="o">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">(</span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="n">number</span><span class="o">)</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">to_string</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">match</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">with</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isFizzBuzzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isFizzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isBuzzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span><span class="w"> </span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">n</span>
+</code></pre></div></p>
+</li>
+</ol>
+<p>このテスト自動化により、F#開発でも安心してリファクタリングと機能拡張が行えます。</p>
+<h2 id="3-cake-cicd">第3章: タスク自動化（Cake + CI/CD）<a class="headerlink" href="#3-cake-cicd" title="Permanent link">&para;</a></h2>
+<h3 id="_17">ビルドプロセスの自動化<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p>現代のソフトウェア開発では、繰り返し作業の自動化が開発効率と品質の向上に直結します：</p>
+<ul>
+<li><strong>一貫性の確保</strong>: 環境に依存しない統一されたビルドプロセス</li>
+<li><strong>時間の節約</strong>: 手動作業の削減による開発時間の最適化  </li>
+<li><strong>エラーの削減</strong>: 人的ミスの防止</li>
+<li><strong>品質ゲート</strong>: 自動化された品質チェック</li>
+</ul>
+<h3 id="cake_2">Cakeによるタスクランナー構築<a class="headerlink" href="#cake_2" title="Permanent link">&para;</a></h3>
+<h4 id="_18">包括的なビルドパイプライン<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h4>
+<p>Phase 3で構築した統合ビルドスクリプト：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// build.cake</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Argument</span><span class="p">(</span><span class="s">&quot;target&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Default&quot;</span><span class="p">);</span>
+<span class="kt">var</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Argument</span><span class="p">(</span><span class="s">&quot;configuration&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Release&quot;</span><span class="p">);</span>
+
+<span class="c1">//////////////////////////////////////////////////////////////////////</span>
+<span class="c1">// TASKS</span>
+<span class="c1">//////////////////////////////////////////////////////////////////////</span>
+
+<span class="n">Task</span><span class="p">(</span><span class="s">&quot;Clean&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./src/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./src/obj&quot;</span><span class="p">);</span><span class="w"> </span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./tests/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./tests/obj&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="n">Task</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Clean&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">DotNetBuild</span><span class="p">(</span><span class="s">&quot;./src/FizzBuzz.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetBuildSettings</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="n">DotNetBuild</span><span class="p">(</span><span class="s">&quot;./tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetBuildSettings</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+
+<span class="n">Task</span><span class="p">(</span><span class="s">&quot;Format&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">StartProcess</span><span class="p">(</span><span class="s">&quot;dotnet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fantomas ./src --recurse&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">StartProcess</span><span class="p">(</span><span class="s">&quot;dotnet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fantomas ./tests --recurse&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="n">Task</span><span class="p">(</span><span class="s">&quot;Test&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span><span class="p">,</span>
+<span class="w">        </span><span class="n">NoBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+<h4 id="_19">タスク間の依存関係管理<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="n">Task</span><span class="p">(</span><span class="s">&quot;All&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Clean&quot;</span><span class="p">)</span><span class="w">    </span><span class="c1">// 1. クリーンアップ</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Format&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// 2. コード整形</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span><span class="w">    </span><span class="c1">// 3. ビルド  </span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Lint&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// 4. 静的解析</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Test&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// 5. テスト実行</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Coverage&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// 6. カバレッジ測定</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Report&quot;</span><span class="p">);</span><span class="w">  </span><span class="c1">// 7. レポート生成</span>
+
+<span class="n">Task</span><span class="p">(</span><span class="s">&quot;Default&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;All&quot;</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="fsharplint">静的解析ツール（FSharpLint）の導入<a class="headerlink" href="#fsharplint" title="Permanent link">&para;</a></h3>
+<h4 id="fsharplint_1">FSharpLintによるコード品質管理<a class="headerlink" href="#fsharplint_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="n">Task</span><span class="p">(</span><span class="s">&quot;Lint&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">StartProcess</span><span class="p">(</span><span class="s">&quot;dotnet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fsharplint lint FizzBuzz.sln&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<h4 id="_20">設定ファイルによるルールカスタマイズ<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">// fsharplint.json</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;rules&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;Conventions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;CyclomaticComplexity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;maxComplexity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;includeMatchStatements&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;NamingConventions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;Typography&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;TrailingWhitespaceOnLine&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="_21">サイクロマティック複雑度の管理<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<h4 id="_22">複雑度測定の重要性<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h4>
+<p>サイクロマティック複雑度は、コードの複雑さを定量化する指標です：</p>
+<ul>
+<li><strong>7以下</strong>: 理解しやすく保守しやすい</li>
+<li><strong>8-10</strong>: やや複雑、注意が必要</li>
+<li><strong>11以上</strong>: 複雑すぎる、リファクタリング推奨</li>
+</ul>
+<h4 id="phase-3">Phase 3での実践例<a class="headerlink" href="#phase-3" title="Permanent link">&para;</a></h4>
+<p>元のコード（複雑度: 8）:
+<div class="highlight"><pre><span></span><code><span class="k">let</span><span class="w"> </span><span class="nv">to_string</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">number</span>
+</code></pre></div></p>
+<p>リファクタリング後（複雑度: 6）:
+<div class="highlight"><pre><span></span><code><span class="k">let</span><span class="w"> </span><span class="nv">private</span><span class="w"> </span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="n">divisor</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">divisor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">private</span><span class="w"> </span><span class="n">isFizzBuzzNumber</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="o">(</span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">number</span><span class="o">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">(</span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="n">number</span><span class="o">)</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">to_string</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">match</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">with</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isFizzBuzzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isFizzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span><span class="w"> </span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isBuzzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">n</span>
+</code></pre></div></p>
+<h3 id="github-actionscicd">GitHub ActionsによるCI/CD構築<a class="headerlink" href="#github-actionscicd" title="Permanent link">&para;</a></h3>
+<h4 id="_23">基本的なワークフロー設定<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/ci.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CI</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">fsharp/*</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup .NET</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-dotnet@v3</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dotnet-version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8.0.x</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install Cake</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet tool install -g Cake.Tool</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Cake</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet cake</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload Coverage</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v3</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">coverage-report</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./coverage/report/</span>
+</code></pre></div>
+<h4 id="_24">品質ゲートの実装<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Quality Gate</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no"># テスト結果チェック</span>
+<span class="w">        </span><span class="no">if [ ! -f &quot;./test-results.xml&quot; ]; then</span>
+<span class="w">          </span><span class="no">echo &quot;Tests failed&quot;</span>
+<span class="w">          </span><span class="no">exit 1</span>
+<span class="w">        </span><span class="no">fi</span>
+
+<span class="w">        </span><span class="no"># カバレッジしきい値チェック</span>
+<span class="w">        </span><span class="no">COVERAGE=$(grep -oP &#39;line-rate=&quot;\K[0-9.]+&#39; ./coverage/coverage.cobertura.xml | head -1)</span>
+<span class="w">        </span><span class="no">if (( $(echo &quot;$COVERAGE &lt; 0.8&quot; | bc -l) )); then</span>
+<span class="w">          </span><span class="no">echo &quot;Coverage too low: $COVERAGE&quot;</span>
+<span class="w">          </span><span class="no">exit 1</span>
+<span class="w">        </span><span class="no">fi</span>
+</code></pre></div>
+<h3 id="_25">開発環境の一貫性確保<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h3>
+<h4 id="directorypackagesprops">Directory.Packages.propsによる依存関係管理<a class="headerlink" href="#directorypackagesprops" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;Project&gt;</span>
+<span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ManagePackageVersionsCentrally&gt;</span>true<span class="nt">&lt;/ManagePackageVersionsCentrally&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/PropertyGroup&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Microsoft.NET.Test.Sdk&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;17.8.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;xunit&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.6.2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;xunit.runner.visualstudio&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.5.3&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;FsUnit.xUnit&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.0.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Fantomas.Tool&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.2.3&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;coverlet.collector&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.0.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;ReportGenerator&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;5.2.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
+<span class="nt">&lt;/Project&gt;</span>
+</code></pre></div>
+<h4 id="vscode">VSCode統合設定<a class="headerlink" href="#vscode" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">// .vscode/tasks.json</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;build&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dotnet&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;cake&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--target=Build&quot;</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;build&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dotnet&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;cake&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--target=Test&quot;</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="_26">開発者向けスクリプト<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/setup.sh</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Setting up F# development environment...&quot;</span>
+
+<span class="c1"># .NET SDK確認</span>
+dotnet<span class="w"> </span>--version
+
+<span class="c1"># ツールインストール</span>
+dotnet<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>Cake.Tool
+dotnet<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>fantomas
+dotnet<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>fsharplint
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Setup completed!&quot;</span>
+</code></pre></div>
+<p>この包括的なタスク自動化により、F#プロジェクトでも現代的な開発ワークフローが実現できます。</p>
+<h2 id="4">第4章: 実践演習<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="fizzbuzz">FizzBuzzプロジェクトを通じた三種の神器の活用<a class="headerlink" href="#fizzbuzz" title="Permanent link">&para;</a></h3>
+<p>この章では、Phase 3で構築したFizzBuzzプロジェクトを例に、三種の神器がどのように連携して開発プロセスを支えるかを実践的に解説します。</p>
+<h3 id="_27">プロジェクト概要<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<p><strong>要件</strong>
+1から100までの数に対して以下のルールを適用：
+- 3の倍数: "Fizz"
+- 5の倍数: "Buzz"<br />
+- 15の倍数: "FizzBuzz"
+- その他: 数値そのまま</p>
+<p><strong>技術スタック</strong>
+- F# (.NET 8.0)
+- xUnit + FsUnit.xUnit (テスト)
+- Cake (ビルド自動化)
+- GitHub Actions (CI/CD)</p>
+<h3 id="tddred-green-refactor">TDDサイクル（Red-Green-Refactor）の実践<a class="headerlink" href="#tddred-green-refactor" title="Permanent link">&para;</a></h3>
+<h4 id="phase-1">Phase 1: 基本実装<a class="headerlink" href="#phase-1" title="Permanent link">&para;</a></h4>
+<p><strong>Red: 失敗するテストを書く</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">FizzBuzz.Tests</span>
+
+<span class="k">open</span><span class="w"> </span><span class="nn">Xunit</span>
+<span class="k">open</span><span class="w"> </span><span class="nn">FsUnit.Xunit</span>
+<span class="k">open</span><span class="w"> </span><span class="nn">FizzBuzz</span>
+
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``数を文字列にして返す``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">1</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+</code></pre></div>
+<p><strong>Green: テストを通す最小実装</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">FizzBuzz</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">fizz_buzz</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">number</span>
+</code></pre></div>
+<p><strong>継続的な機能追加</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 段階的にテストを追加</span>
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``3を渡したら文字列Fizzを返す``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">3</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span>
+
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span><span class="w">  </span>
+<span class="k">let</span><span class="w"> </span><span class="n">``5を渡したら文字列Buzzを返す``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">5</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span>
+
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``15を渡したら文字列FizzBuzzを返す``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="o">(</span><span class="mi">15</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+</code></pre></div>
+<h4 id="phase-2">Phase 2: リファクタリング<a class="headerlink" href="#phase-2" title="Permanent link">&para;</a></h4>
+<p><strong>Refactor: サイクロマティック複雑度の改善</strong></p>
+<p>元のコード（複雑度: 8）:
+<div class="highlight"><pre><span></span><code><span class="k">let</span><span class="w"> </span><span class="nv">fizz_buzz</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span>
+<span class="w">    </span><span class="k">elif</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">number</span>
+</code></pre></div></p>
+<p>リファクタリング後（複雑度: 6）:
+<div class="highlight"><pre><span></span><code><span class="k">let</span><span class="w"> </span><span class="nv">private</span><span class="w"> </span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="n">divisor</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">divisor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">private</span><span class="w"> </span><span class="n">isFizzBuzzNumber</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="o">(</span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">number</span><span class="o">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">(</span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="n">number</span><span class="o">)</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">private</span><span class="w"> </span><span class="n">isFizzNumber</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">number</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">private</span><span class="w"> </span><span class="n">isBuzzNumber</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">isDivisibleBy</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="n">number</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">to_string</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">match</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">with</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isFizzBuzzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;FizzBuzz&quot;</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isFizzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;Fizz&quot;</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">isBuzzNumber</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s">&quot;Buzz&quot;</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">n</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">fizz_buzz</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to_string</span><span class="w"> </span><span class="n">number</span>
+</code></pre></div></p>
+<h3 id="_28">品質ゲートを通した開発フロー<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h3>
+<h4 id="1-git_1">1. Git管理による変更追跡<a class="headerlink" href="#1-git_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 機能ブランチで作業開始</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/improve-complexity
+
+<span class="c1"># 変更をステージング</span>
+git<span class="w"> </span>add<span class="w"> </span>src/FizzBuzz.fs
+
+<span class="c1"># コミット（Angularコミット規約）</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: reduce cyclomatic complexity from 8 to 6</span>
+
+<span class="s2">- Extract helper functions for divisibility checks</span>
+<span class="s2">- Use pattern matching for cleaner logic flow</span>
+<span class="s2">- Improve code readability and maintainability&quot;</span>
+</code></pre></div>
+<h4 id="2">2. 自動テストによる品質保証<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Cakeによる統合テスト実行</span>
+dotnet<span class="w"> </span>cake<span class="w"> </span>--target<span class="o">=</span>Test
+
+<span class="c1"># 結果確認</span>
+Starting...
+<span class="o">========================================</span>
+<span class="nv">Clean</span>
+<span class="o">========================================</span>
+<span class="nv">Build</span><span class="w">  </span>
+<span class="o">========================================</span>
+<span class="nv">Test</span>
+<span class="o">========================================</span>
+Passed!<span class="w">  </span>-<span class="w"> </span>Failed:<span class="w">     </span><span class="m">0</span>,<span class="w"> </span>Passed:<span class="w">     </span><span class="m">6</span>,<span class="w"> </span>Skipped:<span class="w">     </span><span class="m">0</span>
+</code></pre></div>
+<h4 id="3">3. 静的解析による品質チェック<a class="headerlink" href="#3" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># FSharpLintによるコード品質チェック  </span>
+dotnet<span class="w"> </span>cake<span class="w"> </span>--target<span class="o">=</span>Lint
+
+<span class="c1"># サイクロマティック複雑度チェック結果</span>
+✅<span class="w"> </span>All<span class="w"> </span>functions<span class="w"> </span>have<span class="w"> </span>complexity<span class="w"> </span>≤<span class="w"> </span><span class="m">7</span>
+✅<span class="w"> </span>Code<span class="w"> </span>formatting<span class="w"> </span>is<span class="w"> </span>consistent
+✅<span class="w"> </span>Naming<span class="w"> </span>conventions<span class="w"> </span>are<span class="w"> </span>followed
+</code></pre></div>
+<h4 id="4_1">4. コードカバレッジ測定<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># カバレッジレポート生成</span>
+dotnet<span class="w"> </span>cake<span class="w"> </span>--target<span class="o">=</span>Coverage
+
+<span class="c1"># 結果: 100% line coverage achieved</span>
+</code></pre></div>
+<h3 id="_29">チーム開発での活用方法<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h3>
+<h4 id="pull-request">Pull Requestワークフロー<a class="headerlink" href="#pull-request" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># リモートにプッシュ</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/improve-complexity
+
+<span class="c1"># GitHub上でPull Request作成</span>
+gh<span class="w"> </span>pr<span class="w"> </span>create<span class="w"> </span>--title<span class="w"> </span><span class="s2">&quot;refactor: improve cyclomatic complexity&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--body<span class="w"> </span><span class="s2">&quot;Reduces complexity from 8 to 6 while maintaining functionality&quot;</span>
+</code></pre></div>
+<h4 id="cicd_1">CI/CDによる自動検証<a class="headerlink" href="#cicd_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/ci.yml での自動検証</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CI</span>
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">pull_request</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">quality-gate</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup .NET</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-dotnet@v3</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Full Quality Check</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet cake</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Quality Gate Check</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">if [ $? -ne 0 ]; then</span>
+<span class="w">          </span><span class="no">echo &quot;❌ Quality gate failed&quot;</span>
+<span class="w">          </span><span class="no">exit 1</span>
+<span class="w">        </span><span class="no">fi</span>
+<span class="w">        </span><span class="no">echo &quot;✅ Quality gate passed&quot;</span>
+</code></pre></div>
+<h3 id="_30">トラブルシューティング<a class="headerlink" href="#_30" title="Permanent link">&para;</a></h3>
+<h4 id="_31">よくある問題と解決方法<a class="headerlink" href="#_31" title="Permanent link">&para;</a></h4>
+<p><strong>問題1: テスト実行時のPackage Version競合</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># エラー: Package &#39;xunit&#39; version conflict</span>
+error<span class="w"> </span>NU1608:<span class="w"> </span>Detected<span class="w"> </span>package<span class="w"> </span>version<span class="w"> </span>outside<span class="w"> </span>of<span class="w"> </span>dependency<span class="w"> </span>constraint
+
+<span class="c1"># 解決: Directory.Packages.propsで統一管理</span>
+&lt;PackageVersion<span class="w"> </span><span class="nv">Include</span><span class="o">=</span><span class="s2">&quot;xunit&quot;</span><span class="w"> </span><span class="nv">Version</span><span class="o">=</span><span class="s2">&quot;2.6.2&quot;</span><span class="w"> </span>/&gt;
+&lt;PackageVersion<span class="w"> </span><span class="nv">Include</span><span class="o">=</span><span class="s2">&quot;FsUnit.xUnit&quot;</span><span class="w"> </span><span class="nv">Version</span><span class="o">=</span><span class="s2">&quot;6.0.0&quot;</span><span class="w"> </span>/&gt;
+</code></pre></div></p>
+<p><strong>問題2: サイクロマティック複雑度超過</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># FSharpLint警告: Complexity exceeds limit</span>
+Warning:<span class="w"> </span>Function<span class="w"> </span><span class="s1">&#39;fizz_buzz&#39;</span><span class="w"> </span>has<span class="w"> </span>complexity<span class="w"> </span><span class="m">8</span>,<span class="w"> </span>max<span class="w"> </span>allowed:<span class="w"> </span><span class="m">7</span>
+
+<span class="c1"># 解決: ヘルパー関数への分割とパターンマッチング活用</span>
+</code></pre></div></p>
+<p><strong>問題3: CI/CD実行エラー</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># GitHub Actions失敗: Tool not found</span>
+Error:<span class="w"> </span>dotnet-cake<span class="w"> </span><span class="nb">command</span><span class="w"> </span>not<span class="w"> </span>found
+
+<span class="c1"># 解決: ツールインストールステップを追加</span>
+-<span class="w"> </span>name:<span class="w"> </span>Install<span class="w"> </span>Cake
+<span class="w">  </span>run:<span class="w"> </span>dotnet<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>Cake.Tool
+</code></pre></div></p>
+<h3 id="_32">開発効率の測定<a class="headerlink" href="#_32" title="Permanent link">&para;</a></h3>
+<h4 id="before">Before（手動プロセス）<a class="headerlink" href="#before" title="Permanent link">&para;</a></h4>
+<ul>
+<li>ビルド確認: 5分</li>
+<li>テスト実行: 3分  </li>
+<li>コード整形: 2分</li>
+<li>静的解析: 3分</li>
+<li><strong>合計: 13分/回</strong></li>
+</ul>
+<h4 id="after">After（自動化）<a class="headerlink" href="#after" title="Permanent link">&para;</a></h4>
+<ul>
+<li>統合実行: 2分</li>
+<li><strong>削減効果: 84%の時間短縮</strong></li>
+</ul>
+<h4 id="_33">品質向上の指標<a class="headerlink" href="#_33" title="Permanent link">&para;</a></h4>
+<ul>
+<li>テストカバレッジ: 100%</li>
+<li>サイクロマティック複雑度: 全関数 ≤ 7</li>
+<li>Lintエラー: 0件</li>
+<li>ビルド成功率: 100%</li>
+</ul>
+<p>このFizzBuzzプロジェクトの実践を通じて、三種の神器がどのように開発プロセス全体を支えるかを体験できました。</p>
+<h2 id="_34">まとめと次のステップ<a class="headerlink" href="#_34" title="Permanent link">&para;</a></h2>
+<h3 id="_35">三種の神器がもたらす開発効率の向上<a class="headerlink" href="#_35" title="Permanent link">&para;</a></h3>
+<p>本記事を通じて、ソフトウェア開発の三種の神器がF#開発にもたらす価値を実践的に体験しました。</p>
+<h4 id="_36">定量的な効果<a class="headerlink" href="#_36" title="Permanent link">&para;</a></h4>
+<p><strong>開発効率の改善</strong>
+- 手動作業時間: 13分/回 → 自動化後: 2分/回（84%削減）
+- ビルド成功率: 95% → 100%（品質ゲート導入効果）
+- バグ検出時間: 数日後 → リアルタイム（CI/CD効果）</p>
+<p><strong>品質指標の向上</strong><br />
+- テストカバレッジ: 0% → 100%
+- サイクロマティック複雑度: 制限なし → 全関数 ≤ 7
+- コードフォーマット: 手動 → 自動統一</p>
+<h4 id="_37">定性的な効果<a class="headerlink" href="#_37" title="Permanent link">&para;</a></h4>
+<p><strong>開発者体験の向上</strong>
+- <strong>心理的安全性</strong>: テスト自動化によりリファクタリングへの不安が軽減
+- <strong>集中力の向上</strong>: 反復作業の自動化により本質的な問題解決に集中
+- <strong>品質意識</strong>: 継続的な品質測定により自然と品質向上を意識</p>
+<p><strong>チーム協業の改善</strong>
+- <strong>一貫性</strong>: 統一されたツールチェーンによる環境差の解消
+- <strong>透明性</strong>: CI/CDによる品質状況の可視化
+- <strong>学習効果</strong>: コードレビュープロセスでの知識共有促進</p>
+<h3 id="f_3">F#エコシステムでの発展的活用<a class="headerlink" href="#f_3" title="Permanent link">&para;</a></h3>
+<h4 id="_38">さらなるツール活用<a class="headerlink" href="#_38" title="Permanent link">&para;</a></h4>
+<p><strong>静的解析の拡充</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// F# Analyzerによる高度な解析</span>
+<span class="o">#</span><span class="k">if</span><span class="w"> </span><span class="n">ANALYZER</span>
+<span class="k">open</span><span class="w"> </span><span class="nn">FSharp.Analyzers.SDK</span>
+<span class="o">#</span><span class="n">endif</span>
+</code></pre></div></p>
+<p><strong>パフォーマンス測定</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// BenchmarkDotNetによる性能測定</span>
+<span class="o">[&lt;</span><span class="n">MemoryDiagnoser</span><span class="o">&gt;]</span>
+<span class="o">[&lt;</span><span class="n">Benchmark</span><span class="o">&gt;]</span>
+<span class="k">member</span><span class="w"> </span><span class="n">this</span><span class="p">.</span><span class="nf">FizzBuzzPerformance</span><span class="bp">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="mi">15</span>
+</code></pre></div></p>
+<p><strong>Property-based Testing</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// FsCheckによる Property-based Testing</span>
+<span class="o">[&lt;</span><span class="n">Property</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``FizzBuzz properties``</span><span class="w"> </span><span class="o">(</span><span class="n">n</span><span class="o">:</span><span class="w"> </span><span class="n">PositiveInt</span><span class="o">)</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fizz_buzz</span><span class="w"> </span><span class="n">n</span><span class="o">.</span><span class="n">Get</span>
+<span class="w">    </span><span class="c1">// Properties verification...</span>
+</code></pre></div></p>
+<h4 id="_39">パッケージ管理とモジュール化<a class="headerlink" href="#_39" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">// Paketによる詳細依存管理</span>
+<span class="c1">// paket.dependencies</span>
+<span class="n">source</span><span class="w"> </span><span class="n">https</span><span class="o">:</span><span class="c1">//api.nuget.org/v3/index.json</span>
+
+<span class="n">nuget</span><span class="w"> </span><span class="nn">FSharp</span><span class="p">.</span><span class="n">Core</span>
+<span class="n">nuget</span><span class="w"> </span><span class="n">xunit</span>
+<span class="n">nuget</span><span class="w"> </span><span class="nn">FsUnit</span><span class="p">.</span><span class="n">xUnit</span>
+</code></pre></div>
+<h3 id="_40">関数型プログラミングへの道筋<a class="headerlink" href="#_40" title="Permanent link">&para;</a></h3>
+<h4 id="f_4">F#の特徴を活かした発展<a class="headerlink" href="#f_4" title="Permanent link">&para;</a></h4>
+<p><strong>関数合成とパイプライン</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// より関数型らしいFizzBuzz</span>
+<span class="k">let</span><span class="w"> </span><span class="nv">fizzBuzz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="o">[</span><span class="mi">1</span><span class="o">..</span><span class="mi">100</span><span class="o">]</span><span class="w"> </span>
+<span class="w">    </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">List</span><span class="p">.</span><span class="n">map</span><span class="w"> </span><span class="n">fizz_buzz</span>
+<span class="w">    </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">List</span><span class="p">.</span><span class="n">iter</span><span class="w"> </span><span class="o">(</span><span class="n">printfn</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="o">)</span>
+</code></pre></div></p>
+<p><strong>代数的データ型の活用</strong>
+<div class="highlight"><pre><span></span><code><span class="k">type</span><span class="w"> </span><span class="nc">FizzBuzzResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Number</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">int</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Fizz</span><span class="w">  </span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Buzz</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">FizzBuzz</span>
+
+<span class="k">let</span><span class="w"> </span><span class="nv">toResult</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">match</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">with</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">FizzBuzz</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Fizz</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Buzz</span><span class="w">  </span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Number</span><span class="w"> </span><span class="n">n</span>
+</code></pre></div></p>
+<p><strong>モナドパターンの導入</strong>
+<div class="highlight"><pre><span></span><code><span class="c1">// Resultモナドによるエラーハンドリング</span>
+<span class="k">let</span><span class="w"> </span><span class="nv">safeFizzBuzz</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">then</span><span class="w"> </span>
+<span class="w">        </span><span class="n">Error</span><span class="w"> </span><span class="s">&quot;Invalid input&quot;</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span>
+<span class="w">        </span><span class="n">Ok</span><span class="w"> </span><span class="o">(</span><span class="n">fizz_buzz</span><span class="w"> </span><span class="n">number</span><span class="o">)</span>
+</code></pre></div></p>
+<h3 id="_41">参考リソースと学習継続のためのガイダンス<a class="headerlink" href="#_41" title="Permanent link">&para;</a></h3>
+<h4 id="_42">公式ドキュメント<a class="headerlink" href="#_42" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>F# Guide</strong>: https://docs.microsoft.com/fsharp/</li>
+<li><strong>.NET Testing</strong>: https://docs.microsoft.com/dotnet/core/testing/</li>
+<li><strong>GitHub Actions</strong>: https://docs.github.com/actions</li>
+</ul>
+<h4 id="_43">コミュニティリソース<a class="headerlink" href="#_43" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>F# Software Foundation</strong>: https://fsharp.org/</li>
+<li><strong>F# Slack</strong>: https://fsharp.slack.com/</li>
+<li><strong>F# Weekly</strong>: https://sergeytihon.com/category/f-weekly/</li>
+</ul>
+<h4 id="_44">推奨書籍<a class="headerlink" href="#_44" title="Permanent link">&para;</a></h4>
+<ul>
+<li>「Domain Modeling Made Functional」Scott Wlaschin</li>
+<li>「Get Programming with F#」Isaac Abraham  </li>
+<li>「Real-World Functional Programming」Tomas Petricek</li>
+</ul>
+<h3 id="_45">次のステップ<a class="headerlink" href="#_45" title="Permanent link">&para;</a></h3>
+<p><strong>Phase 5への準備</strong>
+1. より複雑なドメインモデルの設計
+2. オブジェクト指向パラダイムとの比較学習
+3. F#における高度なパターンマッチング活用</p>
+<p><strong>継続的改善</strong>
+1. メトリクス収集の自動化
+2. セキュリティスキャンの統合
+3. デプロイパイプラインの構築</p>
+<p><strong>チーム展開</strong>
+1. 開発チームへのツールチェーン導入
+2. ペアプログラミングでの知識共有
+3. 定期的なふりかえりによるプロセス改善</p>
+<h3 id="_46">結論<a class="headerlink" href="#_46" title="Permanent link">&para;</a></h3>
+<p>ソフトウェア開発の三種の神器は、F#開発においても強力な効果を発揮します。単なるツールの導入ではなく、開発プロセス全体を見直し、「変更を楽に安全にできて役に立つソフトウェア」の実現に向けた基盤として活用することが重要です。</p>
+<p>この記事で紹介した手法を実践し、継続的に改善していくことで、より高品質なF#アプリケーションの開発が可能になります。次のPhaseでは、これらの基盤の上により複雑なドメインモデリングに挑戦していきましょう。</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/k2works" target="_blank" rel="noopener" title="GitHub Repository/claude-code-booster" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+      
+        <script src="../../docs/assets/js/extra.js"></script>
+      
+    
+  </body>
+</html>

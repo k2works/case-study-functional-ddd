@@ -1,0 +1,2200 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="F#の関数型プログラミングとドメイン駆動設計による注文受付システムの実装ガイド">
+      
+      
+        <meta name="author" content="Project Team">
+      
+      
+      
+        <link rel="prev" href="../tech_stack/">
+      
+      
+        <link rel="next" href="../../reference/F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>テスト戦略 - 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../docs/mkdocs/assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-header__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              テスト戦略
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ホーム
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../requirements/requirements_definition/" class="md-tabs__link">
+          
+  
+  
+  要件定義
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+  設計
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-tabs__link">
+          
+  
+  
+  実装ガイド
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-tabs__link">
+          
+  
+  
+  F# 学習教材
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-tabs__link">
+          
+  
+  
+  開発理念
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-nav__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ホーム
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            要件定義
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/requirements_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/business_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ビジネスユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/system_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    システムユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/user_story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ユーザーストーリー
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    設計
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            設計
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../domain_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ドメインモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    データモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tech_stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    技術スタック
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      概要
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト戦略の選択根拠
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テスト戦略の選択根拠">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      アーキテクチャ分析
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      採用するテスト戦略
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      選択理由
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      テストレベル別戦略
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テストレベル別戦略">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-80" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 単体テスト（80%）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 単体テスト（80%）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      対象
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト方針
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      プロパティベーステスト
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      テストカバレッジ目標
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 統合テスト（15%）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 統合テスト（15%）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      対象
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト方針
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      外部サービステスト
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-e2e5" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. E2Eテスト（5%）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. E2Eテスト（5%）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      対象
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト方針
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト実装詳細
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テスト実装詳細">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f" class="md-nav__link">
+    <span class="md-ellipsis">
+      F# テストフレームワーク構成
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="F# テストフレームワーク構成">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      推奨テストスタック
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      プロジェクト構成
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      テストデータ管理
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テストデータ管理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      テストデータビルダー
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      モック戦略
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="モック戦略">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      外部依存のモック化
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cicd" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD での実行戦略
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI/CD での実行戦略">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト実行フロー
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      実行環境
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="実行環境">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      開発環境
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD 環境
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      パフォーマンステスト
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="パフォーマンステスト">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      対象シナリオ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      実装例
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_29" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト品質管理
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テスト品質管理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_30" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジ目標
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_31" class="md-nav__link">
+    <span class="md-ellipsis">
+      品質メトリクス
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_32" class="md-nav__link">
+    <span class="md-ellipsis">
+      継続的改善
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="継続的改善">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_33" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト戦略の見直し
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="テスト戦略の見直し">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_34" class="md-nav__link">
+    <span class="md-ellipsis">
+      定期レビューポイント
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_35" class="md-nav__link">
+    <span class="md-ellipsis">
+      改善活動
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="改善活動">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_36" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト自動化の拡張
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_37" class="md-nav__link">
+    <span class="md-ellipsis">
+      まとめ
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="まとめ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_38" class="md-nav__link">
+    <span class="md-ellipsis">
+      テスト戦略の特徴
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_39" class="md-nav__link">
+    <span class="md-ellipsis">
+      成功要因
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    実装ガイド
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            実装ガイド
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# API構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/UI%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UI設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E6%88%A6%E7%95%A5%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    F# 学習教材
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            F# 学習教材
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第1部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%802/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第2部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%803/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第3部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%804/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第4部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発理念
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            開発理念
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    よいソフトウェアとは
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    エクストリームプログラミング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="-">テスト戦略 - 注文受付システム<a class="headerlink" href="#-" title="Permanent link">&para;</a></h1>
+<h2 id="_1">概要<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>本ドキュメントは、F# による関数型ドメインモデリングと ASP.NET Core 最小 API を用いた注文受付システムのテスト戦略を定義します。アーキテクチャパターンに基づいたピラミッド形テスト戦略を採用し、変更を楽に安全にできて役に立つソフトウェアの実現を目指します。</p>
+<h2 id="_2">テスト戦略の選択根拠<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="_3">アーキテクチャ分析<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>本プロジェクトは以下の特徴を持ちます：</p>
+<ul>
+<li><strong>業務領域</strong>: 中核の業務領域（注文受付）</li>
+<li><strong>データ構造</strong>: 中程度の複雑さ（注文・顧客・商品の関連）</li>
+<li><strong>アーキテクチャパターン</strong>: ドメインモデルパターン</li>
+<li><strong>アーキテクチャスタイル</strong>: ポートとアダプターアーキテクチャ</li>
+</ul>
+<h3 id="_4">採用するテスト戦略<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p><strong>ピラミッド形テスト戦略</strong>を採用します。</p>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgZGF0YS1kaWFncmFtLXR5cGU9IkRFU0NSSVBUSU9OIiBoZWlnaHQ9IjQyN3B4IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBzdHlsZT0id2lkdGg6MzU5cHg7aGVpZ2h0OjQyN3B4O2JhY2tncm91bmQ6I0ZGRkZGRjsiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDM1OSA0MjciIHdpZHRoPSIzNTlweCIgem9vbUFuZFBhbj0ibWFnbmlmeSI+PGRlZnMvPjxnPjwhLS1lbnRpdHkgRTJFLS0+PGcgY2xhc3M9ImVudGl0eSIgZGF0YS1lbnRpdHk9IkUyRSIgZGF0YS1zb3VyY2UtbGluZT0iNSIgZGF0YS11aWQ9ImVudDAwMDIiIGlkPSJlbnRpdHlfRTJFIj48cmVjdCBmaWxsPSIjRjQ0MzM2IiBoZWlnaHQ9IjUyLjU5MzgiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9Ijg4LjU5ODQiIHg9IjE2Ni4yIiB5PSI3Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNjguNTk4NCIgeD0iMTc2LjIiIHk9IjI5Ljk5NTEiPkUyRSYjMTI0ODY7JiMxMjQ3MzsmIzEyNDg4OzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIzMy4xMzM4IiB4PSIxNzYuMiIgeT0iNDYuMjkyIj4oNSUpPC90ZXh0PjwvZz48IS0tZW50aXR5IEludGVncmF0aW9uLS0+PGcgY2xhc3M9ImVudGl0eSIgZGF0YS1lbnRpdHk9IkludGVncmF0aW9uIiBkYXRhLXNvdXJjZS1saW5lPSI2IiBkYXRhLXVpZD0iZW50MDAwMyIgaWQ9ImVudGl0eV9JbnRlZ3JhdGlvbiI+PHJlY3QgZmlsbD0iI0ZGOTgwMCIgaGVpZ2h0PSI1Mi41OTM4IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI4OS45OTk3IiB4PSI5MS41IiB5PSIxMjAuOTkiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI2OS45OTk3IiB4PSIxMDEuNSIgeT0iMTQzLjk4NTEiPiYjMzIxMTM7JiMyMTUxMjsmIzEyNDg2OyYjMTI0NzM7JiMxMjQ4ODs8L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNDIuMDQxIiB4PSIxMDEuNSIgeT0iMTYwLjI4MiI+KDE1JSk8L3RleHQ+PC9nPjwhLS1lbnRpdHkgVW5pdC0tPjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtZW50aXR5PSJVbml0IiBkYXRhLXNvdXJjZS1saW5lPSI3IiBkYXRhLXVpZD0iZW50MDAwNCIgaWQ9ImVudGl0eV9Vbml0Ij48cmVjdCBmaWxsPSIjNENBRjUwIiBoZWlnaHQ9IjUyLjU5MzgiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9Ijg5Ljk5OTciIHg9IjIzLjUiIHk9IjIzNi4zOSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjY5Ljk5OTciIHg9IjMzLjUiIHk9IjI1OS4zODUxIj4mIzIxMzM2OyYjMjAzMDc7JiMxMjQ4NjsmIzEyNDczOyYjMTI0ODg7PC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjQyLjA0MSIgeD0iMzMuNSIgeT0iMjc1LjY4MiI+KDgwJSk8L3RleHQ+PC9nPjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtZW50aXR5PSJHTU45IiBkYXRhLXNvdXJjZS1saW5lPSIxMyIgZGF0YS11aWQ9ImVudDAwMTAiIGlkPSJlbnRpdHlfR01OOSI+PHBhdGggZD0iTTYsMzUwLjM5IEw2LDQyMC45MjEzIEEwLDAgMCAwIDAgNiw0MjAuOTIxMyBMMTMxLjAwMDEsNDIwLjkyMTMgQTAsMCAwIDAgMCAxMzEuMDAwMSw0MjAuOTIxMyBMMTMxLjAwMDEsMzYwLjM5IEwxMjEuMDAwMSwzNTAuMzkgTDcyLjUsMzUwLjM5IEw2OC41LDI4OS4zNCBMNjQuNSwzNTAuMzkgTDYsMzUwLjM5IEEwLDAgMCAwIDAgNiwzNTAuMzkiIGZpbGw9IiNGRUZGREQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjxwYXRoIGQ9Ik0xMjEuMDAwMSwzNTAuMzkgTDEyMS4wMDAxLDM2MC4zOSBMMTMxLjAwMDEsMzYwLjM5IEwxMjEuMDAwMSwzNTAuMzkiIGZpbGw9IiNGRUZGREQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjEwNC4wMDAxIiB4PSIxMiIgeT0iMzY3LjQ1NjkiPiYjMTI0ODk7JiMxMjUxMzsmIzEyNDUyOyYjMTI1MzE7JiMxMjUyNTsmIzEyNDcyOyYjMTI0ODM7JiMxMjQ2Mzs8L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iOTEuMDAwMSIgeD0iMTIiIHk9IjM4Mi41ODk3Ij4mIzIwNTE2OyYjMTI0NTg7JiMxMjUwMjsmIzEyNDcyOyYjMTI0NTU7JiMxMjQ2MzsmIzEyNDg4OzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI3OC4wMDAxIiB4PSIxMiIgeT0iMzk3LjcyMjUiPiYjMTI0NTY7JiMxMjUzMTsmIzEyNDg2OyYjMTI0NTE7JiMxMjQ4NjsmIzEyNDUxOzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI3OC4wMDAxIiB4PSIxMiIgeT0iNDEyLjg1NTMiPiYjMTI1Mjc7JiMxMjU0MDsmIzEyNDYzOyYjMTI1MDE7JiMxMjUyNTsmIzEyNTQwOzwvdGV4dD48L2c+PGcgY2xhc3M9ImVudGl0eSIgZGF0YS1lbnRpdHk9IkdNTjEyIiBkYXRhLXNvdXJjZS1saW5lPSIyMCIgZGF0YS11aWQ9ImVudDAwMTMiIGlkPSJlbnRpdHlfR01OMTIiPjxwYXRoIGQ9Ik0xNDguNSwyMzQuOTkgTDE0OC41LDI5MC4zODg0IEEwLDAgMCAwIDAgMTQ4LjUsMjkwLjM4ODQgTDI2MC41MDAxLDI5MC4zODg0IEEwLDAgMCAwIDAgMjYwLjUwMDEsMjkwLjM4ODQgTDI2MC41MDAxLDI0NC45OSBMMjUwLjUwMDEsMjM0Ljk5IEwxOTIuNDIsMjM0Ljk5IEwxNTEuOTMsMTc0LjAyIEwxODQuNDIsMjM0Ljk5IEwxNDguNSwyMzQuOTkgQTAsMCAwIDAgMCAxNDguNSwyMzQuOTkiIGZpbGw9IiNGRUZGREQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjxwYXRoIGQ9Ik0yNTAuNTAwMSwyMzQuOTkgTDI1MC41MDAxLDI0NC45OSBMMjYwLjUwMDEsMjQ0Ljk5IEwyNTAuNTAwMSwyMzQuOTkiIGZpbGw9IiNGRUZGREQiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjY1LjAwMDEiIHg9IjE1NC41IiB5PSIyNTIuMDU2OSI+JiMxMjUyMjsmIzEyNTA5OyYjMTI0NzI7JiMxMjQ4ODsmIzEyNTIyOzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI3Mi41NjY1IiB4PSIxNTQuNSIgeT0iMjY3LjE4OTciPiYjMjI4MDY7JiMzNzA5NjtBUEkmIzM2ODk5OyYjMjU2NTg7PC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjkxLjAwMDEiIHg9IjE1NC41IiB5PSIyODIuMzIyNSI+JiMxMjQ4NzsmIzEyNTQwOyYjMTI0Nzk7JiMxMjQ1MDsmIzEyNDYzOyYjMTI0NzU7JiMxMjQ3Mzs8L3RleHQ+PC9nPjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtZW50aXR5PSJHTU4xNSIgZGF0YS1zb3VyY2UtbGluZT0iMjYiIGRhdGEtdWlkPSJlbnQwMDE2IiBpZD0iZW50aXR5X0dNTjE1Ij48cGF0aCBkPSJNMjE2LjE1LDExOS41OSBMMjE2LjE1LDE3NC45ODg0IEEwLDAgMCAwIDAgMjE2LjE1LDE3NC45ODg0IEwzNTIuODQ4OCwxNzQuOTg4NCBBMCwwIDAgMCAwIDM1Mi44NDg4LDE3NC45ODg0IEwzNTIuODQ4OCwxMjkuNTkgTDM0Mi44NDg4LDExOS41OSBMMjcwLjU3LDExOS41OSBMMjI3LjQ4LDU5Ljk5IEwyNjIuNTcsMTE5LjU5IEwyMTYuMTUsMTE5LjU5IEEwLDAgMCAwIDAgMjE2LjE1LDExOS41OSIgZmlsbD0iI0ZFRkZERCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7Ii8+PHBhdGggZD0iTTM0Mi44NDg4LDExOS41OSBMMzQyLjg0ODgsMTI5LjU5IEwzNTIuODQ4OCwxMjkuNTkgTDM0Mi44NDg4LDExOS41OSIgZmlsbD0iI0ZFRkZERCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTA0LjAwMDEiIHg9IjIyMi4xNSIgeT0iMTM2LjY1NjkiPiYjMTI1MTg7JiMxMjU0MDsmIzEyNDcwOyYjMTI1NDA7JiMxMjQ3MTsmIzEyNDkwOyYjMTI1MjI7JiMxMjQ1ODs8L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTE1LjY5ODgiIHg9IjIyMi4xNSIgeT0iMTUxLjc4OTciPkFQSSAmIzEyNDU2OyYjMTI1MzE7JiMxMjQ4OTsmIzEyNTA5OyYjMTI0NTI7JiMxMjUzMTsmIzEyNDg4OzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI3OC4wMDAxIiB4PSIyMjIuMTUiIHk9IjE2Ni45MjI1Ij4mIzEyNDcxOyYjMTI0NzM7JiMxMjQ4NjsmIzEyNTEyOyYjMjA4NDA7JiMyMDMwNzs8L3RleHQ+PC9nPjwhLS1yZXZlcnNlIGxpbmsgSW50ZWdyYXRpb24gdG8gVW5pdC0tPjxnIGNsYXNzPSJsaW5rIiBkYXRhLWVudGl0eS0xPSJJbnRlZ3JhdGlvbiIgZGF0YS1lbnRpdHktMj0iVW5pdCIgZGF0YS1zb3VyY2UtbGluZT0iOSIgZGF0YS11aWQ9ImxuazYiIGlkPSJsaW5rX0ludGVncmF0aW9uX1VuaXQiPjxwYXRoIGQ9Ik0xMTcuOTg0MiwxNzkuMTY1NyBDMTA2Ljg1NDIsMTk3LjcyNTcgOTQuOTgsMjE3LjUyIDgzLjg3LDIzNi4wNiIgZmlsbD0ibm9uZSIgaWQ9IkludGVncmF0aW9uLWJhY2t0by1Vbml0IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIxMjEuMDcsMTc0LjAyLDExMy4wMTA5LDE3OS42ODE0LDExOC40OTg1LDE3OC4zMDgxLDExOS44NzE4LDE4My43OTU3LDEyMS4wNywxNzQuMDIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48L2c+PCEtLXJldmVyc2UgbGluayBFMkUgdG8gSW50ZWdyYXRpb24tLT48ZyBjbGFzcz0ibGluayIgZGF0YS1lbnRpdHktMT0iRTJFIiBkYXRhLWVudGl0eS0yPSJJbnRlZ3JhdGlvbiIgZGF0YS1zb3VyY2UtbGluZT0iMTAiIGRhdGEtdWlkPSJsbms4IiBpZD0ibGlua19FMkVfSW50ZWdyYXRpb24iPjxwYXRoIGQ9Ik0xOTAuMjEyOCw2NC45OTYyIEMxNzguMTgyOCw4My4yMDYyIDE2NS40MSwxMDIuNTMgMTUzLjQsMTIwLjcyIiBmaWxsPSJub25lIiBpZD0iRTJFLWJhY2t0by1JbnRlZ3JhdGlvbiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMTkzLjUyLDU5Ljk5LDE4NS4yMjE3LDY1LjI5NDUsMTkwLjc2NCw2NC4xNjE4LDE5MS44OTY2LDY5LjcwNDEsMTkzLjUyLDU5Ljk5IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PC9nPjwhLS1TUkM9W1RQMUZJdTkxNENSbC1vYk04d1kzT0FiWGJxMTR1dU5HNEJxNU9SY0FLRms2bFRyYlhxbzNHMFliSXIwZjlLOTRIRGFWZW15cGxPTlZlanRydHU5cWNTQ3lDeF9kY1Y3YU1CeDg2U3FhaEZIc0RCY0hKRDZ2TzNHSTNfYzlQb0hQWU5IaUZITDlNeWQ0VTI4VU5tdHhmbkVudlRYNDJHTzNXSEwySWNwTm9WQjI3Z0RVZ0k5S0tCbVhMQlZ1R2NYLXFLa3BYc2Zma2NaRV9wdV9rbE1na1I4cXRoNnVtbWdiaDVFcS1NbWlhLTZVTk5uX2Rma0NpN180b0YyWU92bkJZNnh1Wld2eVFvUVZjNXYzTFFPYlhEaUVlcGtzdXpaeHJDdmg2YTZlOExvWlEyQ3k4VG9aVTRLMDUwXzRCUlRIVDE2UWdZTmtQNGs2OElXd1ViMjZRbXNoOTRZYmhfTTY4YTJWQzl3Wm9jcDZxV285OEVjTnNiMS1oNGxTVGRDMGRTWWNESVl0VmtobEtaX0h0MnlLRHVla0ZrSDNfYVVoMm41a3pTZ0JoWnM0S3NLWWthSEl3Slh3SlJpRXhySzd6VklWQW1YTnhkNTdWZHZZeUdTMF0tLT48L2c+PC9zdmc+" class="uml" alt="uml diagram" title="" /></p>
+<h3 id="_5">選択理由<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>ドメインモデルパターン</strong>: リッチなビジネスロジックを持つため、単体テスト中心の戦略が最適</li>
+<li><strong>関数型プログラミング</strong>: 純粋関数が多く、テスタビリティが高い</li>
+<li><strong>型安全性</strong>: F# の型システムにより多くのエラーをコンパイル時に検出可能</li>
+</ol>
+<h2 id="_6">テストレベル別戦略<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h3 id="1-80">1. 単体テスト（80%）<a class="headerlink" href="#1-80" title="Permanent link">&para;</a></h3>
+<h4 id="_7">対象<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>ドメインオブジェクト</strong>: 値オブジェクト、エンティティ</li>
+<li><strong>ドメインサービス</strong>: ビジネスルール、ドメインロジック</li>
+<li><strong>ワークフロー</strong>: 注文受付、検証、価格計算のロジック</li>
+<li><strong>純粋関数</strong>: 変換、計算処理</li>
+</ul>
+<h4 id="_8">テスト方針<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<p><strong>TDD（テスト駆動開発）を徹底</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 例：値オブジェクトのテスト</span>
+<span class="k">module</span><span class="w"> </span><span class="nn">String50Tests</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">NUnit.Framework</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">FsUnit</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">Test</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="n">``有効な文字列で String50 を作成できる``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// Arrange</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">validString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;有効な文字列&quot;</span>
+
+<span class="w">        </span><span class="c1">// Act</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">String50</span><span class="p">.</span><span class="n">create</span><span class="w"> </span><span class="n">validString</span>
+
+<span class="w">        </span><span class="c1">// Assert</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="o">(</span><span class="n">Ok</span><span class="w"> </span><span class="o">(</span><span class="n">String50</span><span class="w"> </span><span class="n">validString</span><span class="o">))</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">Test</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="n">``51文字以上の文字列は拒否される``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// Arrange</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">longString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">String</span><span class="p">.</span><span class="n">replicate</span><span class="w"> </span><span class="mi">51</span><span class="w"> </span><span class="s">&quot;a&quot;</span>
+
+<span class="w">        </span><span class="c1">// Act</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">String50</span><span class="p">.</span><span class="n">create</span><span class="w"> </span><span class="n">longString</span>
+
+<span class="w">        </span><span class="c1">// Assert</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="o">(</span><span class="n">ofCase</span><span class="w"> </span><span class="o">&lt;@</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="o">@&gt;)</span>
+</code></pre></div>
+<h4 id="_9">プロパティベーステスト<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1">// 例：商品コードの検証</span>
+<span class="k">module</span><span class="w"> </span><span class="nn">ProductCodePropertyTests</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">FsCheck</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">FsCheck.NUnit</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">Property</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="n">``Widget コードは常に W で始まり4桁の数字が続く``</span><span class="w"> </span><span class="o">(</span><span class="n">code</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="o">)</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">match</span><span class="w"> </span><span class="nn">WidgetCode</span><span class="p">.</span><span class="n">create</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="k">with</span>
+<span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">Ok</span><span class="w"> </span><span class="o">(</span><span class="n">WidgetCode</span><span class="w"> </span><span class="n">value</span><span class="o">)</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="n">value</span><span class="o">.</span><span class="n">StartsWith</span><span class="o">(</span><span class="s">&quot;W&quot;</span><span class="o">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="o">.</span><span class="n">Length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
+<span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="o">_</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="ow">not</span><span class="w"> </span><span class="o">(</span><span class="n">code</span><span class="o">.</span><span class="n">StartsWith</span><span class="o">(</span><span class="s">&quot;W&quot;</span><span class="o">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">code</span><span class="o">.</span><span class="n">Length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="o">)</span>
+</code></pre></div>
+<h4 id="_10">テストカバレッジ目標<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>ドメインロジック</strong>: 100%</li>
+<li><strong>値オブジェクト</strong>: 100%</li>
+<li><strong>ワークフロー</strong>: 95%以上</li>
+</ul>
+<h3 id="2-15">2. 統合テスト（15%）<a class="headerlink" href="#2-15" title="Permanent link">&para;</a></h3>
+<h4 id="_11">対象<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>リポジトリ実装</strong>: データアクセスロジック</li>
+<li><strong>外部サービス連携</strong>: 住所検証、メール送信</li>
+<li><strong>インフラストラクチャ層</strong>: データベース操作</li>
+<li><strong>アプリケーションサービス</strong>: レイヤー間連携</li>
+</ul>
+<h4 id="_12">テスト方針<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<p><strong>依存関係を含む結合テスト</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">OrderRepositoryIntegrationTests</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">NUnit.Framework</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">Microsoft.EntityFrameworkCore</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">SetUp</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">setup</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// InMemory データベース初期化</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DbContextOptionsBuilder</span><span class="o">&lt;</span><span class="n">OrderContext</span><span class="o">&gt;</span><span class="bp">()</span>
+<span class="w">                         </span><span class="o">.</span><span class="n">UseInMemoryDatabase</span><span class="o">(</span><span class="s">&quot;TestDb&quot;</span><span class="o">)</span>
+<span class="w">                         </span><span class="o">.</span><span class="n">Options</span>
+<span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">OrderContext</span><span class="o">(</span><span class="n">options</span><span class="o">)</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">Test</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="n">``注文を保存し取得できる``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// Arrange</span>
+<span class="w">        </span><span class="k">use</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setup</span><span class="bp">()</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OrderRepository</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createValidPricedOrder</span><span class="bp">()</span>
+
+<span class="w">        </span><span class="c1">// Act</span>
+<span class="w">        </span><span class="n">repository</span><span class="o">.</span><span class="n">Save</span><span class="o">(</span><span class="n">order</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">RunSynchronously</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">retrieved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="o">.</span><span class="n">GetById</span><span class="o">(</span><span class="n">order</span><span class="o">.</span><span class="n">OrderId</span><span class="o">)</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">RunSynchronously</span>
+
+<span class="w">        </span><span class="c1">// Assert</span>
+<span class="w">        </span><span class="n">retrieved</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">equal</span><span class="w"> </span><span class="o">(</span><span class="n">Some</span><span class="w"> </span><span class="n">order</span><span class="o">)</span>
+</code></pre></div>
+<h4 id="_13">外部サービステスト<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">ExternalServiceTests</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">NUnit.Framework</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">Test</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="n">``住所検証サービスが正常に動作する``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// Arrange</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AddressValidationService</span><span class="o">(</span><span class="n">testConfig</span><span class="o">)</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">unvalidatedAddress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createTestAddress</span><span class="bp">()</span>
+
+<span class="w">        </span><span class="c1">// Act</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="o">.</span><span class="n">ValidateAddress</span><span class="o">(</span><span class="n">unvalidatedAddress</span><span class="o">)</span>
+<span class="w">                    </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">RunSynchronously</span>
+
+<span class="w">        </span><span class="c1">// Assert</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="o">(</span><span class="n">ofCase</span><span class="w"> </span><span class="o">&lt;@</span><span class="w"> </span><span class="n">Ok</span><span class="w"> </span><span class="o">@&gt;)</span>
+</code></pre></div>
+<h3 id="3-e2e5">3. E2Eテスト（5%）<a class="headerlink" href="#3-e2e5" title="Permanent link">&para;</a></h3>
+<h4 id="_14">対象<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>主要ユーザーシナリオ</strong>: 注文受付の完全なフロー</li>
+<li><strong>API エンドポイント</strong>: HTTP レベルでの動作確認</li>
+<li><strong>エラーハンドリング</strong>: システム全体のエラー処理</li>
+</ul>
+<h4 id="_15">テスト方針<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<p><strong>実際のユーザー操作をシミュレート</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">E2ETests</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">NUnit.Framework</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">Microsoft.AspNetCore.Mvc.Testing</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">System.Net.Http</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">Test</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="n">``注文受付の完全なフローが正常に動作する``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// Arrange</span>
+<span class="w">        </span><span class="k">use</span><span class="w"> </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">WebApplicationFactory</span><span class="o">&lt;</span><span class="n">Program</span><span class="o">&gt;</span><span class="bp">()</span>
+<span class="w">        </span><span class="k">use</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="o">.</span><span class="n">CreateClient</span><span class="bp">()</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">orderRequest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createValidOrderRequest</span><span class="bp">()</span>
+
+<span class="w">        </span><span class="c1">// Act - 注文送信</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="o">.</span><span class="n">PostAsync</span><span class="o">(</span><span class="s">&quot;/api/orders&quot;</span><span class="o">,</span><span class="w"> </span><span class="n">toJsonContent</span><span class="o">(</span><span class="n">orderRequest</span><span class="o">))</span>
+<span class="w">                      </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">AwaitTask</span>
+<span class="w">                      </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">RunSynchronously</span>
+
+<span class="w">        </span><span class="c1">// Assert - 成功レスポンス</span>
+<span class="w">        </span><span class="n">response</span><span class="o">.</span><span class="n">IsSuccessStatusCode</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">True</span>
+
+<span class="w">        </span><span class="c1">// Act - 注文確認</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">orderId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">extractOrderId</span><span class="o">(</span><span class="n">response</span><span class="o">)</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">getResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="o">.</span><span class="n">GetAsync</span><span class="o">($</span><span class="s">&quot;/api/orders/{orderId}&quot;</span><span class="o">)</span>
+<span class="w">                         </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">AwaitTask</span>
+<span class="w">                         </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">RunSynchronously</span>
+
+<span class="w">        </span><span class="c1">// Assert - 注文データ確認</span>
+<span class="w">        </span><span class="n">getResponse</span><span class="o">.</span><span class="n">IsSuccessStatusCode</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">True</span>
+</code></pre></div>
+<h2 id="_16">テスト実装詳細<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h2>
+<h3 id="f">F# テストフレームワーク構成<a class="headerlink" href="#f" title="Permanent link">&para;</a></h3>
+<h4 id="_17">推奨テストスタック<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>ライブラリ</th>
+<th>バージョン</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>テストフレームワーク</strong></td>
+<td>NUnit</td>
+<td>最新</td>
+<td>F# との親和性、豊富な機能</td>
+</tr>
+<tr>
+<td><strong>アサーション</strong></td>
+<td>FsUnit</td>
+<td>最新</td>
+<td>F# ネイティブな記述スタイル</td>
+</tr>
+<tr>
+<td><strong>プロパティテスト</strong></td>
+<td>FsCheck</td>
+<td>最新</td>
+<td>関数型プログラミング対応</td>
+</tr>
+<tr>
+<td><strong>モック</strong></td>
+<td>NSubstitute</td>
+<td>最新</td>
+<td>インターフェースベースモック</td>
+</tr>
+<tr>
+<td><strong>Web テスト</strong></td>
+<td>Microsoft.AspNetCore.Mvc.Testing</td>
+<td>9.0</td>
+<td>ASP.NET Core 統合テスト</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_18">プロジェクト構成<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>tests/
+├── OrderTaking.UnitTests/           # 単体テスト
+│   ├── Domain/
+│   │   ├── ValueObjectTests.fs     # 値オブジェクトテスト
+│   │   ├── EntityTests.fs          # エンティティテスト
+│   │   └── WorkflowTests.fs        # ワークフローテスト
+│   ├── TestHelpers.fs              # テスト共通処理
+│   └── OrderTaking.UnitTests.fsproj
+├── OrderTaking.IntegrationTests/   # 統合テスト
+│   ├── Repository/
+│   │   └── OrderRepositoryTests.fs
+│   ├── ExternalServices/
+│   │   └── AddressValidationTests.fs
+│   └── OrderTaking.IntegrationTests.fsproj
+└── OrderTaking.E2ETests/           # E2Eテスト
+    ├── ApiTests.fs                 # API エンドポイントテスト
+    ├── ScenarioTests.fs            # ユーザーシナリオテスト
+    └── OrderTaking.E2ETests.fsproj
+</code></pre></div>
+<h3 id="_19">テストデータ管理<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<h4 id="_20">テストデータビルダー<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">TestDataBuilders</span><span class="w"> </span><span class="o">=</span>
+
+<span class="w">    </span><span class="k">type</span><span class="w"> </span><span class="nc">UnvalidatedOrderBuilder</span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">mutable</span><span class="w"> </span><span class="n">orderId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;ORDER001&quot;</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">mutable</span><span class="w"> </span><span class="n">customerName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;田中太郎&quot;</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">mutable</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;tanaka@example.com&quot;</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">mutable</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">[]</span>
+
+<span class="w">        </span><span class="k">member</span><span class="w"> </span><span class="n">this</span><span class="p">.</span><span class="nf">WithOrderId</span><span class="o">(</span><span class="n">id</span><span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orderId</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">id</span><span class="o">;</span><span class="w"> </span><span class="n">this</span>
+<span class="w">        </span><span class="k">member</span><span class="w"> </span><span class="n">this</span><span class="p">.</span><span class="nf">WithCustomer</span><span class="o">(</span><span class="n">name</span><span class="o">,</span><span class="w"> </span><span class="n">emailAddr</span><span class="o">)</span><span class="w"> </span><span class="o">=</span>
+<span class="w">            </span><span class="n">customerName</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">name</span>
+<span class="w">            </span><span class="n">email</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">emailAddr</span>
+<span class="w">            </span><span class="n">this</span>
+<span class="w">        </span><span class="k">member</span><span class="w"> </span><span class="n">this</span><span class="p">.</span><span class="nf">WithLine</span><span class="o">(</span><span class="n">productCode</span><span class="o">,</span><span class="w"> </span><span class="n">quantity</span><span class="o">)</span><span class="w"> </span><span class="o">=</span>
+<span class="w">            </span><span class="k">let</span><span class="w"> </span><span class="nv">line</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span>
+<span class="w">                </span><span class="n">OrderLineId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">$</span><span class="s">&quot;LINE{lines.Length + 1}&quot;</span>
+<span class="w">                </span><span class="n">ProductCode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">productCode</span>
+<span class="w">                </span><span class="n">Quantity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">quantity</span>
+<span class="w">            </span><span class="o">}</span>
+<span class="w">            </span><span class="n">lines</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="o">::</span><span class="w"> </span><span class="n">lines</span>
+<span class="w">            </span><span class="n">this</span>
+
+<span class="w">        </span><span class="k">member</span><span class="w"> </span><span class="n">this</span><span class="p">.</span><span class="nf">Build</span><span class="bp">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span>
+<span class="w">            </span><span class="n">OrderId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">orderId</span>
+<span class="w">            </span><span class="n">CustomerInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span>
+<span class="w">                </span><span class="n">FirstName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">customerName</span><span class="o">.</span><span class="n">Split</span><span class="o">(</span><span class="sc">&#39; &#39;</span><span class="o">).[</span><span class="mi">1</span><span class="o">]</span>
+<span class="w">                </span><span class="n">LastName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">customerName</span><span class="o">.</span><span class="n">Split</span><span class="o">(</span><span class="sc">&#39; &#39;</span><span class="o">).[</span><span class="mi">0</span><span class="o">]</span>
+<span class="w">                </span><span class="n">EmailAddress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">email</span>
+<span class="w">            </span><span class="o">}</span>
+<span class="w">            </span><span class="n">ShippingAddress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">TestAddresses</span><span class="p">.</span><span class="n">validAddress</span>
+<span class="w">            </span><span class="n">BillingAddress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">TestAddresses</span><span class="p">.</span><span class="n">validAddress</span>
+<span class="w">            </span><span class="n">Lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">List</span><span class="p">.</span><span class="n">rev</span>
+<span class="w">        </span><span class="o">}</span>
+
+<span class="w">    </span><span class="c1">// 使用例</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">validOrder</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">UnvalidatedOrderBuilder</span><span class="bp">()</span>
+<span class="w">            </span><span class="o">.</span><span class="n">WithOrderId</span><span class="o">(</span><span class="s">&quot;ORDER001&quot;</span><span class="o">)</span>
+<span class="w">            </span><span class="o">.</span><span class="n">WithCustomer</span><span class="o">(</span><span class="s">&quot;田中太郎&quot;</span><span class="o">,</span><span class="w"> </span><span class="s">&quot;tanaka@example.com&quot;</span><span class="o">)</span>
+<span class="w">            </span><span class="o">.</span><span class="n">WithLine</span><span class="o">(</span><span class="s">&quot;W1234&quot;</span><span class="o">,</span><span class="w"> </span><span class="mi">5m</span><span class="o">)</span>
+<span class="w">            </span><span class="o">.</span><span class="n">WithLine</span><span class="o">(</span><span class="s">&quot;G123&quot;</span><span class="o">,</span><span class="w"> </span><span class="mi">2</span><span class="o">.</span><span class="mi">5m</span><span class="o">)</span>
+<span class="w">            </span><span class="o">.</span><span class="n">Build</span><span class="bp">()</span>
+</code></pre></div>
+<h3 id="_21">モック戦略<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<h4 id="_22">外部依存のモック化<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">MockServices</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">NSubstitute</span>
+
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">createMockProductService</span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">mock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">IProductService</span><span class="o">&gt;</span><span class="bp">()</span>
+<span class="w">        </span><span class="n">mock</span><span class="o">.</span><span class="n">CheckProductExists</span><span class="o">(</span><span class="nn">Arg</span><span class="p">.</span><span class="n">Any</span><span class="o">&lt;</span><span class="n">ProductCode</span><span class="o">&gt;</span><span class="bp">()</span><span class="o">)</span>
+<span class="w">            </span><span class="o">.</span><span class="n">Returns</span><span class="o">(</span><span class="k">true</span><span class="o">)</span>
+<span class="w">        </span><span class="n">mock</span><span class="o">.</span><span class="n">GetProductPrice</span><span class="o">(</span><span class="nn">Arg</span><span class="p">.</span><span class="n">Any</span><span class="o">&lt;</span><span class="n">ProductCode</span><span class="o">&gt;</span><span class="bp">()</span><span class="o">)</span>
+<span class="w">            </span><span class="o">.</span><span class="n">Returns</span><span class="o">(</span><span class="n">Some</span><span class="w"> </span><span class="mi">100m</span><span class="o">)</span>
+<span class="w">        </span><span class="n">mock</span>
+
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">createMockAddressService</span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">mock</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">Substitute</span><span class="p">.</span><span class="n">For</span><span class="o">&lt;</span><span class="n">IAddressValidationService</span><span class="o">&gt;</span><span class="bp">()</span>
+<span class="w">        </span><span class="n">mock</span><span class="o">.</span><span class="n">ValidateAddress</span><span class="o">(</span><span class="nn">Arg</span><span class="p">.</span><span class="n">Any</span><span class="o">&lt;</span><span class="n">UnvalidatedAddress</span><span class="o">&gt;</span><span class="bp">()</span><span class="o">)</span>
+<span class="w">            </span><span class="o">.</span><span class="n">Returns</span><span class="o">(</span><span class="nn">AsyncResult</span><span class="p">.</span><span class="n">ofResult</span><span class="w"> </span><span class="o">(</span><span class="n">Ok</span><span class="w"> </span><span class="n">validAddress</span><span class="o">))</span>
+<span class="w">        </span><span class="n">mock</span>
+</code></pre></div>
+<h2 id="cicd">CI/CD での実行戦略<a class="headerlink" href="#cicd" title="Permanent link">&para;</a></h2>
+<h3 id="_23">テスト実行フロー<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h3>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgZGF0YS1kaWFncmFtLXR5cGU9IkFDVElWSVRZIiBoZWlnaHQ9IjU0MnB4IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBzdHlsZT0id2lkdGg6Njg0cHg7aGVpZ2h0OjU0MnB4O2JhY2tncm91bmQ6I0ZGRkZGRjsiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDY4NCA1NDIiIHdpZHRoPSI2ODRweCIgem9vbUFuZFBhbj0ibWFnbmlmeSI+PGRlZnMvPjxnPjxlbGxpcHNlIGN4PSI0ODkuMzU5NCIgY3k9IjIwIiBmaWxsPSIjMjIyMjIyIiByeD0iMTAiIHJ5PSIxMCIgc3R5bGU9InN0cm9rZTojMjIyMjIyO3N0cm9rZS13aWR0aDoxOyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzMuOTY4OCIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI4MC4wMDA1IiB4PSI0NDkuMzU5MiIgeT0iNTAiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI2MC4wMDA1IiB4PSI0NTkuMzU5MiIgeT0iNzEuMTM4NyI+JiMxMjQ2NzsmIzEyNTQwOyYjMTI0ODk7JiMyMjc5MzsmIzI2MzU2OzwvdGV4dD48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjMzLjk2ODgiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNjguMDAwNCIgeD0iNDU1LjM1OTMiIHk9IjEwMy45Njg4Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNDguMDAwNCIgeD0iNDY1LjM1OTMiIHk9IjEyNS4xMDc0Ij4mIzM4NzQ1OyYjMzAzNDA7JiMzNTI5OTsmIzI2NTEyOzwvdGV4dD48cG9seWdvbiBmaWxsPSIjRjFGMUYxIiBwb2ludHM9IjQ1Ni41MDQ2LDE1Ny45Mzc1LDUyMi4yMTQzLDE1Ny45Mzc1LDUzNC4yMTQzLDE2OS45Mzc1LDUyMi4yMTQzLDE4MS45Mzc1LDQ1Ni41MDQ2LDE4MS45Mzc1LDQ0NC41MDQ2LDE2OS45Mzc1LDQ1Ni41MDQ2LDE1Ny45Mzc1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI2NS43MDk3IiB4PSI0NTYuNTA0NiIgeT0iMTczLjc0NTYiPiYjMzg3NDU7JiMzMDM0MDsmIzM1Mjk5OyYjMjY1MTI7T0s/PC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjE5LjAwODMiIHg9IjQyNS40OTYzIiB5PSIxNjcuMzQzMyI+eWVzPC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjEzLjcwMTciIHg9IjUzNC4yMTQzIiB5PSIxNjcuMzQzMyI+bm88L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzMy45Njg4IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjEwNC4wMDA2IiB4PSIyOTQuNzA4IiB5PSIxOTEuOTM3NSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9Ijg0LjAwMDYiIHg9IjMwNC43MDgiIHk9IjIxMy4wNzYyIj4mIzIxMzM2OyYjMjAzMDc7JiMxMjQ4NjsmIzEyNDczOyYjMTI0ODg7JiMyMzQ1NTsmIzM0ODkyOzwvdGV4dD48cG9seWdvbiBmaWxsPSIjRjFGMUYxIiBwb2ludHM9IjMwOC4zNTM1LDI0NS45MDYzLDM4NS4wNjMxLDI0NS45MDYzLDM5Ny4wNjMxLDI1Ny45MDYzLDM4NS4wNjMxLDI2OS45MDYzLDMwOC4zNTM1LDI2OS45MDYzLDI5Ni4zNTM1LDI1Ny45MDYzLDMwOC4zNTM1LDI0NS45MDYzIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI3Ni43MDk2IiB4PSIzMDguMzUzNSIgeT0iMjYxLjcxNDQiPiYjMjEzMzY7JiMyMDMwNzsmIzEyNDg2OyYjMTI0NzM7JiMxMjQ4ODtPSz88L3RleHQ+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTkuMDA4MyIgeD0iMjc3LjM0NTIiIHk9IjI1NS4zMTIiPnllczwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMy43MDE3IiB4PSIzOTcuMDYzMSIgeT0iMjU1LjMxMiI+bm88L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzMy45Njg4IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjEwNC4wMDA2IiB4PSIxNjEuNDA2NCIgeT0iMjc5LjkwNjMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI4NC4wMDA2IiB4PSIxNzEuNDA2NCIgeT0iMzAxLjA0NDkiPiYjMzIxMTM7JiMyMTUxMjsmIzEyNDg2OyYjMTI0NzM7JiMxMjQ4ODsmIzIzNDU1OyYjMzQ4OTI7PC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iMTc1LjA1MiwzMzMuODc1LDI1MS43NjE1LDMzMy44NzUsMjYzLjc2MTUsMzQ1Ljg3NSwyNTEuNzYxNSwzNTcuODc1LDE3NS4wNTIsMzU3Ljg3NSwxNjMuMDUyLDM0NS44NzUsMTc1LjA1MiwzMzMuODc1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI3Ni43MDk2IiB4PSIxNzUuMDUyIiB5PSIzNDkuNjgzMSI+JiMzMjExMzsmIzIxNTEyOyYjMTI0ODY7JiMxMjQ3MzsmIzEyNDg4O09LPzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxOS4wMDgzIiB4PSIxNDQuMDQzNyIgeT0iMzQzLjI4MDgiPnllczwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMy43MDE3IiB4PSIyNjMuNzYxNSIgeT0iMzQzLjI4MDgiPm5vPC90ZXh0PjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMzMuOTY4OCIgcng9IjEyLjUiIHJ5PSIxMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxMDIuNzk5MyIgeD0iNTMuNDA0OSIgeT0iMzY3Ljg3NSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjgyLjc5OTMiIHg9IjYzLjQwNDkiIHk9IjM4OS4wMTM3Ij5FMkUmIzEyNDg2OyYjMTI0NzM7JiMxMjQ4ODsmIzIzNDU1OyYjMzQ4OTI7PC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNGMUYxRjEiIHBvaW50cz0iNjcuMDAwMiw0MjEuODQzOCwxNDIuNjA4OCw0MjEuODQzOCwxNTQuNjA4OCw0MzMuODQzOCwxNDIuNjA4OCw0NDUuODQzOCw2Ny4wMDAyLDQ0NS44NDM4LDU1LjAwMDIsNDMzLjg0MzgsNjcuMDAwMiw0MjEuODQzOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNzUuNjA4NyIgeD0iNjcuMDAwMiIgeT0iNDM3LjY1MTkiPkUyRSYjMTI0ODY7JiMxMjQ3MzsmIzEyNDg4O09LPzwvdGV4dD48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMSIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxOS4wMDgzIiB4PSIzNS45OTE5IiB5PSI0MzEuMjQ5NSI+eWVzPC90ZXh0Pjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjExIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjEzLjcwMTciIHg9IjE1NC42MDg4IiB5PSI0MzEuMjQ5NSI+bm88L3RleHQ+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzMy45Njg4IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjY4LjAwMDQiIHg9IjExIiB5PSI0NTUuODQzOCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjQ4LjAwMDQiIHg9IjIxIiB5PSI0NzYuOTgyNCI+JiMxMjQ4NzsmIzEyNTAzOyYjMTI1MjU7JiMxMjQ1Mjs8L3RleHQ+PGVsbGlwc2UgY3g9IjQ1LjAwMDIiIGN5PSI1MjAuODEyNSIgZmlsbD0ibm9uZSIgcng9IjExIiByeT0iMTEiIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6MTsiLz48ZWxsaXBzZSBjeD0iNDUuMDAwMiIgY3k9IjUyMC44MTI1IiBmaWxsPSIjMjIyMjIyIiByeD0iNiIgcnk9IjYiIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6MTsiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjMzLjk2ODgiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTI2Ljc5OTUiIHg9IjEwMS4yMDkxIiB5PSI0NTUuODQzOCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjEwNi43OTk1IiB4PSIxMTEuMjA5MSIgeT0iNDc2Ljk4MjQiPkUyRSYjMTI0ODY7JiMxMjQ3MzsmIzEyNDg4OyYjMjI4MzM7JiMyNTk0MzsmIzM2ODkwOyYjMzA2OTM7PC90ZXh0PjxlbGxpcHNlIGN4PSIxNjQuNjA4OCIgY3k9IjUyMC44MTI1IiBmaWxsPSJub25lIiByeD0iMTEiIHJ5PSIxMSIgc3R5bGU9InN0cm9rZTojMjIyMjIyO3N0cm9rZS13aWR0aDoxOyIvPjxlbGxpcHNlIGN4PSIxNjQuNjA4OCIgY3k9IjUyMC44MTI1IiBmaWxsPSIjMjIyMjIyIiByeD0iNiIgcnk9IjYiIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6MTsiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjMzLjk2ODgiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTI4LjAwMDgiIHg9IjI1OC4wMDg2IiB5PSIzNjcuODc1Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTIiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTA4LjAwMDgiIHg9IjI2OC4wMDg2IiB5PSIzODkuMDEzNyI+JiMzMjExMzsmIzIxNTEyOyYjMTI0ODY7JiMxMjQ3MzsmIzEyNDg4OyYjMjI4MzM7JiMyNTk0MzsmIzM2ODkwOyYjMzA2OTM7PC90ZXh0PjxlbGxpcHNlIGN4PSIzMjIuMDA5IiBjeT0iNDMyLjg0MzgiIGZpbGw9Im5vbmUiIHJ4PSIxMSIgcnk9IjExIiBzdHlsZT0ic3Ryb2tlOiMyMjIyMjI7c3Ryb2tlLXdpZHRoOjE7Ii8+PGVsbGlwc2UgY3g9IjMyMi4wMDkiIGN5PSI0MzIuODQzOCIgZmlsbD0iIzIyMjIyMiIgcng9IjYiIHJ5PSI2IiBzdHlsZT0ic3Ryb2tlOiMyMjIyMjI7c3Ryb2tlLXdpZHRoOjE7Ii8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIzMy45Njg4IiByeD0iMTIuNSIgcnk9IjEyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjEyOC4wMDA4IiB4PSI0MTYuMDA5NCIgeT0iMjc5LjkwNjMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMiIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMDguMDAwOCIgeD0iNDI2LjAwOTQiIHk9IjMwMS4wNDQ5Ij4mIzIxMzM2OyYjMjAzMDc7JiMxMjQ4NjsmIzEyNDczOyYjMTI0ODg7JiMyMjgzMzsmIzI1OTQzOyYjMzY4OTA7JiMzMDY5Mzs8L3RleHQ+PGVsbGlwc2UgY3g9IjQ4MC4wMDk4IiBjeT0iMzQ0Ljg3NSIgZmlsbD0ibm9uZSIgcng9IjExIiByeT0iMTEiIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6MTsiLz48ZWxsaXBzZSBjeD0iNDgwLjAwOTgiIGN5PSIzNDQuODc1IiBmaWxsPSIjMjIyMjIyIiByeD0iNiIgcnk9IjYiIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6MTsiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjMzLjk2ODgiIHJ4PSIxMi41IiByeT0iMTIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTE2LjAwMDciIHg9IjU1Ny45MTU5IiB5PSIxOTEuOTM3NSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9Ijk2LjAwMDciIHg9IjU2Ny45MTU5IiB5PSIyMTMuMDc2MiI+JiMzODc0NTsmIzMwMzQwOyYjMzUyOTk7JiMyNjUxMjsmIzIyODMzOyYjMjU5NDM7JiMzNjg5MDsmIzMwNjkzOzwvdGV4dD48ZWxsaXBzZSBjeD0iNjE1LjkxNjMiIGN5PSIyNTYuOTA2MyIgZmlsbD0ibm9uZSIgcng9IjExIiByeT0iMTEiIHN0eWxlPSJzdHJva2U6IzIyMjIyMjtzdHJva2Utd2lkdGg6MTsiLz48ZWxsaXBzZSBjeD0iNjE1LjkxNjMiIGN5PSIyNTYuOTA2MyIgZmlsbD0iIzIyMjIyMiIgcng9IjYiIHJ5PSI2IiBzdHlsZT0ic3Ryb2tlOiMyMjIyMjI7c3Ryb2tlLXdpZHRoOjE7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjQ4OS4zNTk0IiB4Mj0iNDg5LjM1OTQiIHkxPSIzMCIgeTI9IjUwIi8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI0ODUuMzU5NCw0MCw0ODkuMzU5NCw1MCw0OTMuMzU5NCw0MCw0ODkuMzU5NCw0NCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSI0ODkuMzU5NCIgeDI9IjQ4OS4zNTk0IiB5MT0iODMuOTY4OCIgeTI9IjEwMy45Njg4Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI0ODUuMzU5NCw5My45Njg4LDQ4OS4zNTk0LDEwMy45Njg4LDQ5My4zNTk0LDkzLjk2ODgsNDg5LjM1OTQsOTcuOTY4OCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSI0NS4wMDAyIiB4Mj0iNDUuMDAwMiIgeTE9IjQ4OS44MTI1IiB5Mj0iNTA5LjgxMjUiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjQxLjAwMDIsNDk5LjgxMjUsNDUuMDAwMiw1MDkuODEyNSw0OS4wMDAyLDQ5OS44MTI1LDQ1LjAwMDIsNTAzLjgxMjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iMTY0LjYwODgiIHgyPSIxNjQuNjA4OCIgeTE9IjQ4OS44MTI1IiB5Mj0iNTA5LjgxMjUiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjE2MC42MDg4LDQ5OS44MTI1LDE2NC42MDg4LDUwOS44MTI1LDE2OC42MDg4LDQ5OS44MTI1LDE2NC42MDg4LDUwMy44MTI1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjU1LjAwMDIiIHgyPSI0NS4wMDAyIiB5MT0iNDMzLjg0MzgiIHkyPSI0MzMuODQzOCIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSI0NS4wMDAyIiB4Mj0iNDUuMDAwMiIgeTE9IjQzMy44NDM4IiB5Mj0iNDU1Ljg0MzgiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjQxLjAwMDIsNDQ1Ljg0MzgsNDUuMDAwMiw0NTUuODQzOCw0OS4wMDAyLDQ0NS44NDM4LDQ1LjAwMDIsNDQ5Ljg0MzgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iMTU0LjYwODgiIHgyPSIxNjQuNjA4OCIgeTE9IjQzMy44NDM4IiB5Mj0iNDMzLjg0MzgiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iMTY0LjYwODgiIHgyPSIxNjQuNjA4OCIgeTE9IjQzMy44NDM4IiB5Mj0iNDU1Ljg0MzgiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjE2MC42MDg4LDQ0NS44NDM4LDE2NC42MDg4LDQ1NS44NDM4LDE2OC42MDg4LDQ0NS44NDM4LDE2NC42MDg4LDQ0OS44NDM4IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjEwNC44MDQ1IiB4Mj0iMTA0LjgwNDUiIHkxPSI0MDEuODQzOCIgeTI9IjQyMS44NDM4Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIxMDAuODA0NSw0MTEuODQzOCwxMDQuODA0NSw0MjEuODQzOCwxMDguODA0NSw0MTEuODQzOCwxMDQuODA0NSw0MTUuODQzOCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSIzMjIuMDA5IiB4Mj0iMzIyLjAwOSIgeTE9IjQwMS44NDM4IiB5Mj0iNDIxLjg0MzgiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjMxOC4wMDksNDExLjg0MzgsMzIyLjAwOSw0MjEuODQzOCwzMjYuMDA5LDQxMS44NDM4LDMyMi4wMDksNDE1Ljg0MzgiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iMTYzLjA1MiIgeDI9IjEwNC44MDQ1IiB5MT0iMzQ1Ljg3NSIgeTI9IjM0NS44NzUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iMTA0LjgwNDUiIHgyPSIxMDQuODA0NSIgeTE9IjM0NS44NzUiIHkyPSIzNjcuODc1Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIxMDAuODA0NSwzNTcuODc1LDEwNC44MDQ1LDM2Ny44NzUsMTA4LjgwNDUsMzU3Ljg3NSwxMDQuODA0NSwzNjEuODc1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjI2My43NjE1IiB4Mj0iMzIyLjAwOSIgeTE9IjM0NS44NzUiIHkyPSIzNDUuODc1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjMyMi4wMDkiIHgyPSIzMjIuMDA5IiB5MT0iMzQ1Ljg3NSIgeTI9IjM2Ny44NzUiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjMxOC4wMDksMzU3Ljg3NSwzMjIuMDA5LDM2Ny44NzUsMzI2LjAwOSwzNTcuODc1LDMyMi4wMDksMzYxLjg3NSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSIyMTMuNDA2NyIgeDI9IjIxMy40MDY3IiB5MT0iMzEzLjg3NSIgeTI9IjMzMy44NzUiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjIwOS40MDY3LDMyMy44NzUsMjEzLjQwNjcsMzMzLjg3NSwyMTcuNDA2NywzMjMuODc1LDIxMy40MDY3LDMyNy44NzUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iNDgwLjAwOTgiIHgyPSI0ODAuMDA5OCIgeTE9IjMxMy44NzUiIHkyPSIzMzMuODc1Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI0NzYuMDA5OCwzMjMuODc1LDQ4MC4wMDk4LDMzMy44NzUsNDg0LjAwOTgsMzIzLjg3NSw0ODAuMDA5OCwzMjcuODc1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjI5Ni4zNTM1IiB4Mj0iMjEzLjQwNjciIHkxPSIyNTcuOTA2MyIgeTI9IjI1Ny45MDYzIi8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjIxMy40MDY3IiB4Mj0iMjEzLjQwNjciIHkxPSIyNTcuOTA2MyIgeTI9IjI3OS45MDYzIi8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIyMDkuNDA2NywyNjkuOTA2MywyMTMuNDA2NywyNzkuOTA2MywyMTcuNDA2NywyNjkuOTA2MywyMTMuNDA2NywyNzMuOTA2MyIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSIzOTcuMDYzMSIgeDI9IjQ4MC4wMDk4IiB5MT0iMjU3LjkwNjMiIHkyPSIyNTcuOTA2MyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSI0ODAuMDA5OCIgeDI9IjQ4MC4wMDk4IiB5MT0iMjU3LjkwNjMiIHkyPSIyNzkuOTA2MyIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iNDc2LjAwOTgsMjY5LjkwNjMsNDgwLjAwOTgsMjc5LjkwNjMsNDg0LjAwOTgsMjY5LjkwNjMsNDgwLjAwOTgsMjczLjkwNjMiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iMzQ2LjcwODMiIHgyPSIzNDYuNzA4MyIgeTE9IjIyNS45MDYzIiB5Mj0iMjQ1LjkwNjMiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjM0Mi43MDgzLDIzNS45MDYzLDM0Ni43MDgzLDI0NS45MDYzLDM1MC43MDgzLDIzNS45MDYzLDM0Ni43MDgzLDIzOS45MDYzIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjYxNS45MTYzIiB4Mj0iNjE1LjkxNjMiIHkxPSIyMjUuOTA2MyIgeTI9IjI0NS45MDYzIi8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI2MTEuOTE2MywyMzUuOTA2Myw2MTUuOTE2MywyNDUuOTA2Myw2MTkuOTE2MywyMzUuOTA2Myw2MTUuOTE2MywyMzkuOTA2MyIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSI0NDQuNTA0NiIgeDI9IjM0Ni43MDgzIiB5MT0iMTY5LjkzNzUiIHkyPSIxNjkuOTM3NSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiIHgxPSIzNDYuNzA4MyIgeDI9IjM0Ni43MDgzIiB5MT0iMTY5LjkzNzUiIHkyPSIxOTEuOTM3NSIvPjxwb2x5Z29uIGZpbGw9IiMxODE4MTgiIHBvaW50cz0iMzQyLjcwODMsMTgxLjkzNzUsMzQ2LjcwODMsMTkxLjkzNzUsMzUwLjcwODMsMTgxLjkzNzUsMzQ2LjcwODMsMTg1LjkzNzUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MTsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iNTM0LjIxNDMiIHgyPSI2MTUuOTE2MyIgeTE9IjE2OS45Mzc1IiB5Mj0iMTY5LjkzNzUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7IiB4MT0iNjE1LjkxNjMiIHgyPSI2MTUuOTE2MyIgeTE9IjE2OS45Mzc1IiB5Mj0iMTkxLjkzNzUiLz48cG9seWdvbiBmaWxsPSIjMTgxODE4IiBwb2ludHM9IjYxMS45MTYzLDE4MS45Mzc1LDYxNS45MTYzLDE5MS45Mzc1LDYxOS45MTYzLDE4MS45Mzc1LDYxNS45MTYzLDE4NS45Mzc1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIgeDE9IjQ4OS4zNTk0IiB4Mj0iNDg5LjM1OTQiIHkxPSIxMzcuOTM3NSIgeTI9IjE1Ny45Mzc1Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSI0ODUuMzU5NCwxNDcuOTM3NSw0ODkuMzU5NCwxNTcuOTM3NSw0OTMuMzU5NCwxNDcuOTM3NSw0ODkuMzU5NCwxNTEuOTM3NSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDoxOyIvPjwhLS1TUkM9W0FvdjlCMmhYdWg5d3RCSnZTVkVVbnlzVEp2VHFGZmt6blBoQndrTlNjU3pkalJuT2xsWlBsMGRNTjVvUFFHZVFvNEItdGxRUTJZS1BnTmFBNmZNZm5QZlNMYXp4UHBwUEVfYm5TemxaZmZzRmNwa1VoZmxfT2M2RkRMV1ZjWEk2cmtUUkRwd1RxODVMQXZlS1hiUE44clVpLWYzNUNKR3pSY3ZfdDNwelNWRlFucXJCaEJjQUlfOEJrNTlwWWJDTERGQm9xT3JTaWw3UHJFYWw2c096ZHh5S2ZaOGw5SkNETUpzd3d1ZEdXWHZNSDZYMTNkalN3VzQwXS0tPjwvZz48L3N2Zz4=" class="uml" alt="uml diagram" title="" /></p>
+<h3 id="_24">実行環境<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h3>
+<h4 id="_25">開発環境<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># 全テスト実行</span>
+dotnet<span class="w"> </span><span class="nb">test</span>
+
+<span class="c1"># 単体テストのみ</span>
+dotnet<span class="w"> </span><span class="nb">test</span><span class="w"> </span>tests/OrderTaking.UnitTests/
+
+<span class="c1"># カバレッジ計測</span>
+dotnet<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--collect:<span class="s2">&quot;XPlat Code Coverage&quot;</span>
+</code></pre></div>
+<h4 id="cicd_1">CI/CD 環境<a class="headerlink" href="#cicd_1" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># GitHub Actions 例</span>
+<span class="nt">test</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">  </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Setup .NET</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-dotnet@v3</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dotnet-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;9.0.x&#39;</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restore dependencies</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet restore</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet build --no-restore</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Unit Tests</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet test tests/OrderTaking.UnitTests/ --no-build --verbosity normal</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Integration Tests</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet test tests/OrderTaking.IntegrationTests/ --no-build --verbosity normal</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">E2E Tests</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet test tests/OrderTaking.E2ETests/ --no-build --verbosity normal</span>
+</code></pre></div>
+<h2 id="_26">パフォーマンステスト<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h2>
+<h3 id="_27">対象シナリオ<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>注文受付の性能</strong>: 100 req/sec で安定動作</li>
+<li><strong>大量データ処理</strong>: 1000 件の注文を 10 秒以内で処理</li>
+<li><strong>メモリ使用量</strong>: 安定したメモリ使用量を維持</li>
+</ol>
+<h3 id="_28">実装例<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="nn">PerformanceTests</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">NUnit.Framework</span>
+<span class="w">    </span><span class="k">open</span><span class="w"> </span><span class="nn">System.Diagnostics</span>
+
+<span class="w">    </span><span class="o">[&lt;</span><span class="n">Test</span><span class="o">&gt;]</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="n">``1000件の注文を10秒以内で処理できる``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// Arrange</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">orders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">generateTestOrders</span><span class="w"> </span><span class="mi">1000</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">stopwatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">Stopwatch</span><span class="p">.</span><span class="n">StartNew</span><span class="bp">()</span>
+
+<span class="w">        </span><span class="c1">// Act</span>
+<span class="w">        </span><span class="n">orders</span>
+<span class="w">        </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">List</span><span class="p">.</span><span class="n">map</span><span class="w"> </span><span class="n">processOrder</span>
+<span class="w">        </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">Parallel</span>
+<span class="w">        </span><span class="o">|&gt;</span><span class="w"> </span><span class="nn">Async</span><span class="p">.</span><span class="n">RunSynchronously</span>
+<span class="w">        </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">ignore</span>
+
+<span class="w">        </span><span class="n">stopwatch</span><span class="o">.</span><span class="n">Stop</span><span class="bp">()</span>
+
+<span class="w">        </span><span class="c1">// Assert</span>
+<span class="w">        </span><span class="n">stopwatch</span><span class="o">.</span><span class="n">ElapsedMilliseconds</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="o">(</span><span class="n">lessThan</span><span class="w"> </span><span class="mi">10000</span><span class="o">)</span>
+</code></pre></div>
+<h2 id="_29">テスト品質管理<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h2>
+<h3 id="_30">カバレッジ目標<a class="headerlink" href="#_30" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>テストレベル</th>
+<th>カバレッジ目標</th>
+<th>測定範囲</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>単体テスト</strong></td>
+<td>95%以上</td>
+<td>ドメイン層</td>
+</tr>
+<tr>
+<td><strong>統合テスト</strong></td>
+<td>80%以上</td>
+<td>アプリケーション層</td>
+</tr>
+<tr>
+<td><strong>E2Eテスト</strong></td>
+<td>主要シナリオ100%</td>
+<td>システム全体</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_31">品質メトリクス<a class="headerlink" href="#_31" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// テスト品質の継続監視</span>
+<span class="k">module</span><span class="w"> </span><span class="nn">TestQualityMetrics</span><span class="w"> </span><span class="o">=</span>
+
+<span class="w">    </span><span class="c1">// テスト実行時間監視</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">measureTestExecutionTime</span><span class="w"> </span><span class="n">testName</span><span class="w"> </span><span class="n">action</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">stopwatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">Stopwatch</span><span class="p">.</span><span class="n">StartNew</span><span class="bp">()</span>
+<span class="w">        </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">action</span><span class="bp">()</span>
+<span class="w">        </span><span class="n">stopwatch</span><span class="o">.</span><span class="n">Stop</span><span class="bp">()</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">stopwatch</span><span class="o">.</span><span class="n">ElapsedMilliseconds</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1000</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="n">printfn</span><span class="w"> </span><span class="o">$</span><span class="s">&quot;警告: {testName} が1秒を超過しました ({stopwatch.ElapsedMilliseconds}ms)&quot;</span>
+
+<span class="w">        </span><span class="n">result</span>
+
+<span class="w">    </span><span class="c1">// テストデータ品質チェック</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">validateTestData</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// テストデータの妥当性確認</span>
+<span class="w">        </span><span class="c1">// 境界値、異常系データの網羅性確認</span>
+<span class="w">        </span><span class="bp">()</span>
+</code></pre></div>
+<h2 id="_32">継続的改善<a class="headerlink" href="#_32" title="Permanent link">&para;</a></h2>
+<h3 id="_33">テスト戦略の見直し<a class="headerlink" href="#_33" title="Permanent link">&para;</a></h3>
+<h4 id="_34">定期レビューポイント<a class="headerlink" href="#_34" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>月次レビュー</strong></li>
+<li>テスト実行時間の監視</li>
+<li>カバレッジ状況の確認</li>
+<li>
+<p>失敗テストの傾向分析</p>
+</li>
+<li>
+<p><strong>四半期レビュー</strong></p>
+</li>
+<li>テスト戦略の有効性評価</li>
+<li>新しいテスト手法の導入検討</li>
+<li>
+<p>チームのテストスキル向上計画</p>
+</li>
+<li>
+<p><strong>プロジェクト完了時</strong></p>
+</li>
+<li>テスト戦略の総合評価</li>
+<li>次プロジェクトへの知見蓄積</li>
+</ol>
+<h3 id="_35">改善活動<a class="headerlink" href="#_35" title="Permanent link">&para;</a></h3>
+<h4 id="_36">テスト自動化の拡張<a class="headerlink" href="#_36" title="Permanent link">&para;</a></h4>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U3R5bGVUeXBlPSJ0ZXh0L2NzcyIgZGF0YS1kaWFncmFtLXR5cGU9IkRFU0NSSVBUSU9OIiBoZWlnaHQ9IjQxMXB4IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBzdHlsZT0id2lkdGg6MTA3M3B4O2hlaWdodDo0MTFweDtiYWNrZ3JvdW5kOiNGRkZGRkY7IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAxMDczIDQxMSIgd2lkdGg9IjEwNzNweCIgem9vbUFuZFBhbj0ibWFnbmlmeSI+PGRlZnMvPjxnPjwhLS1jbHVzdGVyID8/Pz8/Py0tPjxnIGNsYXNzPSJjbHVzdGVyIiBkYXRhLWVudGl0eT0iLi4uLi4uIiBkYXRhLXNvdXJjZS1saW5lPSI0IiBkYXRhLXVpZD0iZW50MDAwMiIgaWQ9ImNsdXN0ZXJfLi4uLi4uIj48cGF0aCBkPSJNOC41LDYgTDkzLjQ5OTYsNiBBMy43NSwzLjc1IDAgMCAxIDk1Ljk5OTYsOC41IEwxMDIuOTk5NiwyOC4yOTY5IEw0MzcuNSwyOC4yOTY5IEEyLjUsMi41IDAgMCAxIDQ0MCwzMC43OTY5IEw0NDAsMjc3LjA5IEEyLjUsMi41IDAgMCAxIDQzNy41LDI3OS41OSBMOC41LDI3OS41OSBBMi41LDIuNSAwIDAgMSA2LDI3Ny4wOSBMNiw4LjUgQTIuNSwyLjUgMCAwIDEgOC41LDYiIGZpbGw9IiNFOEY1RTgiIHN0eWxlPSJzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS41OyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS41OyIgeDE9IjYiIHgyPSIxMDIuOTk5NiIgeTE9IjI4LjI5NjkiIHkyPSIyOC4yOTY5Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjgzLjk5OTYiIHg9IjEwIiB5PSIyMC45OTUxIj4mIzI5Njk0OyYjMjIzMTI7JiMxMjM5ODsmIzMzMjU4OyYjMjEyMDU7JiMyMTI3MDs8L3RleHQ+PC9nPjwhLS1jbHVzdGVyID8/Pz8/Pz8tLT48ZyBjbGFzcz0iY2x1c3RlciIgZGF0YS1lbnRpdHk9Ii4uLi4uLi4iIGRhdGEtc291cmNlLWxpbmU9IjEwIiBkYXRhLXVpZD0iZW50MDAwNiIgaWQ9ImNsdXN0ZXJfLi4uLi4uLiI+PHBhdGggZD0iTTQ4Mi41LDE2Ni4zIEw1ODEuNDk5NiwxNjYuMyBBMy43NSwzLjc1IDAgMCAxIDU4My45OTk2LDE2OC44IEw1OTAuOTk5NiwxODguNTk2OSBMMTAzNy41LDE4OC41OTY5IEEyLjUsMi41IDAgMCAxIDEwNDAsMTkxLjA5NjkgTDEwNDAsNDAyLjM5IEEyLjUsMi41IDAgMCAxIDEwMzcuNSw0MDQuODkgTDQ4Mi41LDQwNC44OSBBMi41LDIuNSAwIDAgMSA0ODAsNDAyLjM5IEw0ODAsMTY4LjggQTIuNSwyLjUgMCAwIDEgNDgyLjUsMTY2LjMiIGZpbGw9IiNGRkYzRTAiIHN0eWxlPSJzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS41OyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6IzAwMDAwMDtzdHJva2Utd2lkdGg6MS41OyIgeDE9IjQ4MCIgeDI9IjU5MC45OTk2IiB5MT0iMTg4LjU5NjkiIHkyPSIxODguNTk2OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSI5Ny45OTk2IiB4PSI0ODQiIHk9IjE4MS4yOTUxIj4mIzM1MzM2OyYjMzAwMTE7JiMyMDAxMzsmIzEyMzk4OyYjMzMyNTg7JiMyMTIwNTsmIzIxMjcwOzwvdGV4dD48L2c+PCEtLWVudGl0eSA/Pz8/Pz8/Pz8tLT48ZyBjbGFzcz0iZW50aXR5IiBkYXRhLWVudGl0eT0iLi4uLi4uLi4uIiBkYXRhLXNvdXJjZS1saW5lPSI1IiBkYXRhLXVpZD0iZW50MDAwMyIgaWQ9ImVudGl0eV8uLi4uLi4uLi4iPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iNDYuMjk2OSIgcng9IjIuNSIgcnk9IjIuNSIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTY1Ljk5OTUiIHg9IjMwIiB5PSI0OSIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMTAiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjE1IiB4PSIxNzUuOTk5NSIgeT0iNTQiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjQiIHg9IjE3My45OTk1IiB5PSI1NiIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iMTczLjk5OTUiIHk9IjYwIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTI1Ljk5OTUiIHg9IjQ1IiB5PSI4MS45OTUxIj4mIzIxMzM2OyYjMjAzMDc7JiMxMjQ4NjsmIzEyNDczOyYjMTI0ODg7JiMzMzI1ODsmIzIxMjA1OyYjMjM0NTU7JiMzNDg5Mjs8L3RleHQ+PC9nPjwhLS1lbnRpdHkgPz8/Pz8/Pz8/LS0+PGcgY2xhc3M9ImVudGl0eSIgZGF0YS1lbnRpdHk9Ii4uLi4uLi4uLiIgZGF0YS1zb3VyY2UtbGluZT0iNiIgZGF0YS11aWQ9ImVudDAwMDQiIGlkPSJlbnRpdHlfLi4uLi4uLi4uIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjQ2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjE2NS45OTk1IiB4PSIyMzEiIHk9IjQ5Ii8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIxMCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTUiIHg9IjM3Ni45OTk1IiB5PSI1NCIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iMzc0Ljk5OTUiIHk9IjU2Ii8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI0IiB4PSIzNzQuOTk5NSIgeT0iNjAiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxMjUuOTk5NSIgeD0iMjQ2IiB5PSI4MS45OTUxIj4mIzMyMTEzOyYjMjE1MTI7JiMxMjQ4NjsmIzEyNDczOyYjMTI0ODg7JiMzMzI1ODsmIzIxMjA1OyYjMjM0NTU7JiMzNDg5Mjs8L3RleHQ+PC9nPjwhLS1lbnRpdHkgRTJFPz8/Pz8/Py0tPjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtZW50aXR5PSJFMkUuLi4uLi4uIiBkYXRhLXNvdXJjZS1saW5lPSI3IiBkYXRhLXVpZD0iZW50MDAwNSIgaWQ9ImVudGl0eV9FMkUuLi4uLi4uIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjQ2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjE2NC41OTgyIiB4PSIzMC43IiB5PSIyMDkuMyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMTAiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjE1IiB4PSIxNzUuMjk4MiIgeT0iMjE0LjMiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjIiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjQiIHg9IjE3My4yOTgyIiB5PSIyMTYuMyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iMTczLjI5ODIiIHk9IjIyMC4zIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iMTI0LjU5ODIiIHg9IjQ1LjciIHk9IjI0Mi4yOTUxIj5FMkUmIzEyNDg2OyYjMTI0NzM7JiMxMjQ4ODsmIzMzMjU4OyYjMjEyMDU7JiMyMzQ1NTsmIzM0ODkyOzwvdGV4dD48L2c+PCEtLWVudGl0eSA/Pz8/Pz8/Pz8/Pz8/Py0tPjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtZW50aXR5PSIuLi4uLi4uLi4uLi4uLiIgZGF0YS1zb3VyY2UtbGluZT0iMTEiIGRhdGEtdWlkPSJlbnQwMDA3IiBpZD0iZW50aXR5Xy4uLi4uLi4uLi4uLi4uIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjQ2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjIzNS45OTkxIiB4PSI1MDQiIHk9IjIwOS4zIi8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIxMCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTUiIHg9IjcxOS45OTkxIiB5PSIyMTQuMyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iNzE3Ljk5OTEiIHk9IjIxNi4zIi8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI0IiB4PSI3MTcuOTk5MSIgeT0iMjIwLjMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxOTUuOTk5MSIgeD0iNTE5IiB5PSIyNDIuMjk1MSI+JiMxMjQ5NzsmIzEyNTAxOyYjMTI0NTc7JiMxMjU0MDsmIzEyNTEwOyYjMTI1MzE7JiMxMjQ3MzsmIzEyNDg2OyYjMTI0NzM7JiMxMjQ4ODsmIzMzMjU4OyYjMjEyMDU7JiMyMzQ1NTsmIzM0ODkyOzwvdGV4dD48L2c+PCEtLWVudGl0eSA/Pz8/Pz8/Pz8/Pz8/LS0+PGcgY2xhc3M9ImVudGl0eSIgZGF0YS1lbnRpdHk9Ii4uLi4uLi4uLi4uLi4iIGRhdGEtc291cmNlLWxpbmU9IjEyIiBkYXRhLXVpZD0iZW50MDAwOCIgaWQ9ImVudGl0eV8uLi4uLi4uLi4uLi4uIj48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjQ2LjI5NjkiIHJ4PSIyLjUiIHJ5PSIyLjUiIHN0eWxlPSJzdHJva2U6IzE4MTgxODtzdHJva2Utd2lkdGg6MC41OyIgd2lkdGg9IjIyMS45OTkyIiB4PSI3NzUiIHk9IjIwOS4zIi8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIxMCIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iMTUiIHg9Ijk3Ni45OTkyIiB5PSIyMTQuMyIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iOTc0Ljk5OTIiIHk9IjIxNi4zIi8+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSIyIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSI0IiB4PSI5NzQuOTk5MiIgeT0iMjIwLjMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nIiB0ZXh0TGVuZ3RoPSIxODEuOTk5MiIgeD0iNzkwIiB5PSIyNDIuMjk1MSI+JiMxMjQ3NTsmIzEyNDYxOyYjMTI1MTc7JiMxMjUyMjsmIzEyNDg2OyYjMTI0NTE7JiMxMjQ4NjsmIzEyNDczOyYjMTI0ODg7JiMzMzI1ODsmIzIxMjA1OyYjMjM0NTU7JiMzNDg5Mjs8L3RleHQ+PC9nPjwhLS1lbnRpdHkgPz8/Pz8/Pz8/LS0+PGcgY2xhc3M9ImVudGl0eSIgZGF0YS1lbnRpdHk9Ii4uLi4uLi4uLiIgZGF0YS1zb3VyY2UtbGluZT0iMTMiIGRhdGEtdWlkPSJlbnQwMDA5IiBpZD0iZW50aXR5Xy4uLi4uLi4uLiI+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSI0Ni4yOTY5IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxNjUuOTk5NSIgeD0iNTM5IiB5PSIzMzQuNTkiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjEwIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxNSIgeD0iNjg0Ljk5OTUiIHk9IjMzOS41OSIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iNjgyLjk5OTUiIHk9IjM0MS41OSIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iNjgyLjk5OTUiIHk9IjM0NS41OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjEyNS45OTk1IiB4PSI1NTQiIHk9IjM2Ny41ODUxIj4mIzM2MDAwOyYjMzM2NTU7JiMxMjQ4NjsmIzEyNDczOyYjMTI0ODg7JiMzMzI1ODsmIzIxMjA1OyYjMjM0NTU7JiMzNDg5Mjs8L3RleHQ+PC9nPjwhLS1lbnRpdHkgPz8/Pz8/Pz8/Py0tPjxnIGNsYXNzPSJlbnRpdHkiIGRhdGEtZW50aXR5PSIuLi4uLi4uLi4uIiBkYXRhLXNvdXJjZS1saW5lPSIxNCIgZGF0YS11aWQ9ImVudDAwMTAiIGlkPSJlbnRpdHlfLi4uLi4uLi4uLiI+PHJlY3QgZmlsbD0iI0YxRjFGMSIgaGVpZ2h0PSI0Ni4yOTY5IiByeD0iMi41IiByeT0iMi41IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxNzkuOTk5NCIgeD0iNzQwIiB5PSIzMzQuNTkiLz48cmVjdCBmaWxsPSIjRjFGMUYxIiBoZWlnaHQ9IjEwIiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjAuNTsiIHdpZHRoPSIxNSIgeD0iODk5Ljk5OTQiIHk9IjMzOS41OSIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iODk3Ljk5OTQiIHk9IjM0MS41OSIvPjxyZWN0IGZpbGw9IiNGMUYxRjEiIGhlaWdodD0iMiIgc3R5bGU9InN0cm9rZTojMTgxODE4O3N0cm9rZS13aWR0aDowLjU7IiB3aWR0aD0iNCIgeD0iODk3Ljk5OTQiIHk9IjM0NS41OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmciIHRleHRMZW5ndGg9IjEzOS45OTk0IiB4PSI3NTUiIHk9IjM2Ny41ODUxIj4mIzEyNDg2OyYjMTI0NzM7JiMxMjQ4ODsmIzEyNDg3OyYjMTI1NDA7JiMxMjQ3OTsmIzMzMjU4OyYjMjEyMDU7JiMyOTk4MzsmIzI1MTA0OzwvdGV4dD48L2c+PCEtLWxpbmsgPz8/Pz8/IHRvID8/Pz8/Pz8tLT48ZyBjbGFzcz0ibGluayIgZGF0YS1lbnRpdHktMT0iLi4uLi4uIiBkYXRhLWVudGl0eS0yPSIuLi4uLi4uIiBkYXRhLXNvdXJjZS1saW5lPSIxNyIgZGF0YS11aWQ9ImxuazExIiBpZD0ibGlua18uLi4uLi5fLi4uLi4uLiI+PHBhdGggZD0iTTQ0MC4zNDE5LDczLjAxNDYgQzQ0MC44ODM5LDczLjAwNzIgNDQxLjQ1MDksNzIuOTk5NiA0NDIuMDQyNiw3Mi45OTIgQzQ0My4yMjYsNzIuOTc2OCA0NDQuNTA3OSw3Mi45NjE0IDQ0NS44ODUxLDcyLjk0NiBDNDQ4LjYzOTUsNzIuOTE1NCA0NTEuNzc1MSw3Mi44ODUzIDQ1NS4yNjYsNzIuODU4OSBDNDY5LjIyOTMsNzIuNzUzNyA0ODguODc1OCw3Mi43MDg5IDUxMi41NDA5LDcyLjkzMDkgQzU1OS44NzEyLDczLjM3NSA2MjMuMjc2Miw3NC44ODYzIDY4OS40NCw3OS4xMTUgQzgyMS43Njc1LDg3LjU3MjUgOTY1LjEzLDEwNi45IDEwMTMsMTUwLjMgQzEwMTYuMzIzOCwxNTMuMzEyNSAxMDE5LjEyMTEsMTU2Ljc4NTMgMTAyMS40NzA4LDE2MC41NjI4IEMxMDIyLjA1ODIsMTYxLjUwNzEgMTAyMi42MTc2LDE2Mi40NzA1IDEwMjMuMTUwMywxNjMuNDUwNiBDMTAyMy40MTY3LDE2My45NDA2IDEwMjMuNjc2NCwxNjQuNDM0NyAxMDIzLjkyOTUsMTY0LjkzMjcgQzEwMjQuMDU2LDE2NS4xODE3IDEwMjQuMTgxLDE2NS40MzE3IDEwMjQuMzA0MywxNjUuNjgyNiBDMTAyNC4zNjU5LDE2NS44MDggMTAyMS44MTYyLDE4Mi44Mjg1IDEwMjEuODc3LDE4Mi45NTQ0IiBmaWxsPSJub25lIiBpZD0iJiMyOTY5NDsmIzIyMzEyOyYjMTIzOTg7JiMzMzI1ODsmIzIxMjA1OyYjMjEyNzA7LXRvLSYjMzUzMzY7JiMzMDAxMTsmIzIwMDEzOyYjMTIzOTg7JiMzMzI1ODsmIzIxMjA1OyYjMjEyNzA7IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PHBvbHlnb24gZmlsbD0iIzE4MTgxOCIgcG9pbnRzPSIxMDI0LjQ4ODEsMTg4LjM1NjUsMTAyNC4xNzI5LDE3OC41MTI3LDEwMjIuMzEyMiwxODMuODU0OCwxMDE2Ljk3MDEsMTgxLjk5NDEsMTAyNC40ODgxLDE4OC4zNTY1IiBzdHlsZT0ic3Ryb2tlOiMxODE4MTg7c3Ryb2tlLXdpZHRoOjE7Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZyIgdGV4dExlbmd0aD0iNjUuMDAwMSIgeD0iMTAwMC42MSIgeT0iMTM4LjM2NjkiPiYjMjc1NzM7JiMzODU0MjsmIzMwMzQwOyYjMjUzMTM7JiMyNDM3Mzs8L3RleHQ+PC9nPjwhLS1TUkM9W0txbjlKU2xDSXJMbTNXcUFTbEtCS0wxc2pOMHBUUk5XS2VJQTFfV3UtbGN2a1lXZWt4Y3Y2UmlRUzc0TDkyUGQ5d1FkQVlXenh6X3RUQ3dBbnV0aE5oSWxVamV6ek1kRkQyTXVBVExTcUt6eFBwcFBFX2JuU3psWmZmc0ZjcGtXWWpSRFZ4Nm05dk9oLWxkTVpLeWRURTJJVEpMb25JNUxZLUkwNW9pd2RhX1BfTUo3TWJHdG01bUNUQ0ZadmVjRmN3Uy1SYmh2azdkRnUtUHZadml0V3l0NFJrZFpmanNGY3pPLVJieHdrN2FMTUNyWU4yZlZSNWhtZWRTeEpkRFd1ZS1Sc3E3c0RrczdBN1ctUFZ3cFpXYldCcUhaWGJzaVdnd2tkSzhxTFpfNUFiV2ZGNWt0elVNaWxrVXBNZnZyQnRvd1BvaTBdLS0+PC9nPjwvc3ZnPg==" class="uml" alt="uml diagram" title="" /></p>
+<h2 id="_37">まとめ<a class="headerlink" href="#_37" title="Permanent link">&para;</a></h2>
+<h3 id="_38">テスト戦略の特徴<a class="headerlink" href="#_38" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>F# の特性を活かした戦略</strong>: 関数型プログラミングの利点を最大化</li>
+<li><strong>アーキテクチャ連動</strong>: ドメインモデルパターンに最適化されたピラミッド形テスト</li>
+<li><strong>段階的品質保証</strong>: 単体→統合→E2E の各レベルで品質を担保</li>
+<li><strong>継続的改善</strong>: 定期的な見直しと改善サイクル</li>
+</ol>
+<h3 id="_39">成功要因<a class="headerlink" href="#_39" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>TDD の徹底実践</strong>: 設計品質とテスト品質の両立</li>
+<li><strong>型安全性の活用</strong>: F# の型システムによる早期エラー検出</li>
+<li><strong>適切なテスト分散</strong>: 80:15:5 の比率によるバランス</li>
+<li><strong>自動化の推進</strong>: CI/CD パイプラインでの完全自動化</li>
+</ul>
+<p>この戦略により、変更を楽に安全にできて役に立つソフトウェアの実現を目指します。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/k2works" target="_blank" rel="noopener" title="GitHub Repository/claude-code-booster" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+      
+        <script src="../../docs/assets/js/extra.js"></script>
+      
+    
+  </body>
+</html>
