@@ -3,290 +3,296 @@ namespace OrderTaking.Domain
 open OrderTaking.Common
 
 // 型エイリアス
-type AsyncResult<'a, 'b> = Async<Result<'a, 'b>>
+type 非同期結果<'a, 'b> = Async<Result<'a, 'b>>
 
 // 外部依存の抽象化
-type CheckProductCodeExists = ProductCode -> bool
-type GetProductPrice = ProductCode -> decimal option
-type CheckAddressExists = UnvalidatedAddress -> AsyncResult<Address, ValidationError>
-type SendOrderAcknowledgment = PricedOrder -> AsyncResult<AcknowledgmentSent, string>
+type 商品コード存在確認 = 商品コード -> bool
+type 商品価格取得 = 商品コード -> decimal option
+type 住所存在確認 = 未検証住所 -> 非同期結果<住所, 検証エラー>
+type 注文確認送信 = 価格計算済注文 -> 非同期結果<確認送信完了, string>
 
 // ワークフローの関数型定義
-type ValidateOrder = CheckProductCodeExists -> CheckAddressExists -> UnvalidatedOrder -> AsyncResult<ValidatedOrder, ValidationError>
-type PriceOrder = GetProductPrice -> ValidatedOrder -> Result<PricedOrder, PricingError>
-type AcknowledgeOrder = SendOrderAcknowledgment -> PricedOrder -> AsyncResult<AcknowledgmentSent option, string>
-type CreateEvents = PricedOrder -> AcknowledgmentSent option -> OrderEvent list
+type 注文検証 = 商品コード存在確認 -> 住所存在確認 -> 未検証注文 -> 非同期結果<検証済注文, 検証エラー>
+type 価格計算 = 商品価格取得 -> 検証済注文 -> Result<価格計算済注文, 価格計算エラー>
+type 注文確認 = 注文確認送信 -> 価格計算済注文 -> 非同期結果<確認送信完了 option, string>
+type イベント作成 = 価格計算済注文 -> 確認送信完了 option -> 注文イベント list
 
 // メインワークフロー
-type PlaceOrderWorkflow = UnvalidatedOrder -> AsyncResult<OrderEvent list, PlaceOrderError>
+type 注文受付ワークフロー = 未検証注文 -> 非同期結果<注文イベント list, 注文受付エラー>
 
 // 便利なヘルパーモジュール
-module AsyncResult =
-    let ofResult result =
-        async { return result }
+module 非同期結果 =
+    let 結果から 結果値 =
+        async { return 結果値 }
 
-    let ofError error =
-        async { return Error error }
+    let エラーから エラー値 =
+        async { return Error エラー値 }
 
-    let map f asyncResult =
+    let マップ 関数 非同期結果 =
         async {
-            let! result = asyncResult
-            return Result.map f result
+            let! 結果 = 非同期結果
+            return Result.map 関数 結果
         }
 
-    let mapError f asyncResult =
+    let エラーマップ 関数 非同期結果 =
         async {
-            let! result = asyncResult
-            return Result.mapError f result
+            let! 結果 = 非同期結果
+            return Result.mapError 関数 結果
         }
 
-    let bind f asyncResult =
+    let バインド 関数 非同期結果 =
         async {
-            let! result = asyncResult
-            match result with
-            | Ok value -> return! f value
-            | Error error -> return Error error
+            let! 結果 = 非同期結果
+            match 結果 with
+            | Ok 値 -> return! 関数 値
+            | Error エラー -> return Error エラー
         }
 
-    let sequence asyncResults =
-        let rec loop acc remaining =
+    let シーケンス 非同期結果リスト =
+        let rec ループ 累積値 残りリスト =
             async {
-                match remaining with
-                | [] -> return Ok (List.rev acc)
-                | head :: tail ->
-                    let! headResult = head
-                    match headResult with
-                    | Ok value ->
-                        return! loop (value :: acc) tail
-                    | Error error ->
-                        return Error error
+                match 残りリスト with
+                | [] -> return Ok (List.rev 累積値)
+                | 頭要素 :: 尾部 ->
+                    let! 頭要素の結果 = 頭要素
+                    match 頭要素の結果 with
+                    | Ok 値 ->
+                        return! ループ (値 :: 累積値) 尾部
+                    | Error エラー ->
+                        return Error エラー
             }
-        loop [] asyncResults
+        ループ [] 非同期結果リスト
 
-    let catch handler asyncResult =
+    let キャッチ ハンドラー 非同期結果 =
         async {
             try
-                return! asyncResult
+                return! 非同期結果
             with
-            | ex -> return! handler ex
+            | 例外 -> return! ハンドラー 例外
         }
 
-type AsyncResultBuilder() =
-    member _.Return(value) = AsyncResult.ofResult (Ok value)
-    member _.ReturnFrom(asyncResult) = asyncResult
-    member _.Bind(asyncResult, f) = AsyncResult.bind f asyncResult
-    member _.Zero() = AsyncResult.ofResult (Ok ())
-    member _.Combine(m, f) = AsyncResult.bind (fun _ -> f()) m
-    member _.Delay(f) = f
-    member _.Run(f) = f()
-    member _.TryFinally(m, finalizer) = try m() finally finalizer()
-    member _.TryWith(m, handler) = try m() with | e -> handler e
+type 非同期結果ビルダー() =
+    member _.Return(値) = 非同期結果.結果から (Ok 値)
+    member _.ReturnFrom(非同期結果) = 非同期結果
+    member this.Bind(非同期結果: Async<Result<'T, 'Error>>, 関数: 'T -> Async<Result<'U, 'Error>>) : Async<Result<'U, 'Error>> =
+        async {
+            let! 結果 = 非同期結果
+            match 結果 with
+            | Ok 値 -> return! 関数 値
+            | Error エラー -> return Error エラー
+        }
+    member _.Zero() = 非同期結果.結果から (Ok ())
+    member _.Combine(前の値, 次の関数) = 非同期結果.バインド (fun _ -> 次の関数()) 前の値
+    member _.Delay(関数) = 関数
+    member _.Run(関数) = 関数()
+    member _.TryFinally(メイン, ファイナライザー) = try メイン() finally ファイナライザー()
+    member _.TryWith(メイン, ハンドラー) = try メイン() with | 例外 -> ハンドラー 例外
 
-module AsyncResultBuilder =
-    let asyncResult = AsyncResultBuilder()
+module 非同期結果ビルダー =
+    let 非同期結果 = 非同期結果ビルダー()
 
-module Result =
-    let sequence results =
-        let rec loop acc remaining =
-            match remaining with
-            | [] -> Ok (List.rev acc)
-            | (Ok value) :: tail -> loop (value :: acc) tail
-            | (Error error) :: _ -> Error error
-        loop [] results
+module 結果 =
+    let シーケンス 結果リスト =
+        let rec ループ 累積値 残りリスト =
+            match 残りリスト with
+            | [] -> Ok (List.rev 累積値)
+            | (Ok 値) :: 尾部 -> ループ (値 :: 累積値) 尾部
+            | (Error エラー) :: _ -> Error エラー
+        ループ [] 結果リスト
 
-    let toOption = function
-        | Ok value -> Some value
+    let オプションへ = function
+        | Ok 値 -> Some 値
         | Error _ -> None
 
-module OrderWorkflows =
+module 注文ワークフロー =
 
     // 商品コードパース
-    let parseProductCode (codeStr: string) =
-        if codeStr.StartsWith("W") then
-            WidgetCode.create codeStr
-            |> Result.map Widget
-            |> Result.mapError (fun msg -> FieldInvalidFormat msg)
-            |> AsyncResult.ofResult
-        elif codeStr.StartsWith("G") then
-            GizmoCode.create codeStr
-            |> Result.map Gizmo
-            |> Result.mapError (fun msg -> FieldInvalidFormat msg)
-            |> AsyncResult.ofResult
+    let 商品コードを解析 (コード文字列: string) =
+        if コード文字列.StartsWith("W") then
+            ウィジェットコード.作成 コード文字列
+            |> Result.map ウィジェット
+            |> Result.mapError (fun メッセージ -> フィールド形式不正 メッセージ)
+            |> 非同期結果.結果から
+        elif コード文字列.StartsWith("G") then
+            ギズモコード.作成 コード文字列
+            |> Result.map ギズモ
+            |> Result.mapError (fun メッセージ -> フィールド形式不正 メッセージ)
+            |> 非同期結果.結果から
         else
-            AsyncResult.ofError (FieldInvalidFormat "無効な商品コード形式")
+            非同期結果.エラーから (フィールド形式不正 "無効な商品コード形式")
 
     // 数量パース
-    let parseQuantity productCode qty =
-        match productCode with
-        | Widget _ ->
-            UnitQuantity.create (int qty)
-            |> Result.map Unit
-            |> Result.mapError (fun msg -> FieldOutOfRange("Unit", qty, qty))
-            |> AsyncResult.ofResult
-        | Gizmo _ ->
-            KilogramQuantity.create qty
-            |> Result.map Kilogram
-            |> Result.mapError (fun msg -> FieldOutOfRange("Kilogram", qty, qty))
-            |> AsyncResult.ofResult
+    let 数量を解析 商品コード 数量 =
+        match 商品コード with
+        | ウィジェット _ ->
+            単位数量.作成 (int 数量)
+            |> Result.map 単位
+            |> Result.mapError (fun メッセージ -> フィールド範囲外("Unit", 数量, 数量))
+            |> 非同期結果.結果から
+        | ギズモ _ ->
+            キログラム数量.作成 数量
+            |> Result.map キログラム
+            |> Result.mapError (fun メッセージ -> フィールド範囲外("Kilogram", 数量, 数量))
+            |> 非同期結果.結果から
 
     // 注文明細検証
-    let validateOrderLine checkProductExists (line: UnvalidatedOrderLine) =
-        AsyncResultBuilder.asyncResult {
+    let 注文明細を検証 商品コード存在確認 (明細: 未検証注文明細) =
+        非同期結果ビルダー.非同期結果 {
             // 商品コードの検証とパース
-            let! productCode = parseProductCode line.ProductCode
+            let! 商品コード = 商品コードを解析 明細.商品コード
 
             // 商品の存在確認
-            let productExists = checkProductExists productCode
-            if not productExists then
-                return! AsyncResult.ofError (FieldIsMissing "ProductCode not found")
+            let 商品存在状態 = 商品コード存在確認 商品コード
+            if not 商品存在状態 then
+                return! 非同期結果.エラーから (フィールド欠如 "ProductCode not found")
             else
                 ()
 
             // 数量の検証
-            let! quantity = parseQuantity productCode line.Quantity
+            let! 数量 = 数量を解析 商品コード 明細.数量
 
             return {
-                OrderLineId = line.OrderLineId
-                ProductCode = productCode
-                Quantity = quantity
+                注文明細ID = 明細.注文明細ID
+                商品コード = 商品コード
+                数量 = 数量
             }
         }
 
     // 注文検証の実装
-    let validateOrder: ValidateOrder =
-        fun checkProductExists checkAddressExists unvalidatedOrder ->
-            AsyncResultBuilder.asyncResult {
+    let 注文を検証: 注文検証 =
+        fun 商品コード存在確認 住所存在確認 未検証注文 ->
+            非同期結果ビルダー.非同期結果 {
                 // 顧客情報の検証
-                let! customerName =
-                    String50.create (unvalidatedOrder.CustomerInfo.FirstName + " " + unvalidatedOrder.CustomerInfo.LastName)
-                    |> Result.mapError (fun msg -> FieldInvalidFormat msg)
-                    |> AsyncResult.ofResult
+                let! 顧客名 =
+                    文字列50.作成 (未検証注文.顧客情報.名 + " " + 未検証注文.顧客情報.姓)
+                    |> Result.mapError (fun メッセージ -> フィールド形式不正 メッセージ)
+                    |> 非同期結果.結果から
 
-                let! customerEmail =
-                    EmailAddress.create unvalidatedOrder.CustomerInfo.EmailAddress
-                    |> Result.mapError (fun msg -> FieldInvalidFormat msg)
-                    |> AsyncResult.ofResult
+                let! 顧客メール =
+                    メールアドレス.作成 未検証注文.顧客情報.メールアドレス
+                    |> Result.mapError (fun メッセージ -> フィールド形式不正 メッセージ)
+                    |> 非同期結果.結果から
 
                 // 住所の検証
-                let! shippingAddress = checkAddressExists unvalidatedOrder.ShippingAddress
-                let! billingAddress = checkAddressExists unvalidatedOrder.BillingAddress
+                let! 配送先住所 = 住所存在確認 未検証注文.配送先住所
+                let! 請求先住所 = 住所存在確認 未検証注文.請求先住所
 
                 // 注文明細の検証
-                let! validatedLines =
-                    unvalidatedOrder.Lines
-                    |> List.map (validateOrderLine checkProductExists)
-                    |> AsyncResult.sequence
+                let! 検証済明細 =
+                    未検証注文.明細
+                    |> List.map (注文明細を検証 商品コード存在確認)
+                    |> 非同期結果.シーケンス
 
-                let! orderId =
-                    OrderId.create unvalidatedOrder.OrderId
-                    |> Result.mapError (fun msg -> FieldInvalidFormat msg)
-                    |> AsyncResult.ofResult
+                let! 注文ID値 =
+                    注文ID.作成 未検証注文.注文ID
+                    |> Result.mapError (fun メッセージ -> フィールド形式不正 メッセージ)
+                    |> 非同期結果.結果から
 
                 return {
-                    OrderId = orderId
-                    CustomerInfo = {
-                        Name = customerName
-                        Email = customerEmail
+                    注文ID = 注文ID値
+                    顧客情報 = {
+                        名前 = 顧客名
+                        メール = 顧客メール
                     }
-                    ShippingAddress = shippingAddress
-                    BillingAddress = billingAddress
-                    Lines = validatedLines
+                    配送先住所 = 配送先住所
+                    請求先住所 = 請求先住所
+                    明細 = 検証済明細
                 }
             }
 
     // 価格計算の実装
-    let priceOrder: PriceOrder =
-        fun getProductPrice validatedOrder ->
-            let pricedLines =
-                validatedOrder.Lines
-                |> List.map (fun line ->
-                    match getProductPrice line.ProductCode with
-                    | Some price ->
-                        let qty =
-                            match line.Quantity with
-                            | Unit unitQty -> decimal (UnitQuantity.value unitQty)
-                            | Kilogram kgQty -> KilogramQuantity.value kgQty
+    let 注文価格を計算: 価格計算 =
+        fun 商品価格取得 検証済注文 ->
+            let 価格計算済明細 =
+                検証済注文.明細
+                |> List.map (fun 明細 ->
+                    match 商品価格取得 明細.商品コード with
+                    | Some 価格 ->
+                        let 数量値 =
+                            match 明細.数量 with
+                            | 単位 単位数量値 -> decimal (単位数量.値 単位数量値)
+                            | キログラム キログラム数量値 -> キログラム数量.値 キログラム数量値
                         Ok {
-                            OrderLineId = line.OrderLineId
-                            ProductCode = line.ProductCode
-                            Quantity = line.Quantity
-                            LinePrice = price * qty
+                            注文明細ID = 明細.注文明細ID
+                            商品コード = 明細.商品コード
+                            数量 = 明細.数量
+                            明細価格 = 価格 * 数量値
                         }
                     | None ->
-                        Error (ProductNotFound line.ProductCode)
+                        Error (商品が見つからない 明細.商品コード)
                 )
-                |> Result.sequence
+                |> 結果.シーケンス
 
-            pricedLines
-            |> Result.map (fun lines ->
-                let totalAmount = lines |> List.sumBy (fun line -> line.LinePrice)
+            価格計算済明細
+            |> Result.map (fun 明細リスト ->
+                let 合計金額 = 明細リスト |> List.sumBy (fun 明細 -> 明細.明細価格)
                 {
-                    OrderId = validatedOrder.OrderId
-                    CustomerInfo = validatedOrder.CustomerInfo
-                    ShippingAddress = validatedOrder.ShippingAddress
-                    BillingAddress = validatedOrder.BillingAddress
-                    Lines = lines
-                    AmountToBill = totalAmount
+                    注文ID = 検証済注文.注文ID
+                    顧客情報 = 検証済注文.顧客情報
+                    配送先住所 = 検証済注文.配送先住所
+                    請求先住所 = 検証済注文.請求先住所
+                    明細 = 明細リスト
+                    請求金額 = 合計金額
                 }
             )
 
     // 確認送信の実装
-    let acknowledgeOrder: AcknowledgeOrder =
-        fun sendAcknowledgment pricedOrder ->
-            AsyncResultBuilder.asyncResult {
-                let! acknowledgment = sendAcknowledgment pricedOrder
-                return Some acknowledgment
+    let 注文確認を送信: 注文確認 =
+        fun 注文確認送信 価格計算済注文 ->
+            非同期結果ビルダー.非同期結果 {
+                let! 確認結果 = 注文確認送信 価格計算済注文
+                return Some 確認結果
             }
-            |> AsyncResult.catch (fun _ -> AsyncResult.ofResult (Ok None))
+            |> 非同期結果.キャッチ (fun _ -> 非同期結果.結果から (Ok None))
 
     // イベント生成の実装
-    let createEvents: CreateEvents =
-        fun pricedOrder acknowledgmentOpt ->
+    let イベントを作成: イベント作成 =
+        fun 価格計算済注文 確認オプション ->
             [
-                Some (OrderPlaced pricedOrder)
+                Some (注文受付 価格計算済注文)
 
-                if pricedOrder.AmountToBill > 0m then
-                    Some (BillableOrderPlaced {
-                        OrderId = pricedOrder.OrderId
-                        BillingAddress = pricedOrder.BillingAddress
-                        AmountToBill = pricedOrder.AmountToBill
+                if 価格計算済注文.請求金額 > 0m then
+                    Some (請求対象注文受付 {
+                        注文ID = 価格計算済注文.注文ID
+                        請求先住所 = 価格計算済注文.請求先住所
+                        請求金額 = 価格計算済注文.請求金額
                     })
                 else
                     None
 
-                match acknowledgmentOpt with
-                | Some ack -> Some (AcknowledgmentSent ack)
+                match 確認オプション with
+                | Some 確認結果 -> Some (確認送信完了 確認結果)
                 | None -> None
             ]
             |> List.choose id
 
     // メインワークフロー実装
-    let placeOrder
-        (checkProductExists: CheckProductCodeExists)
-        (getProductPrice: GetProductPrice)
-        (checkAddressExists: CheckAddressExists)
-        (sendAcknowledgment: SendOrderAcknowledgment)
-        : PlaceOrderWorkflow =
-        fun unvalidatedOrder ->
-            AsyncResultBuilder.asyncResult {
+    let 注文を受け付け
+        (商品コード存在確認: 商品コード存在確認)
+        (商品価格取得: 商品価格取得)
+        (住所存在確認: 住所存在確認)
+        (注文確認送信: 注文確認送信)
+        : 注文受付ワークフロー =
+        fun 未検証注文 ->
+            非同期結果ビルダー.非同期結果 {
                 // 検証
-                let! validatedOrder =
-                    validateOrder checkProductExists checkAddressExists unvalidatedOrder
-                    |> AsyncResult.mapError Validation
+                let! 検証済注文 =
+                    注文を検証 商品コード存在確認 住所存在確認 未検証注文
+                    |> 非同期結果.エラーマップ 検証エラー
 
                 // 価格計算
-                let! pricedOrder =
-                    priceOrder getProductPrice validatedOrder
-                    |> Result.mapError Pricing
-                    |> AsyncResult.ofResult
+                let! 価格計算済注文 =
+                    注文価格を計算 商品価格取得 検証済注文
+                    |> Result.mapError 価格計算エラー
+                    |> 非同期結果.結果から
 
                 // 確認送信
-                let! acknowledgment =
-                    acknowledgeOrder sendAcknowledgment pricedOrder
-                    |> AsyncResult.mapError RemoteService
+                let! 確認結果 =
+                    注文確認を送信 注文確認送信 価格計算済注文
+                    |> 非同期結果.エラーマップ 外部サービスエラー
 
                 // イベント生成
-                let events = createEvents pricedOrder acknowledgment
+                let イベントリスト = イベントを作成 価格計算済注文 確認結果
 
-                return events
+                return イベントリスト
             }
