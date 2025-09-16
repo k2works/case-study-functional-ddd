@@ -463,7 +463,7 @@ deactivate price
 
 activate acknowledge
 acknowledge --> acknowledge : 確認書送信
-acknowledge --> [*] : OrderAcknowledgmentSent option
+acknowledge --> acknowledge: OrderAcknowledgmentSent option
 deactivate acknowledge
 @enduml
 ```
