@@ -2,95 +2,95 @@ namespace OrderTaking.Common
 
 open System
 
-type String50 = private String50 of string
+type 文字列50 = private 文字列50 of string
 
-module String50 =
-    let create str =
+module 文字列50 =
+    let 作成 str =
         if String.IsNullOrWhiteSpace(str) then
-            Error "String50は必須です"
+            Error "文字列50は必須です"
         elif str.Length > 50 then
-            Error "String50は50文字以下である必要があります"
+            Error "文字列50は50文字以下である必要があります"
         else
-            Ok (String50 str)
+            Ok (文字列50 str)
 
-    let value (String50 str) = str
+    let 値 (文字列50 str) = str
 
-type EmailAddress = private EmailAddress of string
+type メールアドレス = private メールアドレス of string
 
-module EmailAddress =
-    let create str =
+module メールアドレス =
+    let 作成 str =
         if String.IsNullOrWhiteSpace(str) then
             Error "メールアドレスは必須です"
         elif not (str.Contains("@")) then
             Error "有効なメールアドレスを入力してください"
         else
-            Ok (EmailAddress str)
+            Ok (メールアドレス str)
 
-    let value (EmailAddress email) = email
+    let 値 (メールアドレス email) = email
 
-type OrderId = private OrderId of string
+type 注文ID = private 注文ID of string
 
-module OrderId =
-    let create str =
+module 注文ID =
+    let 作成 str =
         if String.IsNullOrWhiteSpace(str) then
             Error "注文IDは必須です"
         elif str.Length > 10 then
             Error "注文IDは10文字以下である必要があります"
         else
-            Ok (OrderId str)
+            Ok (注文ID str)
 
-    let value (OrderId id) = id
+    let 値 (注文ID id) = id
 
-type ProductCode =
-    | Widget of WidgetCode
-    | Gizmo of GizmoCode
+type 商品コード =
+    | ウィジェット of ウィジェットコード
+    | ギズモ of ギズモコード
 
-and WidgetCode = private WidgetCode of string
-and GizmoCode = private GizmoCode of string
+and ウィジェットコード = private ウィジェットコード of string
+and ギズモコード = private ギズモコード of string
 
-module WidgetCode =
-    let create str =
+module ウィジェットコード =
+    let 作成 str =
         if String.IsNullOrWhiteSpace(str) then
-            Error "WidgetCodeは必須です"
+            Error "ウィジェットコードは必須です"
         elif not (str.StartsWith("W") && str.Length = 5) then
-            Error "WidgetCodeは'W'で始まる5文字である必要があります"
+            Error "ウィジェットコードは'W'で始まる5文字である必要があります"
         else
-            Ok (WidgetCode str)
+            Ok (ウィジェットコード str)
 
-    let value (WidgetCode code) = code
+    let 値 (ウィジェットコード code) = code
 
-module GizmoCode =
-    let create str =
+module ギズモコード =
+    let 作成 str =
         if String.IsNullOrWhiteSpace(str) then
-            Error "GizmoCodeは必須です"
+            Error "ギズモコードは必須です"
         elif not (str.StartsWith("G") && str.Length = 4) then
-            Error "GizmoCodeは'G'で始まる4文字である必要があります"
+            Error "ギズモコードは'G'で始まる4文字である必要があります"
         else
-            Ok (GizmoCode str)
+            Ok (ギズモコード str)
 
-    let value (GizmoCode code) = code
+    let 値 (ギズモコード code) = code
 
-type OrderQuantity =
-    | Unit of UnitQuantity
-    | Kilogram of KilogramQuantity
+type 注文数量 =
+    | 単位 of 単位数量
+    | キログラム of キログラム数量
 
-and UnitQuantity = private UnitQuantity of int
-and KilogramQuantity = private KilogramQuantity of decimal
+and 単位数量 = private 単位数量 of int
+and キログラム数量 = private キログラム数量 of decimal
 
-module UnitQuantity =
-    let create qty =
+module 単位数量 =
+    let 作成 qty =
         if qty < 1 || qty > 1000 then
-            Error "Unit数量は1-1000の範囲である必要があります"
+            Error "単位数量は1-1000の範囲である必要があります"
         else
-            Ok (UnitQuantity qty)
+            Ok (単位数量 qty)
 
-    let value (UnitQuantity qty) = qty
+    let 値 (単位数量 qty) = qty
 
-module KilogramQuantity =
-    let create qty =
+module キログラム数量 =
+    let 作成 qty =
         if qty < 0.05m || qty > 100.00m then
-            Error "Kilogram数量は0.05-100.00の範囲である必要があります"
+            Error "キログラム数量は0.05-100.00の範囲である必要があります"
         else
-            Ok (KilogramQuantity qty)
+            Ok (キログラム数量 qty)
 
-    let value (KilogramQuantity qty) = qty
+    let 値 (キログラム数量 qty) = qty

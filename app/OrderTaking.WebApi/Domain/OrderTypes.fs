@@ -2,106 +2,106 @@ namespace OrderTaking.Domain
 
 open OrderTaking.Common
 
-type CustomerInfo = {
-    Name: String50
-    Email: EmailAddress
+type 顧客情報 = {
+    名前: 文字列50
+    メール: メールアドレス
 }
 
-type Address = {
-    AddressLine1: String50
-    AddressLine2: String50 option
-    City: String50
-    ZipCode: String50
+type 住所 = {
+    住所行1: 文字列50
+    住所行2: 文字列50 option
+    都市: 文字列50
+    郵便番号: 文字列50
 }
 
-type OrderLine = {
-    OrderLineId: string
-    ProductCode: ProductCode
-    Quantity: OrderQuantity
+type 注文明細 = {
+    注文明細ID: string
+    商品コード: 商品コード
+    数量: 注文数量
 }
 
-type UnvalidatedOrder = {
-    OrderId: string
-    CustomerInfo: UnvalidatedCustomerInfo
-    ShippingAddress: UnvalidatedAddress
-    BillingAddress: UnvalidatedAddress
-    Lines: UnvalidatedOrderLine list
+type 未検証注文 = {
+    注文ID: string
+    顧客情報: 未検証顧客情報
+    配送先住所: 未検証住所
+    請求先住所: 未検証住所
+    明細: 未検証注文明細 list
 }
 
-and UnvalidatedCustomerInfo = {
-    FirstName: string
-    LastName: string
-    EmailAddress: string
+and 未検証顧客情報 = {
+    名: string
+    姓: string
+    メールアドレス: string
 }
 
-and UnvalidatedAddress = {
-    AddressLine1: string
-    AddressLine2: string
-    City: string
-    ZipCode: string
+and 未検証住所 = {
+    住所行1: string
+    住所行2: string
+    都市: string
+    郵便番号: string
 }
 
-and UnvalidatedOrderLine = {
-    OrderLineId: string
-    ProductCode: string
-    Quantity: decimal
+and 未検証注文明細 = {
+    注文明細ID: string
+    商品コード: string
+    数量: decimal
 }
 
-type ValidatedOrder = {
-    OrderId: OrderId
-    CustomerInfo: CustomerInfo
-    ShippingAddress: Address
-    BillingAddress: Address
-    Lines: ValidatedOrderLine list
+type 検証済注文 = {
+    注文ID: 注文ID
+    顧客情報: 顧客情報
+    配送先住所: 住所
+    請求先住所: 住所
+    明細: 検証済注文明細 list
 }
 
-and ValidatedOrderLine = {
-    OrderLineId: string
-    ProductCode: ProductCode
-    Quantity: OrderQuantity
+and 検証済注文明細 = {
+    注文明細ID: string
+    商品コード: 商品コード
+    数量: 注文数量
 }
 
-type PricedOrder = {
-    OrderId: OrderId
-    CustomerInfo: CustomerInfo
-    ShippingAddress: Address
-    BillingAddress: Address
-    Lines: PricedOrderLine list
-    AmountToBill: decimal
+type 価格計算済注文 = {
+    注文ID: 注文ID
+    顧客情報: 顧客情報
+    配送先住所: 住所
+    請求先住所: 住所
+    明細: 価格計算済注文明細 list
+    請求金額: decimal
 }
 
-and PricedOrderLine = {
-    OrderLineId: string
-    ProductCode: ProductCode
-    Quantity: OrderQuantity
-    LinePrice: decimal
+and 価格計算済注文明細 = {
+    注文明細ID: string
+    商品コード: 商品コード
+    数量: 注文数量
+    明細価格: decimal
 }
 
-type OrderEvent =
-    | OrderPlaced of PricedOrder
-    | BillableOrderPlaced of BillableOrderPlaced
-    | AcknowledgmentSent of AcknowledgmentSent
+type 注文イベント =
+    | 注文受付 of 価格計算済注文
+    | 請求対象注文受付 of 請求対象注文受付
+    | 確認送信完了 of 確認送信完了
 
-and BillableOrderPlaced = {
-    OrderId: OrderId
-    BillingAddress: Address
-    AmountToBill: decimal
+and 請求対象注文受付 = {
+    注文ID: 注文ID
+    請求先住所: 住所
+    請求金額: decimal
 }
 
-and AcknowledgmentSent = {
-    OrderId: OrderId
-    EmailAddress: EmailAddress
+and 確認送信完了 = {
+    注文ID: 注文ID
+    メールアドレス: メールアドレス
 }
 
-type ValidationError =
-    | FieldIsMissing of string
-    | FieldOutOfRange of string * decimal * decimal
-    | FieldInvalidFormat of string
+type 検証エラー =
+    | フィールド欠如 of string
+    | フィールド範囲外 of string * decimal * decimal
+    | フィールド形式不正 of string
 
-type PricingError =
-    | ProductNotFound of ProductCode
+type 価格計算エラー =
+    | 商品が見つからない of 商品コード
 
-type PlaceOrderError =
-    | Validation of ValidationError
-    | Pricing of PricingError
-    | RemoteService of string
+type 注文受付エラー =
+    | 検証エラー of 検証エラー
+    | 価格計算エラー of 価格計算エラー
+    | 外部サービスエラー of string
