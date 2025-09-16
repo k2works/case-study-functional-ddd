@@ -7,110 +7,112 @@ open OrderTaking.Domain
 open OrderTaking.Infrastructure
 open OrderTaking.Api
 open OrderTaking.Common
-open OrderTaking.Domain.OrderWorkflows
 
 // 外部依存関数の実装
-let checkProductCodeExists: CheckProductCodeExists =
-    fun productCode ->
+let checkProductCodeExists: 商品コード存在確認 =
+    fun 商品コード ->
         // 簡易的な実装 - 実際のアプリケーションではデータベースを使用
-        match productCode with
-        | Widget code ->
-            let codeStr = WidgetCode.value code
-            codeStr.StartsWith("W")
-        | Gizmo code ->
-            let codeStr = GizmoCode.value code
-            codeStr.StartsWith("G")
+        match 商品コード with
+        | ウィジェット コード ->
+            let コード文字列 = ウィジェットコード.値 コード
+            コード文字列.StartsWith("W")
+        | ギズモ コード ->
+            let コード文字列 = ギズモコード.値 コード
+            コード文字列.StartsWith("G")
 
-let getProductPrice: GetProductPrice =
-    fun productCode ->
+let getProductPrice: 商品価格取得 =
+    fun 商品コード ->
         // 簡易的な価格テーブル
-        match productCode with
-        | Widget code ->
-            let codeStr = WidgetCode.value code
-            match codeStr with
+        match 商品コード with
+        | ウィジェット コード ->
+            let コード文字列 = ウィジェットコード.値 コード
+            match コード文字列 with
             | "W1234" -> Some 100.00m
             | "W5678" -> Some 150.00m
             | _ -> Some 120.00m // デフォルト価格
-        | Gizmo code ->
-            let codeStr = GizmoCode.value code
-            match codeStr with
+        | ギズモ コード ->
+            let コード文字列 = ギズモコード.値 コード
+            match コード文字列 with
             | "G123" -> Some 50.00m
             | "G456" -> Some 75.00m
             | _ -> Some 60.00m // デフォルト価格
 
-let checkAddressExists: CheckAddressExists =
-    fun unvalidatedAddress ->
-        AsyncResultBuilder.asyncResult {
+let checkAddressExists: 住所存在確認 =
+    fun 未検証住所 ->
+        非同期結果ビルダー.非同期結果 {
             // 簡易的な住所検証 - 実際のアプリケーションでは外部APIを使用
             try
-                let! line1 = String50.create unvalidatedAddress.AddressLine1 |> Result.mapError (fun _ -> FieldIsMissing "AddressLine1") |> AsyncResult.ofResult
-                let! city = String50.create unvalidatedAddress.City |> Result.mapError (fun _ -> FieldIsMissing "City") |> AsyncResult.ofResult
-                let! zip = String50.create unvalidatedAddress.ZipCode |> Result.mapError (fun _ -> FieldIsMissing "ZipCode") |> AsyncResult.ofResult
+                let! 住所行1 = 文字列50.作成 未検証住所.住所行1 |> Result.mapError (fun _ -> フィールド欠如 "AddressLine1") |> 非同期結果.結果から
+                let! 都市 = 文字列50.作成 未検証住所.都市 |> Result.mapError (fun _ -> フィールド欠如 "City") |> 非同期結果.結果から
+                let! 郵便番号 = 文字列50.作成 未検証住所.郵便番号 |> Result.mapError (fun _ -> フィールド欠如 "ZipCode") |> 非同期結果.結果から
 
-                let line2 =
-                    if String.IsNullOrWhiteSpace(unvalidatedAddress.AddressLine2)
+                let 住所行2 =
+                    if String.IsNullOrWhiteSpace(未検証住所.住所行2)
                     then None
-                    else String50.create unvalidatedAddress.AddressLine2 |> Result.toOption
+                    else
+                        match 文字列50.作成 未検証住所.住所行2 with
+                        | Ok 値 -> Some 値
+                        | Error _ -> None
 
                 return {
-                    AddressLine1 = line1
-                    AddressLine2 = line2
-                    City = city
-                    ZipCode = zip
+                    住所行1 = 住所行1
+                    住所行2 = 住所行2
+                    都市 = 都市
+                    郵便番号 = 郵便番号
                 }
             with
-            | ex -> return! AsyncResult.ofError (FieldInvalidFormat ex.Message)
+            | 例外 -> return! 非同期結果.エラーから (フィールド形式不正 例外.Message)
         }
 
-let sendOrderAcknowledgment: SendOrderAcknowledgment =
-    fun pricedOrder ->
+let sendOrderAcknowledgment: 注文確認送信 =
+    fun 価格計算済注文 ->
         async {
             // 簡易的なメール送信の模擬
             try
                 // 実際のアプリケーションではメールサービスを使用
                 return Ok {
-                    OrderId = pricedOrder.OrderId
-                    EmailAddress = pricedOrder.CustomerInfo.Email
+                    注文ID = 価格計算済注文.注文ID
+                    メールアドレス = 価格計算済注文.顧客情報.メール
                 }
             with
-            | ex -> return Error ex.Message
+            | 例外 -> return Error 例外.Message
         }
 
 [<EntryPoint>]
-let main args =
-    let builder = WebApplication.CreateBuilder(args)
+let main 引数 =
+    let ビルダー = WebApplication.CreateBuilder(引数)
 
     // サービス登録
-    builder.Services.AddDbContext<OrderContext>(fun options ->
-        options.UseInMemoryDatabase("OrderTakingDb") |> ignore
+    ビルダー.Services.AddDbContext<OrderContext>(fun オプション ->
+        オプション.UseInMemoryDatabase("OrderTakingDb") |> ignore
     ) |> ignore
 
-    builder.Services.AddScoped<IOrderRepository, OrderRepository>() |> ignore
+    ビルダー.Services.AddScoped<I注文リポジトリ, 注文リポジトリ>() |> ignore
 
     // Swagger設定
-    builder.Services.AddEndpointsApiExplorer() |> ignore
-    builder.Services.AddSwaggerDocument() |> ignore
+    ビルダー.Services.AddEndpointsApiExplorer() |> ignore
+    ビルダー.Services.AddSwaggerDocument() |> ignore
 
-    let app = builder.Build()
+    let アプリ = ビルダー.Build()
 
     // ミドルウェア設定
-    if app.Environment.IsDevelopment() then
-        app.UseOpenApi() |> ignore
-        app.UseSwaggerUi() |> ignore
+    if アプリ.Environment.IsDevelopment() then
+        アプリ.UseOpenApi() |> ignore
+        アプリ.UseSwaggerUi() |> ignore
 
     // ワークフローの作成
-    let placeOrderWorkflow = OrderWorkflows.placeOrder
+    let 注文受付ワークフロー = 注文ワークフロー.注文を受け付け
                                 checkProductCodeExists
                                 getProductPrice
                                 checkAddressExists
                                 sendOrderAcknowledgment
 
     // エンドポイント設定
-    OrderEndpoints.addOrderEndpoints app placeOrderWorkflow |> ignore
+    注文エンドポイント.注文エンドポイントを追加 アプリ 注文受付ワークフロー |> ignore
 
-    app.MapGet("/", Func<string>(fun () -> "Order Taking API - F# Functional Domain Modeling")) |> ignore
+    アプリ.MapGet("/", Func<string>(fun () -> "Order Taking API - F# Functional Domain Modeling")) |> ignore
 
-    app.Run()
+    アプリ.Run()
 
     0
 

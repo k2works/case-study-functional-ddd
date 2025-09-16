@@ -45,82 +45,82 @@ type ErrorResponse = {
     Details: string list
 }
 
-module OrderEndpoints =
+module 注文エンドポイント =
 
     // DTOからドメインオブジェクトへの変換
-    let toDomainOrder (request: PlaceOrderRequest) : UnvalidatedOrder = {
-        OrderId = request.OrderId
-        CustomerInfo = {
-            FirstName = request.CustomerInfo.FirstName
-            LastName = request.CustomerInfo.LastName
-            EmailAddress = request.CustomerInfo.EmailAddress
+    let ドメイン注文へ変換 (request: PlaceOrderRequest) : 未検証注文 = {
+        注文ID = request.OrderId
+        顧客情報 = {
+            名 = request.CustomerInfo.FirstName
+            姓 = request.CustomerInfo.LastName
+            メールアドレス = request.CustomerInfo.EmailAddress
         }
-        ShippingAddress = {
-            AddressLine1 = request.ShippingAddress.AddressLine1
-            AddressLine2 = request.ShippingAddress.AddressLine2
-            City = request.ShippingAddress.City
-            ZipCode = request.ShippingAddress.ZipCode
+        配送先住所 = {
+            住所行1 = request.ShippingAddress.AddressLine1
+            住所行2 = request.ShippingAddress.AddressLine2
+            都市 = request.ShippingAddress.City
+            郵便番号 = request.ShippingAddress.ZipCode
         }
-        BillingAddress = {
-            AddressLine1 = request.BillingAddress.AddressLine1
-            AddressLine2 = request.BillingAddress.AddressLine2
-            City = request.BillingAddress.City
-            ZipCode = request.BillingAddress.ZipCode
+        請求先住所 = {
+            住所行1 = request.BillingAddress.AddressLine1
+            住所行2 = request.BillingAddress.AddressLine2
+            都市 = request.BillingAddress.City
+            郵便番号 = request.BillingAddress.ZipCode
         }
-        Lines = request.Lines |> List.map (fun line -> {
-            OrderLineId = line.OrderLineId
-            ProductCode = line.ProductCode
-            Quantity = line.Quantity
+        明細 = request.Lines |> List.map (fun 明細 -> {
+            注文明細ID = 明細.OrderLineId
+            商品コード = 明細.ProductCode
+            数量 = 明細.Quantity
         })
     }
 
     // エラーメッセージの生成
-    let formatError (error: PlaceOrderError) =
+    let エラーをフォーマット (error: 注文受付エラー) =
         match error with
-        | Validation (FieldIsMissing field) ->
+        | 検証エラー (フィールド欠如 field) ->
             { Error = "検証エラー"; Details = [$"必須フィールド '{field}' が不足しています"] }
-        | Validation (FieldOutOfRange (field, min, max)) ->
+        | 検証エラー (フィールド範囲外 (field, min, max)) ->
             { Error = "検証エラー"; Details = [$"フィールド '{field}' の値が範囲外です（{min}-{max}）"] }
-        | Validation (FieldInvalidFormat field) ->
+        | 検証エラー (フィールド形式不正 field) ->
             { Error = "検証エラー"; Details = [$"フィールド '{field}' の形式が不正です"] }
-        | Pricing (ProductNotFound productCode) ->
-            let productCodeStr =
-                match productCode with
-                | Widget code -> WidgetCode.value code
-                | Gizmo code -> GizmoCode.value code
-            { Error = "価格計算エラー"; Details = [$"商品コード '{productCodeStr}' が見つかりません"] }
-        | RemoteService error ->
-            { Error = "外部サービスエラー"; Details = [error] }
+        | 価格計算エラー (商品が見つからない 商品コード) ->
+            let 商品コード文字列 =
+                match 商品コード with
+                | ウィジェット コード -> ウィジェットコード.値 コード
+                | ギズモ コード -> ギズモコード.値 コード
+            { Error = "価格計算エラー"; Details = [$"商品コード '{商品コード文字列}' が見つかりません"] }
+        | 外部サービスエラー エラー ->
+            { Error = "外部サービスエラー"; Details = [エラー] }
 
     // 注文受付エンドポイントの実装
-    let addOrderEndpoints
+    let 注文エンドポイントを追加
         (app: WebApplication)
-        (placeOrderWorkflow: PlaceOrderWorkflow) =
+        (placeOrderWorkflow: 注文受付ワークフロー) =
 
         // POST /api/orders
-        app.MapPost("/api/orders", Func<PlaceOrderRequest, System.Threading.Tasks.Task<IResult>>(fun request ->
+        app.MapPost("/api/orders", Func<PlaceOrderRequest, System.Threading.Tasks.Task<IResult>>(fun 要求 ->
             task {
-                let unvalidatedOrder = toDomainOrder request
+                let 未検証注文 = ドメイン注文へ変換 要求
 
-                let! result = placeOrderWorkflow unvalidatedOrder |> Async.StartAsTask
+                let! 結果 = placeOrderWorkflow 未検証注文 |> Async.StartAsTask
 
-                match result with
-                | Ok events ->
-                    let orderPlacedEvent =
-                        events
+                match 結果 with
+                | Ok イベント ->
+                    let 注文受付イベント =
+                        イベント
                         |> List.pick (function
-                            | OrderPlaced pricedOrder -> Some pricedOrder
+                            | 注文受付 価格計算済注文 -> Some 価格計算済注文
                             | _ -> None)
 
-                    let response = {
-                        OrderId = OrderId.value orderPlacedEvent.OrderId
+                    let 応答 = {
+                        OrderId = 注文ID.値 注文受付イベント.注文ID
                         Message = "注文が正常に受け付けられました"
                     }
-                    return Results.Ok(response)
+                    return Results.Ok(応答)
 
-                | Error error ->
-                    let errorResponse = formatError error
-                    return Results.BadRequest(errorResponse)
+                | Error エラー ->
+                    let エラー応答 = エラーをフォーマット エラー
+                    return Results.BadRequest(エラー応答)
             }
         )) |> ignore
 

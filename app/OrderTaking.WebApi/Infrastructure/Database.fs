@@ -39,55 +39,55 @@ type OrderContext(options: DbContextOptions<OrderContext>) =
             .HasKey("OrderLineId") |> ignore
 
 // リポジトリ実装
-type IOrderRepository =
-    abstract member SaveOrder: PricedOrder -> Task<unit>
-    abstract member GetOrder: OrderId -> Task<PricedOrder option>
+type I注文リポジトリ =
+    abstract member 注文を保存: 価格計算済注文 -> Task<unit>
+    abstract member 注文を取得: 注文ID -> Task<価格計算済注文 option>
 
-type OrderRepository(context: OrderContext) =
-    interface IOrderRepository with
-        member _.SaveOrder(order: PricedOrder) =
+type 注文リポジトリ(context: OrderContext) =
+    interface I注文リポジトリ with
+        member _.注文を保存(order: 価格計算済注文) =
             task {
-                let orderEntity = OrderEntity()
-                orderEntity.OrderId <- OrderId.value order.OrderId
-                orderEntity.CustomerName <- String50.value order.CustomerInfo.Name
-                orderEntity.CustomerEmail <- EmailAddress.value order.CustomerInfo.Email
-                orderEntity.ShippingAddress <-
+                let 注文エンティティ = OrderEntity()
+                注文エンティティ.OrderId <- 注文ID.値 order.注文ID
+                注文エンティティ.CustomerName <- 文字列50.値 order.顧客情報.名前
+                注文エンティティ.CustomerEmail <- メールアドレス.値 order.顧客情報.メール
+                注文エンティティ.ShippingAddress <-
                     sprintf "%s %s %s %s"
-                        (String50.value order.ShippingAddress.AddressLine1)
-                        (order.ShippingAddress.AddressLine2 |> Option.map String50.value |> Option.defaultValue "")
-                        (String50.value order.ShippingAddress.City)
-                        (String50.value order.ShippingAddress.ZipCode)
-                orderEntity.BillingAddress <-
+                        (文字列50.値 order.配送先住所.住所行1)
+                        (order.配送先住所.住所行2 |> Option.map 文字列50.値 |> Option.defaultValue "")
+                        (文字列50.値 order.配送先住所.都市)
+                        (文字列50.値 order.配送先住所.郵便番号)
+                注文エンティティ.BillingAddress <-
                     sprintf "%s %s %s %s"
-                        (String50.value order.BillingAddress.AddressLine1)
-                        (order.BillingAddress.AddressLine2 |> Option.map String50.value |> Option.defaultValue "")
-                        (String50.value order.BillingAddress.City)
-                        (String50.value order.BillingAddress.ZipCode)
-                orderEntity.AmountToBill <- order.AmountToBill
+                        (文字列50.値 order.請求先住所.住所行1)
+                        (order.請求先住所.住所行2 |> Option.map 文字列50.値 |> Option.defaultValue "")
+                        (文字列50.値 order.請求先住所.都市)
+                        (文字列50.値 order.請求先住所.郵便番号)
+                注文エンティティ.AmountToBill <- order.請求金額
 
-                context.Orders.Add(orderEntity) |> ignore
+                context.Orders.Add(注文エンティティ) |> ignore
 
-                for line in order.Lines do
-                    let lineEntity = OrderLineEntity()
-                    lineEntity.OrderLineId <- line.OrderLineId
-                    lineEntity.OrderId <- OrderId.value order.OrderId
-                    lineEntity.ProductCode <-
-                        match line.ProductCode with
-                        | Widget code -> sprintf "Widget %s" (WidgetCode.value code)
-                        | Gizmo code -> sprintf "Gizmo %s" (GizmoCode.value code)
-                    lineEntity.Quantity <-
-                        match line.Quantity with
-                        | Unit qty -> decimal (UnitQuantity.value qty)
-                        | Kilogram qty -> KilogramQuantity.value qty
-                    lineEntity.LinePrice <- line.LinePrice
+                for 明細 in order.明細 do
+                    let 明細エンティティ = OrderLineEntity()
+                    明細エンティティ.OrderLineId <- 明細.注文明細ID
+                    明細エンティティ.OrderId <- 注文ID.値 order.注文ID
+                    明細エンティティ.ProductCode <-
+                        match 明細.商品コード with
+                        | ウィジェット コード -> sprintf "ウィジェット %s" (ウィジェットコード.値 コード)
+                        | ギズモ コード -> sprintf "ギズモ %s" (ギズモコード.値 コード)
+                    明細エンティティ.Quantity <-
+                        match 明細.数量 with
+                        | 単位 数量値 -> decimal (単位数量.値 数量値)
+                        | キログラム 数量値 -> キログラム数量.値 数量値
+                    明細エンティティ.LinePrice <- 明細.明細価格
 
-                    context.OrderLines.Add(lineEntity) |> ignore
+                    context.OrderLines.Add(明細エンティティ) |> ignore
 
-                let! _ = context.SaveChangesAsync()
+                let! 結果 = context.SaveChangesAsync()
                 return ()
             }
 
-        member _.GetOrder(orderId: OrderId) =
+        member _.注文を取得(orderId: 注文ID) =
             task {
                 // 実装は将来のバージョンで追加
                 return None
