@@ -34,8 +34,17 @@
 | **ライブラリ・パッケージ** | | | | |
 | JSON シリアライゼーション | System.Text.Json | 5.0.2 | JSON 変換 | 高パフォーマンス、標準ライブラリ |
 | **開発・テスト** | | | | |
-| テストフレームワーク | NUnit/xUnit | 最新 | 単体・統合テスト | F# 対応 |
-| モックライブラリ | FsUnit | 最新 | F# テスト支援 | 関数型テスト記述 |
+| テストフレームワーク | xUnit | 2.6.2 | 単体・統合テスト | .NET標準、F# 対応 |
+| アサーションライブラリ | FsUnit.xUnit | 6.0.0 | F# テスト支援 | F#らしいアサーション記述 |
+| プロパティベーステスト | FsCheck | 最新 | Property-based Testing | 関数型テスト手法 |
+| コードカバレッジ | coverlet.collector | 6.0.0 | カバレッジ測定 | クロスプラットフォーム対応 |
+| レポート生成 | ReportGenerator | 5.2.0 | カバレッジ可視化 | HTML レポート生成 |
+| **静的解析・品質管理** | | | | |
+| 静的解析 | FSharpLint | 最新 | F#専用コード解析 | 循環複雑度制限、命名規則 |
+| コードフォーマッター | Fantomas.Tool | 6.2.3 | コード整形 | 一貫したフォーマット |
+| **ビルド自動化** | | | | |
+| ビルドシステム | Cake.Tool | 最新 | タスク自動化 | C#で記述可能なビルドツール |
+| パッケージ管理 | Directory.Packages.props | - | 依存関係統一管理 | 中央集約バージョン管理 |
 
 ## ドメインモデル設計
 
@@ -137,19 +146,188 @@ API --> C: 200 OK + OrderId
 
 ### 開発環境要件
 
+#### 必須ツール
+
 - **IDE**: Visual Studio Code + Ionide / JetBrains Rider
 - **SDK**: .NET 9.0 SDK
-- **F# コンパイラ**: 最新版
+- **F# コンパイラ**: 9.0（.NET 9.0 SDK に含まれる）
 - **パッケージマネージャー**: NuGet
+
+#### 開発ツールチェーン
+
+**ビルドツール**
+```bash
+# Cake.Tool インストール
+dotnet tool install -g Cake.Tool
+
+# Fantomas インストール
+dotnet tool install -g fantomas
+
+# FSharpLint インストール
+dotnet tool install -g fsharplint
+```
+
+**VSCode 統合設定**
+```json
+// .vscode/tasks.json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "args": ["cake", "--target=Build"],
+            "group": "build"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "args": ["cake", "--target=Test"],
+            "group": "test"
+        },
+        {
+            "label": "coverage",
+            "command": "dotnet",
+            "args": ["cake", "--target=Coverage"],
+            "group": "test"
+        }
+    ]
+}
+```
+
+**Git フック設定**
+```bash
+#!/bin/sh
+# .git/hooks/pre-commit
+echo "Running pre-commit checks..."
+
+# ビルドチェック
+dotnet build
+if [ $? -ne 0 ]; then
+    echo "Build failed. Commit aborted."
+    exit 1
+fi
+
+# テスト実行
+dotnet test
+if [ $? -ne 0 ]; then
+    echo "Tests failed. Commit aborted."
+    exit 1
+fi
+
+echo "Pre-commit checks passed!"
+```
 
 ### プロジェクト設定
 
+#### F#プロジェクト設定
+
 ```xml
-<PropertyGroup>
-  <TargetFramework>net9.0</TargetFramework>
-  <Nullable>enable</Nullable>
-  <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-</PropertyGroup>
+<!-- OrderTaking.fsproj -->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>3388</NoWarn> <!-- F# XML documentation warnings -->
+  </PropertyGroup>
+</Project>
+```
+
+#### 依存関係統一管理
+
+```xml
+<!-- Directory.Packages.props -->
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- テスト関連 -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="xunit" Version="2.6.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageVersion Include="FsUnit.xUnit" Version="6.0.0" />
+
+    <!-- ツール関連 -->
+    <PackageVersion Include="Fantomas.Tool" Version="6.2.3" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="ReportGenerator" Version="5.2.0" />
+
+    <!-- API関連 -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+    <PackageVersion Include="NSwag.AspNetCore" Version="14.2.0" />
+  </ItemGroup>
+</Project>
+```
+
+#### Cake ビルド設定
+
+```csharp
+// build.cake
+var target = Argument("target", "Default");
+var configuration = Argument("configuration", "Release");
+
+//////////////////////////////////////////////////////////////////////
+// TASKS
+//////////////////////////////////////////////////////////////////////
+
+Task("Clean")
+    .Does(() =>
+{
+    CleanDirectory("./src/bin");
+    CleanDirectory("./src/obj");
+    CleanDirectory("./tests/bin");
+    CleanDirectory("./tests/obj");
+});
+
+Task("Build")
+    .IsDependentOn("Clean")
+    .Does(() =>
+{
+    DotNetBuild("./OrderTaking.sln", new DotNetBuildSettings
+    {
+        Configuration = configuration
+    });
+});
+
+Task("Test")
+    .IsDependentOn("Build")
+    .Does(() =>
+{
+    DotNetTest("./tests/OrderTaking.Tests.fsproj", new DotNetTestSettings
+    {
+        Configuration = configuration,
+        NoBuild = true
+    });
+});
+
+Task("Coverage")
+    .IsDependentOn("Build")
+    .Does(() =>
+{
+    DotNetTest("./tests/OrderTaking.Tests.fsproj", new DotNetTestSettings
+    {
+        Configuration = configuration,
+        NoBuild = true,
+        ArgumentCustomization = args => args
+            .Append("--collect:\"XPlat Code Coverage\"")
+            .Append("--results-directory:./coverage")
+    });
+});
+
+Task("All")
+    .IsDependentOn("Clean")
+    .IsDependentOn("Build")
+    .IsDependentOn("Test")
+    .IsDependentOn("Coverage");
+
+Task("Default")
+    .IsDependentOn("All");
+
+RunTarget(target);
 ```
 
 ### F# 特有の設定
@@ -169,10 +347,49 @@ API --> C: 200 OK + OrderId
 
 ### 品質保証
 
-- **静的型チェック**: F# 型システムによる安全性
-- **関数型テスト**: プロパティベーステスト
-- **ドメインテスト**: ビジネスルールの網羅的テスト
+#### テスト戦略
+
+**テスト駆動開発（TDD）**
+- **Red-Green-Refactor サイクル**: 失敗するテスト → 最小実装 → リファクタリング
+- **継続的品質保証**: コード変更の度に品質を自動検証
+- **リファクタリング安心感**: 機能を壊さずにコード改善が可能
+
+**テストレベル**
+- **単体テスト**: xUnit + FsUnit.xUnit による関数レベルテスト
+- **プロパティベーステスト**: FsCheck によるProperty-based Testing
 - **統合テスト**: API エンドポイントの動作確認
+- **アーキテクチャテスト**: レイヤー依存関係の検証
+
+#### 品質指標
+
+**コードカバレッジ**
+- **目標値**: 80% 以上のライン/ブランチカバレッジ
+- **測定ツール**: coverlet による測定、ReportGenerator による可視化
+- **継続監視**: CI/CD パイプラインでの品質ゲート
+
+**サイクロマティック複雑度**
+- **制限値**: 全関数 ≤ 7（FSharpLint による監視）
+- **測定対象**: match文を含む分岐複雑度
+- **改善手法**: ヘルパー関数抽出、パターンマッチング活用
+
+**静的解析品質**
+- **FSharpLint**: 命名規則、型安全性、関数型プログラミングベストプラクティス
+- **Fantomas**: 一貫したコードフォーマット
+- **コンパイラ警告**: TreatWarningsAsErrors による厳格なチェック
+
+#### テスト自動化
+
+**ビルドパイプライン**
+```
+Clean → Format → Build → Lint → Test → Coverage → Report
+```
+
+**品質ゲート**
+- ビルド成功率: 100%
+- テスト成功率: 100%
+- カバレッジ: ≥ 80%
+- 循環複雑度: 全関数 ≤ 7
+- Lint エラー: 0 件
 
 ## セキュリティ
 
@@ -197,15 +414,23 @@ API --> C: 200 OK + OrderId
 - Entity Framework Core 移行
 - データベースマイグレーション
 
-#### Phase 3: 高度な機能
-- CQRS パターン導入
-- イベントソーシング
-- 分散システム対応
+#### Phase 3: 開発基盤強化
+- **テスト自動化**: xUnit + FsUnit.xUnit + Cake による統合ビルド
+- **静的解析**: FSharpLint によるコード品質管理
+- **CI/CD**: GitHub Actions による継続的統合・デプロイ
+- **品質ゲート**: カバレッジ 80%、サイクロマティック複雑度 ≤ 7
 
-#### Phase 4: 運用・監視
-- ログ収集（Serilog）
-- メトリクス監視
-- ヘルスチェック
+#### Phase 4: 高度な機能
+- **プロパティベーステスト**: FsCheck による包括的テスト
+- **アーキテクチャテスト**: 依存関係検証
+- **パフォーマンステスト**: BenchmarkDotNet 導入
+- **セキュリティテスト**: 脆弱性スキャン自動化
+
+#### Phase 5: 運用・監視
+- **ログ収集**: Serilog による構造化ログ
+- **メトリクス監視**: Application Insights 統合
+- **ヘルスチェック**: ASP.NET Core Health Checks
+- **分散システム対応**: CQRS パターン、イベントソーシング
 
 ### 技術的負債管理
 
@@ -216,6 +441,27 @@ API --> C: 200 OK + OrderId
 
 ## まとめ
 
-本技術スタックは、F# の関数型プログラミングの利点を活かしつつ、ASP.NET Core の堅牢な Web API 機能を組み合わせることで、型安全で保守性の高い注文受付システムを実現します。
+本技術スタックは、F# の関数型プログラミングの利点を活かしつつ、現代的な開発手法であるテスト駆動開発（TDD）と継続的品質管理を統合することで、「変更を楽に安全にできて役に立つソフトウェア」を実現します。
 
-段階的な拡張計画により、初期は軽量な構成から始め、業務の成長に応じて高度な機能を追加していく戦略を採用しています。
+### 主要な特徴
+
+**関数型プログラミングの活用**
+- F# 9.0 による型安全性とイミュータブルデータ構造
+- Railway Oriented Programming による堅牢なエラーハンドリング
+- 制約付き型システムによるビジネスルール表現
+
+**開発生産性の向上**
+- xUnit + FsUnit.xUnit によるF#らしいテスト記述
+- Cake による自動化されたビルドパイプライン
+- FSharpLint + Fantomas による一貫したコード品質
+
+**継続的品質保証**
+- TDD サイクルによる安心感のあるリファクタリング
+- 80% 以上のコードカバレッジ目標
+- サイクロマティック複雑度 ≤ 7 による保守性確保
+
+### 段階的拡張戦略
+
+Phase 1（基本機能）から Phase 5（運用・監視）まで、プロジェクトの成長に応じて段階的に機能を拡張していく戦略を採用。特に Phase 3 の開発基盤強化では、ソフトウェア開発の三種の神器（Git、テスト自動化、タスク自動化）を完全に統合し、現代的な F# 開発環境を確立します。
+
+この技術スタックにより、F# の関数型プログラミングの恩恵を最大限に活用しながら、エンタープライズレベルの品質と生産性を両立する注文受付システムの開発が可能になります。
