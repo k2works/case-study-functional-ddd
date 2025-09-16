@@ -69,6 +69,7 @@ nav:
     - 技術スタック: design/tech_stack.md
     - テスト戦略: design/test_strategy.md
   - 実装ガイド:
+    - F# アプリケーション環境構築ガイド: reference/F#アプリケーション環境構築ガイド.md
     - F# API構築ガイド: reference/F#API構築ガイド.md
     - UI設計ガイド: reference/UI設計ガイド.md
     - アーキテクチャ設計ガイド: reference/アーキテクチャ設計ガイド.md
