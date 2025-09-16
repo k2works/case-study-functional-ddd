@@ -1,8 +1,8 @@
-site_name: Site Name
-site_description: Site Description
+site_name: 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+site_description: F#の関数型プログラミングとドメイン駆動設計による注文受付システムの実装ガイド
 site_author: Project Team
-repo_url: https://github.com/k2works/claude-code-booster
-repo_name: claude-code-booster
+repo_url: https://github.com/k2works/case-study-functional-ddd
+repo_name: case-study-functional-ddd
 
 theme:
   name: material
@@ -56,4 +56,29 @@ plugins:
   - search
 
 nav:
-  - Home: index.md
+  - ホーム: index.md
+  - 要件定義:
+    - 要件定義: requirements/requirements_definition.md
+    - ビジネスユースケース: requirements/business_usecase.md
+    - システムユースケース: requirements/system_usecase.md
+    - ユーザーストーリー: requirements/user_story.md
+  - 設計:
+    - アーキテクチャ設計: design/architecture.md
+    - ドメインモデル設計: design/domain_model.md
+    - データモデル設計: design/data-model.md
+    - 技術スタック: design/tech_stack.md
+    - テスト戦略: design/test_strategy.md
+  - 実装ガイド:
+    - F# API構築ガイド: reference/F#API構築ガイド.md
+    - UI設計ガイド: reference/UI設計ガイド.md
+    - アーキテクチャ設計ガイド: reference/アーキテクチャ設計ガイド.md
+    - インフラ設計ガイド: reference/インフラ設計ガイド.md
+    - テスト戦略ガイド: reference/テスト戦略ガイド.md
+  - F# 学習教材:
+    - F# TDD入門 第1部: reference/テスト駆動開発から始めるFSharp入門1.md
+    - F# TDD入門 第2部: reference/テスト駆動開発から始めるFSharp入門2.md
+    - F# TDD入門 第3部: reference/テスト駆動開発から始めるFSharp入門3.md
+    - F# TDD入門 第4部: reference/テスト駆動開発から始めるFSharp入門4.md
+  - 開発理念:
+    - よいソフトウェアとは: reference/よいソフトウェアとは.md
+    - エクストリームプログラミング: reference/エクストリームプログラミング.md
