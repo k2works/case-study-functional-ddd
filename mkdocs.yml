@@ -57,7 +57,7 @@ plugins:
 
 nav:
   - ホーム: index.md
-  - 要件定義:
+  - 分析:
     - 要件定義: requirements/requirements_definition.md
     - ビジネスユースケース: requirements/business_usecase.md
     - システムユースケース: requirements/system_usecase.md
