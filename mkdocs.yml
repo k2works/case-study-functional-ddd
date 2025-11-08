@@ -66,6 +66,7 @@ nav:
     - アーキテクチャ設計: design/architecture.md
     - ドメインモデル設計: design/domain_model.md
     - データモデル設計: design/data-model.md
+    - インフラ設計: design/architecture_infrastructure.md
     - 技術スタック: design/tech_stack.md
     - テスト戦略: design/test_strategy.md
   - 実装ガイド:

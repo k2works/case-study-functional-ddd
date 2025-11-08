@@ -17,6 +17,7 @@
 - [ドメインモデル設計](./design/domain_model.md) - 関数型ドメインモデリングの実践的実装
 - [技術スタック](./design/tech_stack.md) - F# 9.0、ASP.NET Core、Entity Framework Coreによる技術構成
 - [データモデル設計](./design/data-model.md) - ドメインモデルからリレーショナルDBへのマッピング
+- [インフラ設計](./design/architecture_infrastructure.md) - Heroku + InMemory DB によるモノリシック構成
 
 ### 💻 実装ガイド
 - [F# API構築ガイド](./reference/F#API構築ガイド.md) - ASP.NET Core最小APIとF#による実装手順
