@@ -206,16 +206,25 @@ git push heroku main
 
 #### GitHub Actions による自動デプロイ
 
-main ブランチへのプッシュで自動的にデプロイされます。
+ブランチに応じて自動的に異なる環境へデプロイされます。
+
+**デプロイ環境:**
+- `main` ブランチ → **Production** 環境（本番）
+- `development` ブランチ → **Staging** 環境（検証）
 
 **必要な GitHub Secrets:**
-- `HEROKU_API_KEY` - Heroku API キー
-- `HEROKU_APP_NAME` - Heroku アプリ名
-- `HEROKU_EMAIL` - Heroku アカウントメール
+- `HEROKU_API_KEY` - Heroku API キー（共通）
+- `HEROKU_EMAIL` - Heroku アカウントメール（共通）
+- `HEROKU_APP_NAME_PRODUCTION` - Production 用 Heroku アプリ名
+- `HEROKU_APP_NAME_STAGING` - Staging 用 Heroku アプリ名
 
 設定方法：
 1. GitHub リポジトリ → Settings → Secrets and variables → Actions
-2. New repository secret で上記 3 つを追加
+2. New repository secret で上記 4 つを追加
+
+**環境例:**
+- Production: `ordertaking-prod`
+- Staging: `ordertaking-staging`
 
 ## 📁 プロジェクト構造
 
@@ -295,8 +304,14 @@ graph TB
   6. リント
 
 #### Deploy ワークフロー
-- トリガー: push to main
-- ステップ: Heroku へ自動デプロイ
+- トリガー: push to main, development
+- ステップ:
+  1. ブランチ判定（main → production, development → staging）
+  2. 環境変数設定
+  3. Heroku へ自動デプロイ
+- 環境:
+  - **Production**: main ブランチ → 本番環境
+  - **Staging**: development ブランチ → 検証環境
 
 ## 📚 参照ドキュメント
 
