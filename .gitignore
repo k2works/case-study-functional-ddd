@@ -183,3 +183,12 @@ dist
 
 .claude
 docs/wiki
+
+### Cake Build
+tools/
+.dotnet/
+
+### F# / .NET
+*.userprefs
+*.suo
+TestResults/
