@@ -8,6 +8,20 @@
         "dotnet-cake"
       ],
       "rollForward": false
+    },
+    "fantomas": {
+      "version": "6.3.13",
+      "commands": [
+        "fantomas"
+      ],
+      "rollForward": false
+    },
+    "dotnet-fsharplint": {
+      "version": "0.26.4",
+      "commands": [
+        "dotnet-fsharplint"
+      ],
+      "rollForward": false
     }
   }
 }

@@ -54,6 +54,51 @@ Task("Build")
     });
 });
 
+Task("Format")
+    .Description("Format F# code using Fantomas.")
+    .Does(() =>
+{
+    var exitCode = StartProcess("dotnet", new ProcessSettings
+    {
+        Arguments = "fantomas src/ tests/"
+    });
+
+    if (exitCode != 0)
+    {
+        throw new Exception($"Fantomas failed with exit code {exitCode}");
+    }
+});
+
+Task("FormatCheck")
+    .Description("Check F# code formatting using Fantomas.")
+    .Does(() =>
+{
+    var exitCode = StartProcess("dotnet", new ProcessSettings
+    {
+        Arguments = "fantomas --check src/ tests/"
+    });
+
+    if (exitCode != 0)
+    {
+        throw new Exception($"Fantomas check failed. Run 'dotnet cake --target=Format' to fix formatting.");
+    }
+});
+
+Task("Lint")
+    .Description("Run FSharpLint on the solution.")
+    .Does(() =>
+{
+    var exitCode = StartProcess("dotnet", new ProcessSettings
+    {
+        Arguments = "dotnet-fsharplint lint OrderTaking.sln"
+    });
+
+    if (exitCode != 0)
+    {
+        Warning("FSharpLint found issues.");
+    }
+});
+
 Task("Test")
     .Description("Run all tests.")
     .IsDependentOn("Build")
@@ -66,6 +111,11 @@ Task("Test")
         NoRestore = true
     });
 });
+
+Task("Quality")
+    .Description("Run all quality checks (format check and lint).")
+    .IsDependentOn("FormatCheck")
+    .IsDependentOn("Lint");
 
 Task("Default")
     .Description("This is the default task which will be ran if no specific target is passed in.")
