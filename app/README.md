@@ -239,23 +239,46 @@ app/
 
 ヘキサゴナルアーキテクチャ（ポートとアダプター）を採用：
 
-```
-┌─────────────────────────────────────┐
-│         WebApi (Adapter)            │
-├─────────────────────────────────────┤
-│       Application (Port)            │
-├─────────────────────────────────────┤
-│          Domain (Core)              │
-├─────────────────────────────────────┤
-│    Infrastructure (Adapter)         │
-└─────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Adapter Layer"
+        WebApi[OrderTaking.WebApi<br/>ASP.NET Core Minimal API]
+        Infra[OrderTaking.Infrastructure<br/>EF Core InMemory]
+    end
+
+    subgraph "Application Layer (Port)"
+        App[OrderTaking.Application<br/>Use Cases / Workflows]
+    end
+
+    subgraph "Domain Layer (Core)"
+        Domain[OrderTaking.Domain<br/>Business Logic / Types]
+    end
+
+    subgraph "Test Layer"
+        Tests[OrderTaking.Tests<br/>xUnit + FsUnit + FsCheck]
+    end
+
+    WebApi --> App
+    WebApi --> Infra
+    App --> Domain
+    Infra --> Domain
+    Tests -.-> WebApi
+    Tests -.-> App
+    Tests -.-> Infra
+    Tests -.-> Domain
+
+    style Domain fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style App fill:#4ecdc4,stroke:#087f5b,color:#fff
+    style WebApi fill:#95e1d3,stroke:#0ca678,color:#000
+    style Infra fill:#95e1d3,stroke:#0ca678,color:#000
+    style Tests fill:#ffd93d,stroke:#f08c00,color:#000
 ```
 
 **依存関係:**
 - WebApi → Application, Infrastructure
 - Application → Domain
 - Infrastructure → Domain
-- Tests → すべて
+- Tests → すべて（破線: テスト依存）
 
 ## 🔄 CI/CD
 
