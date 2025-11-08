@@ -1,0 +1,34 @@
+{
+  "name": "OrderTaking",
+  "description": "F# 関数型ドメイン駆動設計による注文受付システム",
+  "repository": "https://github.com/k2works/case-study-functional-ddd",
+  "keywords": [
+    "fsharp",
+    "dotnet",
+    "ddd",
+    "functional-programming",
+    "asp.net-core"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/jincod/dotnetcore-buildpack"
+    }
+  ],
+  "env": {
+    "ASPNETCORE_ENVIRONMENT": {
+      "description": "ASP.NET Core environment",
+      "value": "Production"
+    },
+    "ASPNETCORE_URLS": {
+      "description": "URLs that ASP.NET Core listens on",
+      "value": "http://+:$PORT"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "standard-1x"
+    }
+  },
+  "stack": "heroku-24"
+}
