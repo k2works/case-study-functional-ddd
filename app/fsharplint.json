@@ -1,0 +1,38 @@
+{
+  "ignoreFiles": [
+    "**/obj/**/*.fs",
+    "**/bin/**/*.fs",
+    "**/.ionide/**/*.fs"
+  ],
+  "analysers": {
+    "Hints": {
+      "enabled": true
+    },
+    "Formatting": {
+      "enabled": true
+    },
+    "Conventions": {
+      "enabled": true,
+      "rules": {
+        "NestedStatements": {
+          "enabled": true,
+          "config": {
+            "depth": 7
+          }
+        },
+        "CyclomaticComplexity": {
+          "enabled": true,
+          "config": {
+            "maxComplexity": 7
+          }
+        }
+      }
+    },
+    "Typography": {
+      "enabled": true
+    },
+    "NameConventions": {
+      "enabled": true
+    }
+  }
+}
