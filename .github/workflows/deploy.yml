@@ -32,4 +32,4 @@ jobs:
         heroku_app_name: ${{ steps.vars.outputs.app_name }}
         heroku_email: ${{ secrets.HEROKU_EMAIL }}
         buildpack: https://github.com/jincod/dotnetcore-buildpack
-        appdir: app
+        appdir: app/backend

@@ -230,18 +230,20 @@ git push heroku main
 
 ```
 app/
-├── OrderTaking.sln              # ソリューションファイル
-├── build.cake                   # Cake ビルドスクリプト
-├── .editorconfig               # エディタ設定
-├── .config/
-│   └── dotnet-tools.json       # ローカルツール定義
-├── src/
-│   ├── OrderTaking.Domain/         # ドメイン層
-│   ├── OrderTaking.Application/    # アプリケーション層
-│   ├── OrderTaking.Infrastructure/ # インフラ層
-│   └── OrderTaking.WebApi/         # WebAPI 層
-└── tests/
-    └── OrderTaking.Tests/          # テストプロジェクト
+└── backend/
+    ├── OrderTaking.sln              # ソリューションファイル
+    ├── build.cake                   # Cake ビルドスクリプト
+    ├── .editorconfig               # エディタ設定
+    ├── fsharplint.json             # FSharpLint 設定
+    ├── .config/
+    │   └── dotnet-tools.json       # ローカルツール定義
+    ├── src/
+    │   ├── OrderTaking.Domain/         # ドメイン層
+    │   ├── OrderTaking.Application/    # アプリケーション層
+    │   ├── OrderTaking.Infrastructure/ # インフラ層
+    │   └── OrderTaking.WebApi/         # WebAPI 層
+    └── tests/
+        └── OrderTaking.Tests/          # テストプロジェクト
 ```
 
 ### アーキテクチャ
