@@ -9,9 +9,9 @@ F# の関数型プログラミングとドメイン駆動設計による注文�
 ## 🛠️ 技術スタック
 
 ### 言語・フレームワーク
-- **F# 9.0** / **.NET 10.0 (RC)**
-- **ASP.NET Core 10.0** - Minimal API
-- **Entity Framework Core 10.0** - InMemory Provider
+- **F# 9.0** / **.NET 9.0**
+- **ASP.NET Core 9.0** - Minimal API
+- **Entity Framework Core 9.0** - InMemory Provider
 
 ### ビルド・品質管理
 - **Cake 5.0.0** - ビルド自動化
@@ -31,7 +31,7 @@ F# の関数型プログラミングとドメイン駆動設計による注文�
 ## 📦 前提条件
 
 ### 必須
-- [.NET 10.0 SDK (RC)](https://dotnet.microsoft.com/download/dotnet/10.0) または互換バージョン
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) または互換バージョン
 - Git
 
 ### 推奨
@@ -51,7 +51,7 @@ cd case-study-functional-ddd/app
 
 ```bash
 dotnet --version
-# 10.0.100-rc.2.25502.107 または互換バージョン
+# 9.0.x または互換バージョン
 ```
 
 ### 3. ローカルツールの復元
@@ -264,7 +264,7 @@ app/
 #### CI ワークフロー
 - トリガー: push/PR to main, development
 - ステップ:
-  1. .NET 10.0 セットアップ
+  1. .NET 9.0 セットアップ
   2. ツール復元
   3. ビルド
   4. テスト

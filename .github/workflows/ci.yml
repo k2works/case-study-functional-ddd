@@ -20,8 +20,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
-        dotnet-quality: 'preview'
+        dotnet-version: '9.0.x'
 
     - name: Restore tools
       run: dotnet tool restore
@@ -40,7 +39,7 @@ jobs:
 
     - name: Lint
       run: dotnet dotnet-fsharplint lint OrderTaking.sln
-      continue-on-error: true  # .NET 10.0 RC での既知の問題のため警告扱い
+      continue-on-error: true  # FSharpLint の既知の問題のため警告扱い
 
   quality:
     runs-on: ubuntu-latest
@@ -56,12 +55,11 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
-        dotnet-quality: 'preview'
+        dotnet-version: '9.0.x'
 
     - name: Restore tools
       run: dotnet tool restore
 
     - name: Run Cake Quality Task
       run: dotnet cake build.cake --target=Quality
-      continue-on-error: true  # .NET 10.0 RC での既知の問題のため警告扱い
+      continue-on-error: true  # FSharpLint の既知の問題のため警告扱い
