@@ -118,10 +118,10 @@ dotnet cake --target=FormatCheck
 
 ```bash
 # フォーマット
-dotnet fantomas src/ tests/
+dotnet fantomas . --recurse
 
 # チェックのみ
-dotnet fantomas --check src/ tests/
+dotnet fantomas --check . --recurse
 ```
 
 ### 静的解析
@@ -231,19 +231,17 @@ git push heroku main
 ```
 app/
 └── backend/
-    ├── OrderTaking.sln              # ソリューションファイル
-    ├── build.cake                   # Cake ビルドスクリプト
-    ├── .editorconfig               # エディタ設定
-    ├── fsharplint.json             # FSharpLint 設定
+    ├── OrderTaking.sln                 # ソリューションファイル
+    ├── build.cake                      # Cake ビルドスクリプト
+    ├── .editorconfig                   # エディタ設定
+    ├── fsharplint.json                 # FSharpLint 設定
     ├── .config/
-    │   └── dotnet-tools.json       # ローカルツール定義
-    ├── src/
-    │   ├── OrderTaking.Domain/         # ドメイン層
-    │   ├── OrderTaking.Application/    # アプリケーション層
-    │   ├── OrderTaking.Infrastructure/ # インフラ層
-    │   └── OrderTaking.WebApi/         # WebAPI 層
-    └── tests/
-        └── OrderTaking.Tests/          # テストプロジェクト
+    │   └── dotnet-tools.json           # ローカルツール定義
+    ├── OrderTaking.Domain/             # ドメイン層
+    ├── OrderTaking.Application/        # アプリケーション層
+    ├── OrderTaking.Infrastructure/     # インフラ層
+    ├── OrderTaking.WebApi/             # WebAPI 層
+    └── OrderTaking.Tests/              # テストプロジェクト
 ```
 
 ### アーキテクチャ
