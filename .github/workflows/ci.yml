@@ -35,7 +35,7 @@ jobs:
       run: dotnet test --configuration Release --no-build --verbosity normal
 
     - name: Format Check
-      run: dotnet fantomas --check src/ tests/
+      run: dotnet fantomas --check .
 
     - name: Lint
       run: dotnet dotnet-fsharplint lint OrderTaking.sln
