@@ -94,18 +94,21 @@ type PlaceOrderWorkflow =
 ### プロジェクト構造
 
 ```
-src/
-├── OrderTaking/                    # ドメインライブラリ
-│   ├── Common.SimpleTypes.fs       # 基本型定義
-│   ├── Common.CompoundTypes.fs     # 複合型定義
-│   ├── PlaceOrder.PublicTypes.fs   # パブリック型
-│   ├── PlaceOrder.Implementation.fs # ビジネスロジック
-│   ├── PlaceOrder.Dto.fs           # データ転送オブジェクト
-│   └── PlaceOrder.Api.fs           # API 層
-└── OrderTaking.WebApi/             # Web API プロジェクト（将来追加）
-    ├── Program.fs                  # エントリーポイント
-    ├── Controllers/                # API コントローラー
-    └── Configuration/              # 設定ファイル
+app/backend/
+├── OrderTaking.Domain/                 # ドメインライブラリ
+│   ├── Common.SimpleTypes.fs           # 基本型定義
+│   ├── Common.CompoundTypes.fs         # 複合型定義
+│   ├── PlaceOrder.PublicTypes.fs       # パブリック型
+│   ├── PlaceOrder.Implementation.fs    # ビジネスロジック
+│   ├── PlaceOrder.Dto.fs               # データ転送オブジェクト
+│   └── PlaceOrder.Api.fs               # API 層
+├── OrderTaking.Application/            # アプリケーション層
+├── OrderTaking.Infrastructure/         # インフラストラクチャ層
+├── OrderTaking.WebApi/                 # Web API プロジェクト
+│   ├── Program.fs                      # エントリーポイント
+│   ├── Controllers/                    # API コントローラー
+│   └── Configuration/                  # 設定ファイル
+└── OrderTaking.Tests/                  # テストプロジェクト
 ```
 
 ### レイヤー責務
@@ -277,10 +280,16 @@ var configuration = Argument("configuration", "Release");
 Task("Clean")
     .Does(() =>
 {
-    CleanDirectory("./src/bin");
-    CleanDirectory("./src/obj");
-    CleanDirectory("./tests/bin");
-    CleanDirectory("./tests/obj");
+    CleanDirectory("./OrderTaking.Domain/bin");
+    CleanDirectory("./OrderTaking.Domain/obj");
+    CleanDirectory("./OrderTaking.Application/bin");
+    CleanDirectory("./OrderTaking.Application/obj");
+    CleanDirectory("./OrderTaking.Infrastructure/bin");
+    CleanDirectory("./OrderTaking.Infrastructure/obj");
+    CleanDirectory("./OrderTaking.WebApi/bin");
+    CleanDirectory("./OrderTaking.WebApi/obj");
+    CleanDirectory("./OrderTaking.Tests/bin");
+    CleanDirectory("./OrderTaking.Tests/obj");
 });
 
 Task("Build")
@@ -297,7 +306,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    DotNetTest("./tests/OrderTaking.Tests.fsproj", new DotNetTestSettings
+    DotNetTest("./OrderTaking.Tests/OrderTaking.Tests.fsproj", new DotNetTestSettings
     {
         Configuration = configuration,
         NoBuild = true
@@ -308,7 +317,7 @@ Task("Coverage")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    DotNetTest("./tests/OrderTaking.Tests.fsproj", new DotNetTestSettings
+    DotNetTest("./OrderTaking.Tests/OrderTaking.Tests.fsproj", new DotNetTestSettings
     {
         Configuration = configuration,
         NoBuild = true,

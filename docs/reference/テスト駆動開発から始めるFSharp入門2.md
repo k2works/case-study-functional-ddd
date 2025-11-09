@@ -95,11 +95,11 @@ Phase 3で作成したFizzBuzzプロジェクトの構造：
 
 ```
 fizzbuzz/
-├── src/           # アプリケーションコード
-├── tests/         # テストコード  
-├── build.cake     # ビルドスクリプト
-├── .gitignore     # Git除外ファイル
-└── README.md      # プロジェクト説明
+├── FizzBuzz/           # アプリケーションコード
+├── FizzBuzz.Tests/     # テストコード
+├── build.cake          # ビルドスクリプト
+├── .gitignore          # Git除外ファイル
+└── README.md           # プロジェクト説明
 ```
 
 ### コミットのベストプラクティス
@@ -272,11 +272,11 @@ Phase 3で採用した構造：
 
 ```
 fizzbuzz/
-├── src/
+├── FizzBuzz/
 │   ├── FizzBuzz.fsproj      # メインアプリケーション
 │   ├── FizzBuzz.fs          # ビジネスロジック
 │   └── Program.fs           # エントリーポイント
-└── tests/
+└── FizzBuzz.Tests/
     ├── FizzBuzz.Tests.fsproj # テストプロジェクト
     └── FizzBuzz.Tests.fs     # テストコード
 ```
@@ -462,22 +462,22 @@ var configuration = Argument("configuration", "Release");
 Task("Clean")
     .Does(() =>
 {
-    CleanDirectory("./src/bin");
-    CleanDirectory("./src/obj"); 
-    CleanDirectory("./tests/bin");
-    CleanDirectory("./tests/obj");
+    CleanDirectory("./FizzBuzz/bin");
+    CleanDirectory("./FizzBuzz/obj");
+    CleanDirectory("./FizzBuzz.Tests/bin");
+    CleanDirectory("./FizzBuzz.Tests/obj");
 });
 
 Task("Build")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    DotNetBuild("./src/FizzBuzz.fsproj", new DotNetBuildSettings
+    DotNetBuild("./FizzBuzz/FizzBuzz.fsproj", new DotNetBuildSettings
     {
         Configuration = configuration
     });
-    
-    DotNetBuild("./tests/FizzBuzz.Tests.fsproj", new DotNetBuildSettings
+
+    DotNetBuild("./FizzBuzz.Tests/FizzBuzz.Tests.fsproj", new DotNetBuildSettings
     {
         Configuration = configuration
     });
@@ -486,15 +486,15 @@ Task("Build")
 Task("Format")
     .Does(() =>
 {
-    StartProcess("dotnet", "fantomas ./src --recurse");
-    StartProcess("dotnet", "fantomas ./tests --recurse");
+    StartProcess("dotnet", "fantomas ./FizzBuzz --recurse");
+    StartProcess("dotnet", "fantomas ./FizzBuzz.Tests --recurse");
 });
 
 Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    DotNetTest("./tests/FizzBuzz.Tests.fsproj", new DotNetTestSettings
+    DotNetTest("./FizzBuzz.Tests/FizzBuzz.Tests.fsproj", new DotNetTestSettings
     {
         Configuration = configuration,
         NoBuild = true

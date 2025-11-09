@@ -1,4 +1,4 @@
-# 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+# 関数型ドメイン駆動設計ケーススタディ
 
 ## 概要
 
@@ -34,16 +34,17 @@
 
 ```
 app/backend/
-├── src/OrderTaking/
+├── OrderTaking.Domain/
 │   ├── Common.SimpleTypes.fs       # 基本制約型（String50, EmailAddress等）
 │   ├── Common.CompoundTypes.fs     # 複合値オブジェクト（Address, CustomerInfo等）
 │   ├── PlaceOrder.PublicTypes.fs   # パブリック型定義（API境界）
-│   ├── PlaceOrder.Implementation.fs # ビジネスワークフロー実装
-│   ├── PlaceOrder.Dto.fs           # データ転送オブジェクト
+│   └── PlaceOrder.Implementation.fs # ビジネスワークフロー実装
+├── OrderTaking.Application/        # アプリケーション層
+├── OrderTaking.Infrastructure/     # インフラストラクチャ層
 │   └── PlaceOrder.Api.fs           # HTTP API 層
-└── tests/
-    ├── OrderTaking.Tests/          # 単体テスト
-    └── OrderTaking.IntegrationTests/ # 統合テスト
+├── OrderTaking.WebApi/             # Web API プロジェクト
+│   └── PlaceOrder.Dto.fs           # データ転送オブジェクト
+└── OrderTaking.Tests/              # 単体・統合テスト
 ```
 
 ### ドメインモデル
@@ -88,13 +89,13 @@ npm start
 cd app/backend
 
 # .NET プロジェクトのビルド
-dotnet build src/OrderTaking/
+dotnet build
 
 # テストの実行
 dotnet test
 
-# API サーバーの起動（将来実装）
-dotnet run --project src/OrderTaking.WebApi/
+# API サーバーの起動
+dotnet run --project OrderTaking.WebApi/
 ```
 
 ## 構築
@@ -102,24 +103,36 @@ dotnet run --project src/OrderTaking.WebApi/
 ### プロジェクト初期化
 
 ```bash
-# バックエンドディレクトリの作成
-mkdir -p app/backend/src
-mkdir -p app/backend/tests
+# バックエンドディレクトリに移動
+cd app/backend
 
 # F# プロジェクトの作成
-cd app/backend/src
-dotnet new classlib -lang F# -n OrderTaking
+dotnet new classlib -lang F# -n OrderTaking.Domain
+dotnet new classlib -lang F# -n OrderTaking.Application
+dotnet new classlib -lang F# -n OrderTaking.Infrastructure
+dotnet new web -lang F# -n OrderTaking.WebApi
 
 # テストプロジェクトの作成
-cd ../tests
-dotnet new nunit -lang F# -n OrderTaking.Tests
-dotnet add OrderTaking.Tests reference ../src/OrderTaking/OrderTaking.fsproj
+dotnet new xunit -lang F# -n OrderTaking.Tests
+
+# プロジェクト参照の追加
+dotnet add OrderTaking.Application reference OrderTaking.Domain
+dotnet add OrderTaking.Infrastructure reference OrderTaking.Domain
+dotnet add OrderTaking.WebApi reference OrderTaking.Domain
+dotnet add OrderTaking.WebApi reference OrderTaking.Application
+dotnet add OrderTaking.WebApi reference OrderTaking.Infrastructure
+dotnet add OrderTaking.Tests reference OrderTaking.Domain
+dotnet add OrderTaking.Tests reference OrderTaking.Application
+dotnet add OrderTaking.Tests reference OrderTaking.Infrastructure
+dotnet add OrderTaking.Tests reference OrderTaking.WebApi
 
 # ソリューションファイルの作成
-cd ..
 dotnet new sln -n OrderTaking
-dotnet sln add src/OrderTaking/OrderTaking.fsproj
-dotnet sln add tests/OrderTaking.Tests/OrderTaking.Tests.fsproj
+dotnet sln add OrderTaking.Domain/OrderTaking.Domain.fsproj
+dotnet sln add OrderTaking.Application/OrderTaking.Application.fsproj
+dotnet sln add OrderTaking.Infrastructure/OrderTaking.Infrastructure.fsproj
+dotnet sln add OrderTaking.WebApi/OrderTaking.WebApi.fsproj
+dotnet sln add OrderTaking.Tests/OrderTaking.Tests.fsproj
 ```
 
 ### 開発環境の準備

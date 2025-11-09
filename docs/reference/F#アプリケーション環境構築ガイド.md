@@ -110,57 +110,60 @@ indent_size = 2
 
 ```bash
 # ソリューションの作成
-dotnet new sln -n DomainModelingMadeFunctional
+dotnet new sln -n OrderTaking
 
 # ディレクトリ構造の作成
-mkdir src
-mkdir tests
 mkdir docs
 
 # メインプロジェクト（ドメインライブラリ）
-cd src
-dotnet new classlib -lang "F#" -n OrderTaking
+dotnet new classlib -lang "F#" -n OrderTaking.Domain
+
+# Application プロジェクト
+dotnet new classlib -lang "F#" -n OrderTaking.Application
+
+# Infrastructure プロジェクト
+dotnet new classlib -lang "F#" -n OrderTaking.Infrastructure
 
 # Web API プロジェクト
 dotnet new web -lang "F#" -n OrderTaking.WebApi
 
 # テストプロジェクト
-cd ../tests
 dotnet new xunit -lang "F#" -n OrderTaking.Tests
 
 # ソリューションにプロジェクトを追加
-cd ..
-dotnet sln add src/OrderTaking/OrderTaking.fsproj
-dotnet sln add src/OrderTaking.WebApi/OrderTaking.WebApi.fsproj
-dotnet sln add tests/OrderTaking.Tests/OrderTaking.Tests.fsproj
+dotnet sln add OrderTaking.Domain/OrderTaking.Domain.fsproj
+dotnet sln add OrderTaking.Application/OrderTaking.Application.fsproj
+dotnet sln add OrderTaking.Infrastructure/OrderTaking.Infrastructure.fsproj
+dotnet sln add OrderTaking.WebApi/OrderTaking.WebApi.fsproj
+dotnet sln add OrderTaking.Tests/OrderTaking.Tests.fsproj
 ```
 
 ### 3.2 プロジェクト構造
 
 ```
-DomainModelingMadeFunctional/
-├── src/
-│   ├── OrderTaking/                    # ドメインライブラリ
-│   │   ├── Common.SimpleTypes.fs       # 基本型定義
-│   │   ├── Common.CompoundTypes.fs     # 複合型定義
-│   │   ├── PlaceOrder.PublicTypes.fs   # パブリック型
-│   │   ├── PlaceOrder.Implementation.fs # ビジネスロジック
-│   │   ├── PlaceOrder.Dto.fs           # データ転送オブジェクト
-│   │   └── PlaceOrder.Api.fs           # API 層
-│   └── OrderTaking.WebApi/             # Web API プロジェクト
-│       ├── Program.fs                  # エントリーポイント
-│       └── Controllers/                # API コントローラー
-├── tests/
-│   └── OrderTaking.Tests/              # テストプロジェクト
-├── docs/                               # ドキュメント
-└── DomainModelingMadeFunctional.sln    # ソリューション
+app/backend/
+├── OrderTaking.Domain/                     # ドメインライブラリ
+│   ├── Common.SimpleTypes.fs               # 基本型定義
+│   ├── Common.CompoundTypes.fs             # 複合型定義
+│   ├── PlaceOrder.PublicTypes.fs           # パブリック型
+│   ├── PlaceOrder.Implementation.fs        # ビジネスロジック
+│   ├── PlaceOrder.Dto.fs                   # データ転送オブジェクト
+│   └── PlaceOrder.Api.fs                   # API 層
+├── OrderTaking.Application/                # アプリケーション層
+├── OrderTaking.Infrastructure/             # インフラストラクチャ層
+├── OrderTaking.WebApi/                     # Web API プロジェクト
+│   ├── Program.fs                          # エントリーポイント
+│   └── Controllers/                        # API コントローラー
+├── OrderTaking.Tests/                      # テストプロジェクト
+├── docs/                                   # ドキュメント（リポジトリルート）
+└── OrderTaking.sln                         # ソリューション
 ```
 
 ## 4. 依存関係の設定
 
-### 4.1 ドメインライブラリ（OrderTaking）
+### 4.1 ドメインライブラリ（OrderTaking.Domain）
 
-`src/OrderTaking/OrderTaking.fsproj` を編集：
+`OrderTaking.Domain/OrderTaking.Domain.fsproj` を編集：
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -186,7 +189,7 @@ DomainModelingMadeFunctional/
 
 ### 4.2 Web API プロジェクト（OrderTaking.WebApi）
 
-`src/OrderTaking.WebApi/OrderTaking.WebApi.fsproj` を編集：
+`OrderTaking.WebApi/OrderTaking.WebApi.fsproj` を編集：
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
@@ -209,7 +212,9 @@ DomainModelingMadeFunctional/
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../OrderTaking/OrderTaking.fsproj" />
+    <ProjectReference Include="../OrderTaking.Domain/OrderTaking.Domain.fsproj" />
+    <ProjectReference Include="../OrderTaking.Application/OrderTaking.Application.fsproj" />
+    <ProjectReference Include="../OrderTaking.Infrastructure/OrderTaking.Infrastructure.fsproj" />
   </ItemGroup>
 
 </Project>
@@ -217,7 +222,7 @@ DomainModelingMadeFunctional/
 
 ### 4.3 テストプロジェクト（OrderTaking.Tests）
 
-`tests/OrderTaking.Tests/OrderTaking.Tests.fsproj` を編集：
+`OrderTaking.Tests/OrderTaking.Tests.fsproj` を編集：
 
 ```xml
 <Project Sdk="Microsoft.NET.Sdk">
@@ -243,7 +248,10 @@ DomainModelingMadeFunctional/
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/OrderTaking/OrderTaking.fsproj" />
+    <ProjectReference Include="../OrderTaking.Domain/OrderTaking.Domain.fsproj" />
+    <ProjectReference Include="../OrderTaking.Application/OrderTaking.Application.fsproj" />
+    <ProjectReference Include="../OrderTaking.Infrastructure/OrderTaking.Infrastructure.fsproj" />
+    <ProjectReference Include="../OrderTaking.WebApi/OrderTaking.WebApi.fsproj" />
   </ItemGroup>
 
 </Project>
@@ -277,7 +285,7 @@ F# はコンパイル順序が重要です。依存関係を考慮した順序�
 {
   "testFramework": "xunit",
   "testProjects": [
-    "tests/OrderTaking.Tests/OrderTaking.Tests.fsproj"
+    "OrderTaking.Tests/OrderTaking.Tests.fsproj"
   ],
   "coverage": {
     "enabled": true,
@@ -746,7 +754,7 @@ app.Run()
 ### 10.1 アプリケーションの起動
 
 ```bash
-cd src/OrderTaking.WebApi
+cd OrderTaking.WebApi
 dotnet run
 ```
 
