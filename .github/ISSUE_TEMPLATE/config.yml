@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: プロジェクトドキュメント
+    url: https://github.com/yourusername/case-study-functional-ddd/tree/main/docs
+    about: 開発ガイド、計画書、レトロスペクティブなどのドキュメント
+  - name: 時間記録ガイド
+    url: https://github.com/yourusername/case-study-functional-ddd/blob/main/docs/process/time-tracking-guide.md
+    about: 時間記録の方法とフォーマットガイド
