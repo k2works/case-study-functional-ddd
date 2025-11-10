@@ -1,0 +1,121 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Cake: Clean",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Clean"],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Cake: Restore",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Restore"],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Cake: Build",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Build"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Cake: Test",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Test"],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Cake: Coverage",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Coverage"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Cake: Format",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Format"],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Cake: FormatCheck",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=FormatCheck"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Cake: Lint",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Lint"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Cake: Quality",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake", "--target=Quality"],
+            "group": "test",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Cake: Default (All)",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["cake"],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

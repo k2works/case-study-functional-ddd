@@ -60,7 +60,7 @@ Task("Format")
 {
     var exitCode = StartProcess("dotnet", new ProcessSettings
     {
-        Arguments = "fantomas src/ tests/"
+        Arguments = "fantomas ."
     });
 
     if (exitCode != 0)
@@ -75,7 +75,7 @@ Task("FormatCheck")
 {
     var exitCode = StartProcess("dotnet", new ProcessSettings
     {
-        Arguments = "fantomas --check src/ tests/"
+        Arguments = "fantomas --check ."
     });
 
     if (exitCode != 0)
@@ -110,6 +110,26 @@ Task("Test")
         NoBuild = true,
         NoRestore = true
     });
+});
+
+Task("Coverage")
+    .Description("Run tests with code coverage collection.")
+    .IsDependentOn("Build")
+    .Does(() =>
+{
+    DotNetTest("./OrderTaking.sln", new DotNetTestSettings
+    {
+        Configuration = configuration,
+        NoBuild = true,
+        NoRestore = true,
+        ArgumentCustomization = args => args
+            .Append("--collect:\"XPlat Code Coverage\"")
+            .Append("--results-directory:./TestResults")
+    });
+
+    Information("Coverage report generated in ./TestResults directory");
+    Information("To view coverage, use: dotnet tool install -g dotnet-reportgenerator-globaltool");
+    Information("Then run: reportgenerator -reports:./TestResults/**/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport -reporttypes:Html");
 });
 
 Task("Quality")
