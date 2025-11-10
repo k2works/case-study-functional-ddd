@@ -69,6 +69,17 @@ nav:
     - インフラ設計: design/architecture_infrastructure.md
     - 技術スタック: design/tech_stack.md
     - テスト戦略: design/test_strategy.md
+  - 開発プロセス:
+    - イテレーション計画:
+      - Iteration 1: development/iteration_plan-1.md
+      - Iteration 2: development/iteration_plan-2.md
+    - レトロスペクティブ:
+      - Retrospective 1: development/retrospective-1.md
+    - デイリースタンドアップ:
+      - スタンドアップガイド: operation/process/daily-standup-guide.md
+      - 記録 2025-01: operation/process/standup-logs/2025-01.md
+    - 時間管理:
+      - 時間記録ガイド: operation/process/time-tracking-guide.md
   - 実装ガイド:
     - F# アプリケーション環境構築ガイド: reference/F#アプリケーション環境構築ガイド.md
     - F# API構築ガイド: reference/F#API構築ガイド.md
@@ -76,6 +87,16 @@ nav:
     - アーキテクチャ設計ガイド: reference/アーキテクチャ設計ガイド.md
     - インフラ設計ガイド: reference/インフラ設計ガイド.md
     - テスト戦略ガイド: reference/テスト戦略ガイド.md
+  - 運用ドキュメント:
+    - 環境セットアップ: operation/environment-setup-guide.md
+    - トラブルシューティング: operation/troubleshooting-guide.md
+    - CI/CD:
+      - GitHub Actions ガイド: operation/github-actions-guide.md
+    - デプロイ:
+      - Heroku デプロイガイド: operation/heroku-deploy-guide.md
+    - 品質管理:
+      - カバレッジガイド: operation/quality/coverage-guide.md
+      - 静的解析ガイド: operation/quality/static-analysis-guide.md
   - F# 学習教材:
     - F# TDD入門 第1部: reference/テスト駆動開発から始めるFSharp入門1.md
     - F# TDD入門 第2部: reference/テスト駆動開発から始めるFSharp入門2.md

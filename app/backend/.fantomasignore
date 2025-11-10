@@ -1,0 +1,7 @@
+**/obj/**
+**/bin/**
+**/.vs/**
+**/.idea/**
+**/.vscode/**
+**/packages/**
+**/paket-files/**

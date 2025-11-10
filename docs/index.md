@@ -4,6 +4,33 @@
 
 本プロジェクトは、F# の関数型プログラミングとドメイン駆動設計の原則を適用した注文受付システムです。「Domain Modeling Made Functional」の実践例として、型安全で保守性の高いソフトウェア開発のアプローチを学習できます。
 
+## 🎯 プロジェクト状況（2025-11-10）
+
+### イテレーション 1 完了（100%）
+
+**達成率**: 計画時間 38.25h に対し実績 37.25h（97.4% の見積もり精度）
+
+**主な成果**:
+- ✅ 制約付き型（11種類）の設計・実装完了
+- ✅ テストカバレッジ: 29 テスト（日本語表記）すべて成功
+- ✅ コード品質: Fantomas フォーマット準拠、FSharpLint 警告ゼロ
+- ✅ ドキュメント整備: プロセス、品質ガイド、レトロスペクティブ完備
+- ⚠️ カバレッジ率: 49%（目標 80%、Iteration 2 で改善予定）
+
+**開発プロセス**:
+- イテレーション計画: [iteration_plan-1.md](./development/iteration_plan-1.md)
+- レトロスペクティブ: [retrospective-1.md](./development/retrospective-1.md)
+- 13 件の改善アクションを特定
+
+### イテレーション 2 準備中
+
+**重点目標**:
+1. テストカバレッジ 80% 達成
+2. Story 1.1 完全実装
+3. CI/CD パイプライン改善
+
+詳細: [iteration_plan-2.md](./development/iteration_plan-2.md)（準備中）
+
 ## まず読むべきドキュメント
 
 ### 🎯 プロジェクト理解
@@ -51,6 +78,26 @@
 
 ## プロジェクト管理
 
+### 📋 開発プロセス
+- [イテレーション計画](./development/) - スプリント計画とタスク管理
+  - [Iteration 1 計画](./development/iteration_plan-1.md) - 完了（100%）
+  - [Iteration 1 レトロスペクティブ](./development/retrospective-1.md) - KPT分析と改善アクション
+  - [Iteration 2 計画](./development/iteration_plan-2.md) - 準備中
+- [デイリースタンドアップ記録](./operation/process/standup-logs/) - 日次進捗と課題管理
+  - [2025年1月](./operation/process/standup-logs/2025-01.md)
+
+### 📐 設計決定
 - [アーキテクチャ決定ログ](./adr) - 重要な技術決定の記録と理由
 - [開発日誌](./journal) - 開発の進捗と学習記録
-- [運用ドキュメント](./operation) - システム運用とメンテナンス情報
+
+### ⚙️ 運用ドキュメント
+- [環境セットアップガイド](./operation/environment-setup-guide.md) - 開発環境構築手順
+- [トラブルシューティングガイド](./operation/troubleshooting-guide.md) - よくある問題と解決方法
+- [GitHub Actions ガイド](./operation/github-actions-guide.md) - CI/CD パイプライン設定
+- [Heroku デプロイガイド](./operation/heroku-deploy-guide.md) - 本番環境へのデプロイ手順
+- [プロセスガイド](./operation/process/) - 開発プロセスとワークフロー
+  - [デイリースタンドアップガイド](./operation/process/daily-standup-guide.md)
+  - [時間記録ガイド](./operation/process/time-tracking-guide.md)
+- [品質管理](./operation/quality/) - コード品質とテストカバレッジ
+  - [カバレッジガイド](./operation/quality/coverage-guide.md)
+  - [静的解析ガイド](./operation/quality/static-analysis-guide.md)
