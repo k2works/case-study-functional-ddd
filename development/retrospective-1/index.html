@@ -1,0 +1,2977 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="F#の関数型プログラミングとドメイン駆動設計による注文受付システムの実装ガイド">
+      
+      
+        <meta name="author" content="Project Team">
+      
+      
+      
+        <link rel="prev" href="../iteration_plan-1/">
+      
+      
+        <link rel="next" href="../../operation/process/daily-standup-guide/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
+    
+    
+      
+        <title>Retrospective 1 - 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../docs/mkdocs/assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-header__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Retrospective 1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ホーム
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../requirements/requirements_definition/" class="md-tabs__link">
+          
+  
+  
+  分析
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/architecture/" class="md-tabs__link">
+          
+  
+  
+  設計
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../iteration_plan-1/" class="md-tabs__link">
+          
+  
+  
+  開発プロセス
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/F%23%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-tabs__link">
+          
+  
+  
+  実装ガイド
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operation/environment-setup-guide/" class="md-tabs__link">
+          
+  
+  
+  運用ドキュメント
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-tabs__link">
+          
+  
+  
+  F# 学習教材
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-tabs__link">
+          
+  
+  
+  開発理念
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-nav__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ホーム
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    分析
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            分析
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/requirements_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/business_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ビジネスユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/system_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    システムユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/user_story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ユーザーストーリー
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    設計
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            設計
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/domain_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ドメインモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    データモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/architecture_infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/tech_stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    技術スタック
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/test_strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発プロセス
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            開発プロセス
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    イテレーション計画
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            イテレーション計画
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../iteration_plan-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Iteration 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../iteration_plan-2.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Iteration 2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    レトロスペクティブ
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            レトロスペクティブ
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Retrospective 1
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Retrospective 1
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      基本情報
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      イテレーション 1 サマリー
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="イテレーション 1 サマリー">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      達成状況
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      イテレーションゴール達成度
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kpt" class="md-nav__link">
+    <span class="md-ellipsis">
+      KPT 分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="KPT 分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keep" class="md-nav__link">
+    <span class="md-ellipsis">
+      Keep（良かったこと・続けること）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Keep（良かったこと・続けること）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 計画的なタスク分解と時間見積もり
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. 段階的な実装アプローチ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 継続的なテスト実行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ドキュメント優先の文化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. 時間記録の習慣化
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problem（問題点・課題）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem（問題点・課題）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. カバレッジ測定の自動化が未完了
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. デイリースタンドアップの実施記録が不十分
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-tt-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 見積もり精度のばらつき（TT-2,3）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ふりかえりの実施タイミング
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#try" class="md-nav__link">
+    <span class="md-ellipsis">
+      Try（改善策・次に試すこと）
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Try（改善策・次に試すこと）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. カバレッジ測定の自動化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. デイリースタンドアップの記録強化
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 見積もり精度の継続的改善
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. ふりかえりの定期実施
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. ドキュメント構造のさらなる改善
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      改善アクション一覧
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      ベロシティ分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ベロシティ分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      イテレーション別ベロシティ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      ベロシティ推移
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      見積もり精度分析
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      次イテレーションへの引き継ぎ
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="次イテレーションへの引き継ぎ">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      イテレーション 2 への準備状況
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="イテレーション 2 への準備状況">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ 完了している準備
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      ⚠️ 対応が必要な項目
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      推奨される開始タイミング
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      チーム全体の振り返り
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="チーム全体の振り返り">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      良かった点
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      改善すべき点
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      総評
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      参照ドキュメント
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    デイリースタンドアップ
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            デイリースタンドアップ
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/process/daily-standup-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    スタンドアップガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/process/standup-logs/2025-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    記録 2025-01
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    時間管理
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            時間管理
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/process/time-tracking-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    時間記録ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    実装ガイド
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            実装ガイド
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/F%23%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# アプリケーション環境構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# API構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/UI%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UI設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E6%88%A6%E7%95%A5%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    運用ドキュメント
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            運用ドキュメント
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/environment-setup-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    環境セットアップ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/troubleshooting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    トラブルシューティング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    CI/CD
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            CI/CD
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/github-actions-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    デプロイ
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            デプロイ
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/heroku-deploy-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Heroku デプロイガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    品質管理
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5">
+            <span class="md-nav__icon md-icon"></span>
+            品質管理
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/quality/coverage-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    カバレッジガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operation/quality/static-analysis-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    静的解析ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    F# 学習教材
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            F# 学習教材
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第1部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%802/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第2部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%803/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第3部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%804/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第4部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発理念
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            開発理念
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    よいソフトウェアとは
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    エクストリームプログラミング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="1">イテレーション 1 レトロスペクティブ<a class="headerlink" href="#1" title="Permanent link">&para;</a></h1>
+<h2 id="_1">基本情報<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>イテレーション番号</strong></td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>期間</strong></td>
+<td>2025-01-20 ~ 2025-02-02 (2週間)</td>
+</tr>
+<tr>
+<td><strong>実施日</strong></td>
+<td>2025-11-10</td>
+</tr>
+<tr>
+<td><strong>参加者</strong></td>
+<td>F# 開発者 2名</td>
+</tr>
+<tr>
+<td><strong>ファシリテーター</strong></td>
+<td>開発者 A</td>
+</tr>
+<tr>
+<td><strong>前回レトロ</strong></td>
+<td><a href="../retrospective-0/">イテレーション 0</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="1_1">イテレーション 1 サマリー<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">達成状況<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p><strong>完了率</strong>: 100% (12/12 タスク完了)
+<strong>計画時間</strong>: 53.25h (バッファ含む)
+<strong>実績時間</strong>: 37.25h
+<strong>効率</strong>: 計画比 69.9% (30.1% の時間短縮)</p>
+<h3 id="_3">イテレーションゴール達成度<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ゴール</th>
+<th>達成度</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>プロセス改善完了</td>
+<td>95%</td>
+<td>デイリースタンドアップ実施記録が不十分</td>
+</tr>
+<tr>
+<td>品質基盤強化完了</td>
+<td>95%</td>
+<td>カバレッジ測定の自動化が未完了</td>
+</tr>
+<tr>
+<td>ドキュメント完備</td>
+<td>100%</td>
+<td>環境構築・トラブルシューティング完備</td>
+</tr>
+<tr>
+<td>開発開始準備</td>
+<td>100%</td>
+<td>Story 1.1 設計・タスク分解完了</td>
+</tr>
+<tr>
+<td><strong>全体</strong></td>
+<td><strong>97.5%</strong></td>
+<td>ほぼすべてのゴールを達成</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="kpt">KPT 分析<a class="headerlink" href="#kpt" title="Permanent link">&para;</a></h2>
+<h3 id="keep">Keep（良かったこと・続けること）<a class="headerlink" href="#keep" title="Permanent link">&para;</a></h3>
+<h4 id="1_2">1. 計画的なタスク分解と時間見積もり<a class="headerlink" href="#1_2" title="Permanent link">&para;</a></h4>
+<p><strong>事実</strong>:
+- 全12タスクの見積もり精度が97.4%（実績 37.25h vs 計画 38.25h）
+- 各タスクが適切なサイズ（1-4時間）で分解されていた</p>
+<p><strong>効果</strong>:
+- 進捗の可視性が向上
+- タスクの完了感によるモチベーション維持
+- ベロシティ測定の精度向上</p>
+<p><strong>継続方針</strong>:
+- タスク分解の粒度（1-4時間）を標準化
+- 見積もり時に過去実績を参照する習慣を継続</p>
+<h4 id="2">2. 段階的な実装アプローチ<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<p><strong>事実</strong>:
+- プロセス改善 → 技術検証 → ドキュメント → 開発設計の順で実施
+- 各段階で基盤を固めてから次へ進んだ</p>
+<p><strong>効果</strong>:
+- 技術的負債の蓄積を防止
+- 後戻りが少ない
+- チーム全体の理解度が均一</p>
+<p><strong>継続方針</strong>:
+- イテレーション 2 でも段階的アプローチを維持
+- Phase 1 から Phase 7 まで順序を守る</p>
+<h4 id="3">3. 継続的なテスト実行<a class="headerlink" href="#3" title="Permanent link">&para;</a></h4>
+<p><strong>事実</strong>:
+- 29個の単体テスト (全テストパス)
+- TDD サイクルに従った開発</p>
+<p><strong>効果</strong>:
+- 品質を維持しながら実装を進められた
+- リファクタリング時の安心感
+- バグの早期発見</p>
+<p><strong>継続方針</strong>:
+- テストファーストの開発スタイルを継続
+- テストケースの日本語化を全プロジェクトで標準化</p>
+<h4 id="4">4. ドキュメント優先の文化<a class="headerlink" href="#4" title="Permanent link">&para;</a></h4>
+<p><strong>事実</strong>:
+- 実装と並行してドキュメントを整備
+- 環境構築手順書・トラブルシューティングガイド完成
+- docs/operation/ へのドキュメント統合</p>
+<p><strong>効果</strong>:
+- 後からドキュメントを書く負担がない
+- 新規メンバーのオンボーディングが容易
+- ドキュメントと実装の乖離が少ない</p>
+<p><strong>継続方針</strong>:
+- 実装と同時にドキュメントを更新する習慣を維持
+- ドキュメント構造の継続的な改善</p>
+<h4 id="5">5. 時間記録の習慣化<a class="headerlink" href="#5" title="Permanent link">&para;</a></h4>
+<p><strong>事実</strong>:
+- 全タスクで実績時間を記録
+- コミットメッセージに <code>[時間: X.Xh]</code> を含めた</p>
+<p><strong>効果</strong>:
+- 見積もり精度の継続的改善
+- ベロシティ分析が可能
+- チームの生産性を定量的に把握</p>
+<p><strong>継続方針</strong>:
+- イテレーション 2 以降も時間記録を継続
+- 月次でベロシティ分析を実施</p>
+<hr />
+<h3 id="problem">Problem（問題点・課題）<a class="headerlink" href="#problem" title="Permanent link">&para;</a></h3>
+<h4 id="1_3">1. カバレッジ測定の自動化が未完了<a class="headerlink" href="#1_3" title="Permanent link">&para;</a></h4>
+<p><strong>問題</strong>:
+- テストカバレッジの自動測定が実装されていない
+- 手動での測定は実施していない</p>
+<p><strong>影響</strong>:
+- テストの網羅性が定量的に把握できない
+- 品質基盤強化のゴール達成度が 95% にとどまった</p>
+<p><strong>根本原因</strong>:
+- TT-2,3 のタスクでカバレッジツールの設定が完了していなかった
+- Cake タスクへの統合が未実施</p>
+<p><strong>優先度</strong>: 高</p>
+<h4 id="2_1">2. デイリースタンドアップの実施記録が不十分<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h4>
+<p><strong>問題</strong>:
+- デイリースタンドアップの実施頻度が記録されていない
+- ガイドラインは整備されたが、実践の証跡がない</p>
+<p><strong>影響</strong>:
+- プロセス改善のゴール達成度が 95% にとどまった
+- チームコミュニケーションの効果測定ができない</p>
+<p><strong>根本原因</strong>:
+- 実施記録のフォーマットが不明確
+- 記録する習慣が定着していない</p>
+<p><strong>優先度</strong>: 中</p>
+<h4 id="3-tt-23">3. 見積もり精度のばらつき（TT-2,3）<a class="headerlink" href="#3-tt-23" title="Permanent link">&para;</a></h4>
+<p><strong>問題</strong>:
+- TT-2,3 のタスクが計画（3.0h）の半分（1.5h）で完了
+- 50% の過大見積もり</p>
+<p><strong>影響</strong>:
+- バッファの使い方が不適切
+- リソース配分の最適化が不十分</p>
+<p><strong>根本原因</strong>:
+- 静的解析ツールの設定が想定より簡単だった
+- タスクの依存関係が明確でなかった</p>
+<p><strong>優先度</strong>: 低（精度向上は継続課題）</p>
+<h4 id="4_1">4. ふりかえりの実施タイミング<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h4>
+<p><strong>問題</strong>:
+- イテレーション終了後、即座にふりかえりを実施していない
+- 改善アクションの次イテレーションへの反映が遅延</p>
+<p><strong>影響</strong>:
+- フィードバックループの遅延
+- 改善の機会損失</p>
+<p><strong>根本原因</strong>:
+- ふりかえりの実施スケジュールが明確でない
+- イテレーション終了日の定義が曖昧</p>
+<p><strong>優先度</strong>: 中</p>
+<hr />
+<h3 id="try">Try（改善策・次に試すこと）<a class="headerlink" href="#try" title="Permanent link">&para;</a></h3>
+<h4 id="1_4">1. カバレッジ測定の自動化<a class="headerlink" href="#1_4" title="Permanent link">&para;</a></h4>
+<p><strong>改善アクション</strong>:
+- <strong>Action 1</strong>: Coverlet を Cake タスクに統合（2h）
+- <strong>Action 2</strong>: カバレッジレポート生成を CI に追加（1h）
+- <strong>Action 3</strong>: カバレッジ目標 80% を DoD に追加（0.5h）</p>
+<p><strong>期待効果</strong>:
+- テストの網羅性を定量的に把握
+- 品質基盤の完全確立</p>
+<p><strong>担当</strong>: 開発者 A
+<strong>期限</strong>: イテレーション 2 Phase 1
+<strong>成功基準</strong>: Cake タスク実行でカバレッジレポートが生成される</p>
+<h4 id="2_2">2. デイリースタンドアップの記録強化<a class="headerlink" href="#2_2" title="Permanent link">&para;</a></h4>
+<p><strong>改善アクション</strong>:
+- <strong>Action 1</strong>: スタンドアップログのテンプレート作成（0.5h）
+- <strong>Action 2</strong>: 毎日の実施記録を GitHub Issue に残す（毎日 5分）
+- <strong>Action 3</strong>: 週次でスタンドアップの効果を振り返る（毎週 15分）</p>
+<p><strong>期待効果</strong>:
+- コミュニケーションの効果測定
+- プロセス改善の証跡確保</p>
+<p><strong>担当</strong>: 開発者 B（ローテーション）
+<strong>期限</strong>: イテレーション 2 開始時
+<strong>成功基準</strong>: 80% 以上の頻度で実施記録が残る</p>
+<h4 id="3_1">3. 見積もり精度の継続的改善<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h4>
+<p><strong>改善アクション</strong>:
+- <strong>Action 1</strong>: タスク完了時に見積もりとの差分を記録（毎タスク 2分）
+- <strong>Action 2</strong>: 月次でベロシティと見積もり精度を分析（月 1h）
+- <strong>Action 3</strong>: 類似タスクの実績を見積もりに反映（随時）</p>
+<p><strong>期待効果</strong>:
+- 見積もり精度の段階的向上
+- リソース配分の最適化</p>
+<p><strong>担当</strong>: 開発者 A, B（全員）
+<strong>期限</strong>: 継続的実施
+<strong>成功基準</strong>: 見積もり精度が 90% 以上を維持</p>
+<h4 id="4_2">4. ふりかえりの定期実施<a class="headerlink" href="#4_2" title="Permanent link">&para;</a></h4>
+<p><strong>改善アクション</strong>:
+- <strong>Action 1</strong>: イテレーション終了日を明確に定義（計画時）
+- <strong>Action 2</strong>: 終了日の翌営業日にふりかえりを実施（イテレーション毎 2h）
+- <strong>Action 3</strong>: ふりかえり結果を即座に次イテレーション計画に反映（0.5h）</p>
+<p><strong>期待効果</strong>:
+- フィードバックループの高速化
+- 改善の機会損失防止</p>
+<p><strong>担当</strong>: ファシリテーター（ローテーション）
+<strong>期限</strong>: イテレーション 2 開始前
+<strong>成功基準</strong>: イテレーション終了後 2 営業日以内にふりかえり完了</p>
+<h4 id="5_1">5. ドキュメント構造のさらなる改善<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h4>
+<p><strong>改善アクション</strong>:
+- <strong>Action 1</strong>: docs/reference/ のドキュメントを整理（2h）
+- <strong>Action 2</strong>: ドキュメント間のリンクを整備（1h）
+- <strong>Action 3</strong>: 目次ページ（index.md）を作成（1h）</p>
+<p><strong>期待効果</strong>:
+- ドキュメントの発見性向上
+- 新規メンバーのオンボーディング時間短縮</p>
+<p><strong>担当</strong>: 開発者 B
+<strong>期限</strong>: イテレーション 2 Phase 7
+<strong>成功基準</strong>: ドキュメント構造が一目で理解できる</p>
+<hr />
+<h2 id="_4">改善アクション一覧<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>カテゴリ</th>
+<th>アクション</th>
+<th>担当</th>
+<th>期限</th>
+<th>優先度</th>
+<th>状態</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A1</strong></td>
+<td>品質</td>
+<td>Coverlet を Cake タスクに統合</td>
+<td>開発者 A</td>
+<td>イテレーション 2 Phase 1</td>
+<td>高</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A2</strong></td>
+<td>品質</td>
+<td>カバレッジレポート生成を CI に追加</td>
+<td>開発者 A</td>
+<td>イテレーション 2 Phase 1</td>
+<td>高</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A3</strong></td>
+<td>品質</td>
+<td>カバレッジ目標 80% を DoD に追加</td>
+<td>開発者 A</td>
+<td>イテレーション 2 Phase 1</td>
+<td>高</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A4</strong></td>
+<td>プロセス</td>
+<td>スタンドアップログのテンプレート作成</td>
+<td>開発者 B</td>
+<td>イテレーション 2 開始時</td>
+<td>中</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A5</strong></td>
+<td>プロセス</td>
+<td>毎日の実施記録を GitHub Issue に残す</td>
+<td>開発者 B</td>
+<td>イテレーション 2 全期間</td>
+<td>中</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A6</strong></td>
+<td>プロセス</td>
+<td>週次でスタンドアップの効果を振り返る</td>
+<td>全員</td>
+<td>イテレーション 2 毎週</td>
+<td>中</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A7</strong></td>
+<td>プロセス</td>
+<td>タスク完了時に見積もりとの差分を記録</td>
+<td>全員</td>
+<td>継続的実施</td>
+<td>低</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A8</strong></td>
+<td>プロセス</td>
+<td>月次でベロシティと見積もり精度を分析</td>
+<td>開発者 A</td>
+<td>月次</td>
+<td>低</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A9</strong></td>
+<td>プロセス</td>
+<td>イテレーション終了日を明確に定義</td>
+<td>全員</td>
+<td>イテレーション 2 計画時</td>
+<td>中</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A10</strong></td>
+<td>プロセス</td>
+<td>終了日の翌営業日にふりかえりを実施</td>
+<td>全員</td>
+<td>イテレーション 2 終了後</td>
+<td>中</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A11</strong></td>
+<td>ドキュメント</td>
+<td>docs/reference/ のドキュメントを整理</td>
+<td>開発者 B</td>
+<td>イテレーション 2 Phase 7</td>
+<td>低</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A12</strong></td>
+<td>ドキュメント</td>
+<td>ドキュメント間のリンクを整備</td>
+<td>開発者 B</td>
+<td>イテレーション 2 Phase 7</td>
+<td>低</td>
+<td>⏳</td>
+</tr>
+<tr>
+<td><strong>A13</strong></td>
+<td>ドキュメント</td>
+<td>目次ページ（index.md）を作成</td>
+<td>開発者 B</td>
+<td>イテレーション 2 Phase 7</td>
+<td>低</td>
+<td>⏳</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">ベロシティ分析<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="_6">イテレーション別ベロシティ<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>イテレーション</th>
+<th>計画 (h)</th>
+<th>実績 (h)</th>
+<th>精度 (%)</th>
+<th>傾向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>90.0h</td>
+<td>-</td>
+<td>-</td>
+<td>記録なし</td>
+</tr>
+<tr>
+<td>1</td>
+<td>38.25h</td>
+<td>37.25h</td>
+<td>97.4%</td>
+<td>✅ 高精度</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">ベロシティ推移<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>イテレーション 0: 記録なし（ベースライン）
+イテレーション 1: 37.25h ━━━━━━━━━━━━━━━━━━━ 97.4%
+</code></pre></div>
+<h3 id="_8">見積もり精度分析<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p><strong>カテゴリ別精度</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>計画 (h)</th>
+<th>実績 (h)</th>
+<th>精度 (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>プロセス改善 (PT)</td>
+<td>6.25h</td>
+<td>6.25h</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>技術検証 (TT)</td>
+<td>15.0h</td>
+<td>13.5h</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>ドキュメント (DT)</td>
+<td>7.0h</td>
+<td>7.0h</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>開発 (S1.1)</td>
+<td>12.0h</td>
+<td>12.0h</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>全体</strong></td>
+<td><strong>38.25h</strong></td>
+<td><strong>37.25h</strong></td>
+<td><strong>97.4%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>主な差分</strong>:
+- TT-2,3: 計画 3.0h → 実績 1.5h（-50%）</p>
+<p><strong>傾向</strong>:
+- プロセス・ドキュメントタスクは見積もり精度が 100%
+- 技術検証タスクで若干の過大見積もり
+- 全体としては非常に高精度な見積もり</p>
+<hr />
+<h2 id="_9">次イテレーションへの引き継ぎ<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="2_3">イテレーション 2 への準備状況<a class="headerlink" href="#2_3" title="Permanent link">&para;</a></h3>
+<h4 id="_10">✅ 完了している準備<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Story 1.1 の詳細設計</strong>: 制約付き型の実装完了</li>
+<li><strong>タスク分解</strong>: 52h、22タスク、7 Phase の詳細計画</li>
+<li><strong>テスト基盤</strong>: xUnit + FsUnit 統合、29テスト稼働</li>
+<li><strong>ドキュメント</strong>: 運用ドキュメント整備完了</li>
+</ol>
+<h4 id="_11">⚠️ 対応が必要な項目<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>カバレッジ測定</strong>: イテレーション 2 Phase 1 で実装</li>
+<li><strong>スタンドアップ記録</strong>: テンプレート作成とログ記録開始</li>
+<li><strong>改善アクション</strong>: 13個のアクションを計画に組み込み</li>
+</ol>
+<h3 id="_12">推奨される開始タイミング<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p><strong>イテレーション 2 開始日</strong>: 2025-11-11 (月)
+<strong>理由</strong>: ふりかえり完了後、即座に開始可能</p>
+<hr />
+<h2 id="_13">チーム全体の振り返り<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<h3 id="_14">良かった点<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>コミュニケーション</strong>: GitHub を活用した非同期コミュニケーションが機能</li>
+<li><strong>技術的成長</strong>: F# のドメインモデリング手法を習得</li>
+<li><strong>文化形成</strong>: 時間記録・ドキュメント優先の文化が定着</li>
+</ol>
+<h3 id="_15">改善すべき点<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>同期コミュニケーション</strong>: デイリースタンドアップの実践不足</li>
+<li><strong>自動化</strong>: カバレッジ測定など、まだ手動の作業が残る</li>
+<li><strong>計画の柔軟性</strong>: 過大見積もりタスクの調整が不十分</li>
+</ol>
+<h3 id="_16">総評<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p>イテレーション 1 は <strong>97.5% の達成度</strong>で成功裏に完了しました。</p>
+<p><strong>主な成果</strong>:
+- ✅ プロセス改善の基盤確立
+- ✅ 品質基盤の整備（95%）
+- ✅ ドキュメント完備
+- ✅ Story 1.1 設計完了
+- ✅ 高精度な見積もり（97.4%）</p>
+<p><strong>次イテレーションへの期待</strong>:
+- Story 1.1 の完全実装によるMVP達成
+- カバレッジ測定の自動化による品質基盤の完成
+- デイリースタンドアップの実践によるチームコミュニケーション強化</p>
+<hr />
+<h2 id="_17">参照ドキュメント<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../iteration_plan-1/">イテレーション 1 計画</a></li>
+<li><a href="../retrospective-0/">イテレーション 0 レトロスペクティブ</a></li>
+<li><a href="../release_plan/">リリース計画</a></li>
+<li><a href="../story-1.1-iteration-2-tasks/">Story 1.1 イテレーション 2 タスク分解</a></li>
+<li><a href="../../reference/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%BB%E3%82%A4%E3%83%86%E3%83%AC%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E8%A8%88%E7%94%BB%E3%82%AC%E3%82%A4%E3%83%89/">リリース・イテレーション計画ガイド</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/k2works" target="_blank" rel="noopener" title="GitHub Repository/claude-code-booster" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+      
+        <script src="../../docs/assets/js/extra.js"></script>
+      
+    
+  </body>
+</html>

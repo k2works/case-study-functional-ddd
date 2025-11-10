@@ -1,0 +1,2787 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="F#の関数型プログラミングとドメイン駆動設計による注文受付システムの実装ガイド">
+      
+      
+        <meta name="author" content="Project Team">
+      
+      
+      
+        <link rel="prev" href="../../heroku-deploy-guide/">
+      
+      
+        <link rel="next" href="../static-analysis-guide/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
+    
+    
+      
+        <title>カバレッジガイド - 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../docs/mkdocs/assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-header__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              カバレッジガイド
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ホーム
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../requirements/requirements_definition/" class="md-tabs__link">
+          
+  
+  
+  分析
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../design/architecture/" class="md-tabs__link">
+          
+  
+  
+  設計
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/iteration_plan-1/" class="md-tabs__link">
+          
+  
+  
+  開発プロセス
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../reference/F%23%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-tabs__link">
+          
+  
+  
+  実装ガイド
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../environment-setup-guide/" class="md-tabs__link">
+          
+  
+  
+  運用ドキュメント
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-tabs__link">
+          
+  
+  
+  F# 学習教材
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-tabs__link">
+          
+  
+  
+  開発理念
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-nav__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ホーム
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    分析
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            分析
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../requirements/requirements_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../requirements/business_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ビジネスユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../requirements/system_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    システムユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../requirements/user_story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ユーザーストーリー
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    設計
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            設計
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/domain_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ドメインモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    データモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/architecture_infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/tech_stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    技術スタック
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../design/test_strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発プロセス
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            開発プロセス
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    イテレーション計画
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_1">
+            <span class="md-nav__icon md-icon"></span>
+            イテレーション計画
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/iteration_plan-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Iteration 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/iteration_plan-2.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Iteration 2
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    レトロスペクティブ
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            レトロスペクティブ
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/retrospective-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Retrospective 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    デイリースタンドアップ
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            デイリースタンドアップ
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/daily-standup-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    スタンドアップガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/standup-logs/2025-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    記録 2025-01
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    時間管理
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            時間管理
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/time-tracking-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    時間記録ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    実装ガイド
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            実装ガイド
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/F%23%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# アプリケーション環境構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# API構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/UI%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UI設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%83%86%E3%82%B9%E3%83%88%E6%88%A6%E7%95%A5%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    運用ドキュメント
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            運用ドキュメント
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../environment-setup-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    環境セットアップ
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../troubleshooting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    トラブルシューティング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    CI/CD
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            CI/CD
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../github-actions-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GitHub Actions ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    デプロイ
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            デプロイ
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../heroku-deploy-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Heroku デプロイガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    品質管理
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6_5">
+            <span class="md-nav__icon md-icon"></span>
+            品質管理
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    カバレッジガイド
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    カバレッジガイド
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      概要
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverlet" class="md-nav__link">
+    <span class="md-ellipsis">
+      coverlet とは
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジ測定方法
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="カバレッジ測定方法">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-cake" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Cake タスク経由（推奨）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dotnet-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. dotnet test 直接実行
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-vscode" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. VSCode タスク
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジレポート
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="カバレッジレポート">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      生成場所
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      レポート内容
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      レポート可視化
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="レポート可視化">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-reportgenerator" class="md-nav__link">
+    <span class="md-ellipsis">
+      方法 1: reportgenerator ツール
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="方法 1: reportgenerator ツール">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      インストール
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#html" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTML レポート生成
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      レポート表示
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-vscode" class="md-nav__link">
+    <span class="md-ellipsis">
+      方法 2: VSCode 拡張機能
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジメトリクス
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="カバレッジメトリクス">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#line-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      line-rate（行カバレッジ）
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#branch-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      branch-rate（分岐カバレッジ）
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジ目標
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="カバレッジ目標">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      プロジェクト全体
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      レイヤー別
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      イテレーション 1 の状況
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="イテレーション 1 の状況">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      現在のカバレッジ
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      理由
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジレポート機能確認
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジ向上戦略
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="カバレッジ向上戦略">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. ユニットテストの追加
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. プロパティベーステスト
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 統合テスト
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cicd" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD 統合
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI/CD 統合">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      GitHub Actions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      カバレッジバッジ
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      ベストプラクティス
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ベストプラクティス">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-tdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. テスト駆動開発 (TDD)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-100" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. カバレッジ 100% を目指さない
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. テストしにくいコードを避ける
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      トラブルシューティング
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="トラブルシューティング">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#q-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: カバレッジが 0% のまま
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: カバレッジレポートが見つからない
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Q: 一部のファイルがカバレッジ対象外
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      参考資料
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../static-analysis-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    静的解析ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    F# 学習教材
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            F# 学習教材
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第1部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%802/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第2部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%803/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第3部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%804/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第4部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発理念
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            開発理念
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    よいソフトウェアとは
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference/%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    エクストリームプログラミング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="_1">カバレッジガイド<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h2 id="_2">概要<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>プロジェクトでは <strong>coverlet</strong> を使用してコードカバレッジを測定します。カバレッジ目標は <strong>80% 以上</strong> です。</p>
+<h2 id="coverlet">coverlet とは<a class="headerlink" href="#coverlet" title="Permanent link">&para;</a></h2>
+<p>coverlet は .NET 向けのクロスプラットフォームなコードカバレッジツールです。</p>
+<ul>
+<li>XPlat Code Coverage 形式をサポート</li>
+<li>Cobertura XML レポート生成</li>
+<li>CI/CD パイプライン統合が容易</li>
+</ul>
+<h2 id="_3">カバレッジ測定方法<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="1-cake">1. Cake タスク経由（推奨）<a class="headerlink" href="#1-cake" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>cake<span class="w"> </span>--target<span class="o">=</span>Coverage
+</code></pre></div>
+<h3 id="2-dotnet-test">2. dotnet test 直接実行<a class="headerlink" href="#2-dotnet-test" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--collect:<span class="s2">&quot;XPlat Code Coverage&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--results-directory:./TestResults
+</code></pre></div>
+<h3 id="3-vscode">3. VSCode タスク<a class="headerlink" href="#3-vscode" title="Permanent link">&para;</a></h3>
+<ol>
+<li><code>Ctrl + Shift + P</code> → <code>Tasks: Run Task</code></li>
+<li><code>Cake: Coverage</code> を選択</li>
+</ol>
+<h2 id="_4">カバレッジレポート<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="_5">生成場所<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>TestResults/
+└── {GUID}/
+    └── coverage.cobertura.xml
+</code></pre></div>
+<h3 id="_6">レポート内容<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p><strong>coverage.cobertura.xml</strong> (XML 形式):
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;coverage</span><span class="w"> </span><span class="na">line-rate=</span><span class="s">&quot;0.85&quot;</span><span class="w"> </span><span class="na">branch-rate=</span><span class="s">&quot;0.92&quot;</span><span class="w"> </span><span class="err">...</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;packages&gt;</span>
+<span class="w">    </span><span class="nt">&lt;package</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;OrderTaking.Domain&quot;</span><span class="w"> </span><span class="na">line-rate=</span><span class="s">&quot;0.90&quot;</span><span class="w"> </span><span class="err">...</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;classes&gt;</span>
+<span class="w">        </span><span class="nt">&lt;class</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;OrderTaking.Domain.Types&quot;</span><span class="w"> </span><span class="err">...</span><span class="nt">&gt;</span>
+<span class="w">          </span><span class="nt">&lt;lines&gt;</span>
+<span class="w">            </span><span class="nt">&lt;line</span><span class="w"> </span><span class="na">number=</span><span class="s">&quot;10&quot;</span><span class="w"> </span><span class="na">hits=</span><span class="s">&quot;5&quot;</span><span class="w"> </span><span class="na">branch=</span><span class="s">&quot;False&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">            </span><span class="nt">&lt;line</span><span class="w"> </span><span class="na">number=</span><span class="s">&quot;11&quot;</span><span class="w"> </span><span class="na">hits=</span><span class="s">&quot;0&quot;</span><span class="w"> </span><span class="na">branch=</span><span class="s">&quot;False&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">          </span><span class="nt">&lt;/lines&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/class&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/classes&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/package&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/packages&gt;</span>
+<span class="nt">&lt;/coverage&gt;</span>
+</code></pre></div></p>
+<h2 id="_7">レポート可視化<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h3 id="1-reportgenerator">方法 1: reportgenerator ツール<a class="headerlink" href="#1-reportgenerator" title="Permanent link">&para;</a></h3>
+<h4 id="_8">インストール<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>dotnet-reportgenerator-globaltool
+</code></pre></div>
+<h4 id="html">HTML レポート生成<a class="headerlink" href="#html" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>reportgenerator<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-reports:./TestResults/**/coverage.cobertura.xml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-targetdir:./TestResults/CoverageReport<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-reporttypes:Html
+</code></pre></div>
+<h4 id="_9">レポート表示<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Windows</span>
+start<span class="w"> </span>./TestResults/CoverageReport/index.html
+
+<span class="c1"># macOS</span>
+open<span class="w"> </span>./TestResults/CoverageReport/index.html
+
+<span class="c1"># Linux</span>
+xdg-open<span class="w"> </span>./TestResults/CoverageReport/index.html
+</code></pre></div>
+<h3 id="2-vscode">方法 2: VSCode 拡張機能<a class="headerlink" href="#2-vscode" title="Permanent link">&para;</a></h3>
+<p><strong>Coverage Gutters</strong> 拡張機能を使用：</p>
+<ol>
+<li>VSCode で Coverage Gutters をインストール</li>
+<li>Cobertura XML ファイルを読み込み</li>
+<li>エディタ上でカバレッジを色分け表示</li>
+</ol>
+<h2 id="_10">カバレッジメトリクス<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h3 id="line-rate">line-rate（行カバレッジ）<a class="headerlink" href="#line-rate" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>line-rate = lines-covered / lines-valid
+</code></pre></div>
+<p><strong>例</strong>:
+- lines-covered: 85 行
+- lines-valid: 100 行
+- <strong>line-rate: 0.85 (85%)</strong></p>
+<h3 id="branch-rate">branch-rate（分岐カバレッジ）<a class="headerlink" href="#branch-rate" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>branch-rate = branches-covered / branches-valid
+</code></pre></div>
+<p><strong>例</strong>:
+- branches-covered: 18 分岐
+- branches-valid: 20 分岐
+- <strong>branch-rate: 0.90 (90%)</strong></p>
+<h2 id="_11">カバレッジ目標<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<h3 id="_12">プロジェクト全体<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>メトリクス</th>
+<th>目標値</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Line Coverage</strong></td>
+<td>80% 以上</td>
+<td>必須</td>
+</tr>
+<tr>
+<td><strong>Branch Coverage</strong></td>
+<td>75% 以上</td>
+<td>推奨</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">レイヤー別<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>レイヤー</th>
+<th>Line Coverage 目標</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Domain</strong></td>
+<td>90% 以上</td>
+</tr>
+<tr>
+<td><strong>Application</strong></td>
+<td>85% 以上</td>
+</tr>
+<tr>
+<td><strong>Infrastructure</strong></td>
+<td>70% 以上</td>
+</tr>
+<tr>
+<td><strong>WebApi</strong></td>
+<td>60% 以上</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1">イテレーション 1 の状況<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="_14">現在のカバレッジ<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>メトリクス</th>
+<th>実績</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Line Coverage</strong></td>
+<td>0%</td>
+<td>プロダクションコード未実装</td>
+</tr>
+<tr>
+<td><strong>Branch Coverage</strong></td>
+<td>N/A</td>
+<td>プロダクションコード未実装</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_15">理由<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<p>イテレーション 1 は環境構築フェーズです：</p>
+<ul>
+<li><strong>既存コード</strong>: サンプル Library.fs のみ（未テスト）</li>
+<li><strong>テストコード</strong>: テストフレームワーク動作確認用のサンプルテスト</li>
+<li><strong>Story 1.1</strong>: 設計のみ（実装はイテレーション 2）</li>
+</ul>
+<h3 id="_16">カバレッジレポート機能確認<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>動作確認完了</strong>:
+- Coverage タスク実行成功
+- coverage.cobertura.xml 生成成功
+- レポート形式正常</p>
+<h2 id="_17">カバレッジ向上戦略<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">1. ユニットテストの追加<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<p><strong>Domain レイヤー</strong> (最優先):
+<div class="highlight"><pre><span></span><code><span class="c1">// 制約付き型のテスト例</span>
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``String50.create should accept valid string``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">String50</span><span class="p">.</span><span class="n">create</span><span class="w"> </span><span class="s">&quot;Valid&quot;</span>
+<span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="o">(</span><span class="n">ofCase</span><span class="w"> </span><span class="o">&lt;@</span><span class="w"> </span><span class="nn">Result</span><span class="p">.</span><span class="n">Ok</span><span class="w"> </span><span class="o">@&gt;)</span>
+
+<span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``String50.create should reject too long string``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">longString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">String</span><span class="p">.</span><span class="n">replicate</span><span class="w"> </span><span class="mi">51</span><span class="w"> </span><span class="s">&quot;a&quot;</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">String50</span><span class="p">.</span><span class="n">create</span><span class="w"> </span><span class="n">longString</span>
+<span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="o">(</span><span class="n">ofCase</span><span class="w"> </span><span class="o">&lt;@</span><span class="w"> </span><span class="nn">Result</span><span class="p">.</span><span class="n">Error</span><span class="w"> </span><span class="o">@&gt;)</span>
+</code></pre></div></p>
+<h3 id="2">2. プロパティベーステスト<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p><strong>FsCheck を活用</strong>:
+<div class="highlight"><pre><span></span><code><span class="o">[&lt;</span><span class="n">Property</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``EmailAddress round-trip``</span><span class="w"> </span><span class="o">(</span><span class="n">NonNull</span><span class="w"> </span><span class="n">email</span><span class="o">)</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="k">match</span><span class="w"> </span><span class="nn">EmailAddress</span><span class="p">.</span><span class="n">create</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="k">with</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Ok</span><span class="w"> </span><span class="n">addr</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nn">EmailAddress</span><span class="p">.</span><span class="n">value</span><span class="w"> </span><span class="n">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">email</span>
+<span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="o">_</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">true</span>
+</code></pre></div></p>
+<h3 id="3">3. 統合テスト<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p><strong>Application レイヤー</strong>:
+<div class="highlight"><pre><span></span><code><span class="o">[&lt;</span><span class="n">Fact</span><span class="o">&gt;]</span>
+<span class="k">let</span><span class="w"> </span><span class="n">``PlaceOrder workflow should process valid order``</span><span class="w"> </span><span class="bp">()</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="c1">// Arrange</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">validOrder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">...</span>
+
+<span class="w">    </span><span class="c1">// Act</span>
+<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">PlaceOrder</span><span class="p">.</span><span class="n">execute</span><span class="w"> </span><span class="n">validOrder</span>
+
+<span class="w">    </span><span class="c1">// Assert</span>
+<span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">|&gt;</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="o">(</span><span class="n">ofCase</span><span class="w"> </span><span class="o">&lt;@</span><span class="w"> </span><span class="nn">Result</span><span class="p">.</span><span class="n">Ok</span><span class="w"> </span><span class="o">@&gt;)</span>
+</code></pre></div></p>
+<h2 id="cicd">CI/CD 統合<a class="headerlink" href="#cicd" title="Permanent link">&para;</a></h2>
+<h3 id="github-actions">GitHub Actions<a class="headerlink" href="#github-actions" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run Tests with Coverage</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dotnet cake --target=Coverage</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Generate Coverage Report</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">dotnet tool install -g dotnet-reportgenerator-globaltool</span>
+<span class="w">    </span><span class="no">reportgenerator \</span>
+<span class="w">      </span><span class="no">-reports:./TestResults/**/coverage.cobertura.xml \</span>
+<span class="w">      </span><span class="no">-targetdir:./TestResults/CoverageReport \</span>
+<span class="w">      </span><span class="no">-reporttypes:Html;Cobertura</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check Coverage Threshold</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">coverage=$(grep -oP &#39;line-rate=&quot;\K[0-9.]+&#39; ./TestResults/**/coverage.cobertura.xml | head -1 | awk &#39;{print $1 * 100}&#39;)</span>
+<span class="w">    </span><span class="no">if (( $(echo &quot;$coverage &lt; 80&quot; | bc -l) )); then</span>
+<span class="w">      </span><span class="no">echo &quot;Coverage $coverage% is below 80% threshold&quot;</span>
+<span class="w">      </span><span class="no">exit 1</span>
+<span class="w">    </span><span class="no">fi</span>
+</code></pre></div>
+<h3 id="_18">カバレッジバッジ<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<p>README.md にバッジを追加（オプション）:
+<div class="highlight"><pre><span></span><code>[<span class="nt">![Coverage</span>](<span class="na">https://img.shields.io/badge/coverage-85%25-green.svg</span>)](./TestResults/CoverageReport)
+</code></pre></div></p>
+<h2 id="_19">ベストプラクティス<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h2>
+<h3 id="1-tdd">1. テスト駆動開発 (TDD)<a class="headerlink" href="#1-tdd" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Red → Green → Refactor
+</code></pre></div>
+<ol>
+<li><strong>Red</strong>: 失敗するテストを書く</li>
+<li><strong>Green</strong>: テストを通す最小限のコードを書く</li>
+<li><strong>Refactor</strong>: コードを改善、テストは通ったまま</li>
+</ol>
+<h3 id="2-100">2. カバレッジ 100% を目指さない<a class="headerlink" href="#2-100" title="Permanent link">&para;</a></h3>
+<ul>
+<li>100% は非現実的かつ不要</li>
+<li>80% で十分な品質</li>
+<li>重要なビジネスロジックを優先</li>
+</ul>
+<h3 id="3_1">3. テストしにくいコードを避ける<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>副作用を分離</li>
+<li>依存性注入</li>
+<li>純粋関数を優先</li>
+</ul>
+<h2 id="_20">トラブルシューティング<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h2>
+<h3 id="q-0">Q: カバレッジが 0% のまま<a class="headerlink" href="#q-0" title="Permanent link">&para;</a></h3>
+<p>A: 以下を確認：
+1. テストがプロダクションコードを呼び出しているか
+2. <code>dotnet test</code> が成功しているか
+3. TestResults/ ディレクトリにファイルが生成されているか</p>
+<h3 id="q">Q: カバレッジレポートが見つからない<a class="headerlink" href="#q" title="Permanent link">&para;</a></h3>
+<p>A: <code>--results-directory</code> オプションで出力先を指定：
+<div class="highlight"><pre><span></span><code>dotnet<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--collect:<span class="s2">&quot;XPlat Code Coverage&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>--results-directory:./TestResults
+</code></pre></div></p>
+<h3 id="q_1">Q: 一部のファイルがカバレッジ対象外<a class="headerlink" href="#q_1" title="Permanent link">&para;</a></h3>
+<p>A: <code>coverlet.collector</code> の設定を確認。除外設定がないか確認。</p>
+<h2 id="_21">参考資料<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://github.com/coverlet-coverage/coverlet">coverlet 公式ドキュメント</a></li>
+<li><a href="https://github.com/danielpalme/ReportGenerator">ReportGenerator</a></li>
+<li><a href="../development/iteration_plan-1.md">イテレーション 1 計画</a></li>
+<li><a href="../../app/backend/build.cake">Cake ビルドスクリプト</a></li>
+</ul>
+<hr />
+<p><strong>作成日</strong>: 2025-11-10
+<strong>最終更新</strong>: 2025-11-10
+<strong>バージョン</strong>: 1.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/k2works" target="_blank" rel="noopener" title="GitHub Repository/claude-code-booster" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+      
+        <script src="../../../docs/assets/js/extra.js"></script>
+      
+    
+  </body>
+</html>
