@@ -1,0 +1,2157 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="F#の関数型プログラミングとドメイン駆動設計による注文受付システムの実装ガイド">
+      
+      
+        <meta name="author" content="Project Team">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.23">
+    
+    
+      
+        <title>イテレーション 0 計画 - 環境構築イテレーション - 注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../docs/mkdocs/assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#0-" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-header__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              イテレーション 0 計画 - 環境構築イテレーション
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  ホーム
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../requirements/requirements_definition/" class="md-tabs__link">
+          
+  
+  
+  分析
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/architecture/" class="md-tabs__link">
+          
+  
+  
+  設計
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/F%23%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-tabs__link">
+          
+  
+  
+  実装ガイド
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-tabs__link">
+          
+  
+  
+  F# 学習教材
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-tabs__link">
+          
+  
+  
+  開発理念
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" class="md-nav__button md-logo" aria-label="注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/k2works/case-study-functional-ddd" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    case-study-functional-ddd
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ホーム
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    分析
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            分析
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/requirements_definition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    要件定義
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/business_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ビジネスユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/system_usecase/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    システムユースケース
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../requirements/user_story/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ユーザーストーリー
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    設計
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            設計
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/domain_model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    ドメインモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    データモデル設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/architecture_infrastructure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/tech_stack/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    技術スタック
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/test_strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    実装ガイド
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            実装ガイド
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/F%23%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# アプリケーション環境構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/F%23API%E6%A7%8B%E7%AF%89%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# API構築ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/UI%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    UI設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A2%E3%83%BC%E3%82%AD%E3%83%86%E3%82%AF%E3%83%81%E3%83%A3%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    アーキテクチャ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A4%E3%83%B3%E3%83%95%E3%83%A9%E8%A8%AD%E8%A8%88%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    インフラ設計ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E6%88%A6%E7%95%A5%E3%82%AC%E3%82%A4%E3%83%89/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    テスト戦略ガイド
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    F# 学習教材
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            F# 学習教材
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%801/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第1部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%802/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第2部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%803/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第3部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%83%86%E3%82%B9%E3%83%88%E9%A7%86%E5%8B%95%E9%96%8B%E7%99%BA%E3%81%8B%E3%82%89%E5%A7%8B%E3%82%81%E3%82%8BFSharp%E5%85%A5%E9%96%804/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    F# TDD入門 第4部
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    開発理念
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            開発理念
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%88%E3%81%84%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E3%81%A8%E3%81%AF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    よいソフトウェアとは
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%A0%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    エクストリームプログラミング
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="0-">イテレーション 0 計画 - 環境構築イテレーション<a class="headerlink" href="#0-" title="Permanent link">&para;</a></h1>
+<h2 id="_1">イテレーション情報<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>イテレーション番号</strong></td>
+<td>0 (環境構築イテレーション)</td>
+</tr>
+<tr>
+<td><strong>期間</strong></td>
+<td>2025-01-06 ~ 2025-01-19 (2 週間)</td>
+</tr>
+<tr>
+<td><strong>チーム</strong></td>
+<td>F# 開発者 2 名</td>
+</tr>
+<tr>
+<td><strong>作業日数</strong></td>
+<td>10 日 (営業日ベース)</td>
+</tr>
+<tr>
+<td><strong>計画策定日</strong></td>
+<td>2025-11-08</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">イテレーションゴール<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p><strong>F# 9.0 + ASP.NET Core 9.0 による注文受付システムの開発環境を構築し、CI/CD パイプラインと品質ゲートを確立する</strong></p>
+<h3 id="_3">成功基準<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>環境構築完了</strong>:
+- .NET 9.0 SDK がインストールされている
+- F# プロジェクト構造が作成されている
+- 開発ツールチェーン (Cake, Fantomas, FSharpLint) が動作する</p>
+<p>✅ <strong>ビルド自動化完了</strong>:
+- Cake によるビルドタスクが実行できる
+- テストが自動実行される
+- カバレッジレポートが生成される</p>
+<p>✅ <strong>CI/CD パイプライン完了</strong>:
+- GitHub Actions ワークフローが動作する
+- コミット時に自動ビルド・テストが実行される
+- 品質ゲートが機能する</p>
+<p>✅ <strong>Heroku デプロイ準備完了</strong>:
+- Heroku アプリケーションが作成されている
+- Procfile と buildpack が設定されている
+- 環境変数が設定されている</p>
+<h2 id="_4">ストーリー選択<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>イテレーション 0 は環境構築に特化するため、専用の技術ストーリーを定義します。</p>
+<table>
+<thead>
+<tr>
+<th>Story</th>
+<th>タイトル</th>
+<th>優先度</th>
+<th>見積 (理想時間)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>E-1</strong></td>
+<td>開発環境のセットアップ</td>
+<td>最高</td>
+<td>12 時間</td>
+</tr>
+<tr>
+<td><strong>E-2</strong></td>
+<td>プロジェクト構造の作成</td>
+<td>最高</td>
+<td>8 時間</td>
+</tr>
+<tr>
+<td><strong>E-3</strong></td>
+<td>ビルド自動化の設定</td>
+<td>高</td>
+<td>16 時間</td>
+</tr>
+<tr>
+<td><strong>E-4</strong></td>
+<td>テスト環境の構築</td>
+<td>高</td>
+<td>12 時間</td>
+</tr>
+<tr>
+<td><strong>E-5</strong></td>
+<td>静的解析・品質管理ツールの導入</td>
+<td>中</td>
+<td>10 時間</td>
+</tr>
+<tr>
+<td><strong>E-6</strong></td>
+<td>CI/CD パイプラインの構築</td>
+<td>高</td>
+<td>14 時間</td>
+</tr>
+<tr>
+<td><strong>E-7</strong></td>
+<td>Heroku デプロイ設定</td>
+<td>中</td>
+<td>12 時間</td>
+</tr>
+<tr>
+<td><strong>E-8</strong></td>
+<td>ドキュメント整備</td>
+<td>中</td>
+<td>6 時間</td>
+</tr>
+<tr>
+<td><strong>合計</strong></td>
+<td>-</td>
+<td>-</td>
+<td><strong>90 時間</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>チーム理想時間</strong>: 2 名 × 5 時間/日 × 10 日 = <strong>100 理想時間</strong>
+<strong>バッファ</strong>: 10 時間 (10%)</p>
+<h2 id="_5">タスク分解<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="story-e-1-12">Story E-1: 開発環境のセットアップ (12 時間)<a class="headerlink" href="#story-e-1-12" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] .NET 9.0 SDK がインストールされている
+- [ ] IDE (VSCode + Ionide または Rider) が設定されている
+- [ ] Git がインストールされ、リポジトリがクローンされている
+- [ ] 必要な開発ツールがインストールされている</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-1.1</td>
+<td>.NET 9.0 SDK インストール</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>Windows/Mac/Linux 環境への SDK インストール</td>
+</tr>
+<tr>
+<td>E-1.2</td>
+<td>IDE セットアップ</td>
+<td>開発者 A</td>
+<td>3h</td>
+<td>VSCode + Ionide または Rider のインストールと設定</td>
+</tr>
+<tr>
+<td>E-1.3</td>
+<td>Git 環境構築</td>
+<td>開発者 B</td>
+<td>2h</td>
+<td>Git インストール、リポジトリクローン、Git フック設定</td>
+</tr>
+<tr>
+<td>E-1.4</td>
+<td>開発ツールインストール</td>
+<td>開発者 B</td>
+<td>3h</td>
+<td>Cake.Tool, Fantomas, FSharpLint のグローバルインストール</td>
+</tr>
+<tr>
+<td>E-1.5</td>
+<td>動作確認</td>
+<td>全員</td>
+<td>2h</td>
+<td>各ツールの動作確認、環境ドキュメント作成</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story-e-2-8">Story E-2: プロジェクト構造の作成 (8 時間)<a class="headerlink" href="#story-e-2-8" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] F# プロジェクトファイル (.fsproj) が作成されている
+- [ ] ソリューションファイル (.sln) が作成されている
+- [ ] プロジェクト構造が tech_stack.md の定義に従っている
+- [ ] 初期ビルドが成功する</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-2.1</td>
+<td>ソリューション作成</td>
+<td>開発者 A</td>
+<td>1h</td>
+<td>dotnet new sln でソリューション作成</td>
+</tr>
+<tr>
+<td>E-2.2</td>
+<td>ドメインプロジェクト作成</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>OrderTaking プロジェクト作成、基本型ファイル追加</td>
+</tr>
+<tr>
+<td>E-2.3</td>
+<td>テストプロジェクト作成</td>
+<td>開発者 B</td>
+<td>2h</td>
+<td>OrderTaking.Tests プロジェクト作成</td>
+</tr>
+<tr>
+<td>E-2.4</td>
+<td>Directory.Packages.props 設定</td>
+<td>開発者 B</td>
+<td>2h</td>
+<td>中央集約バージョン管理設定</td>
+</tr>
+<tr>
+<td>E-2.5</td>
+<td>初期ビルド確認</td>
+<td>全員</td>
+<td>1h</td>
+<td>dotnet build でビルド成功確認</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story-e-3-16">Story E-3: ビルド自動化の設定 (16 時間)<a class="headerlink" href="#story-e-3-16" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] Cake ビルドスクリプト (build.cake) が作成されている
+- [ ] Clean, Build, Test, Coverage タスクが動作する
+- [ ] VSCode タスク統合が完了している
+- [ ] すべてのタスクが正常に実行される</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-3.1</td>
+<td>Cake スクリプト基礎作成</td>
+<td>開発者 A</td>
+<td>4h</td>
+<td>build.cake の基本構造作成</td>
+</tr>
+<tr>
+<td>E-3.2</td>
+<td>Clean/Build タスク実装</td>
+<td>開発者 A</td>
+<td>3h</td>
+<td>Clean と Build タスクの実装とテスト</td>
+</tr>
+<tr>
+<td>E-3.3</td>
+<td>Test タスク実装</td>
+<td>開発者 B</td>
+<td>4h</td>
+<td>xUnit 実行タスクの実装</td>
+</tr>
+<tr>
+<td>E-3.4</td>
+<td>Coverage タスク実装</td>
+<td>開発者 B</td>
+<td>3h</td>
+<td>coverlet によるカバレッジ測定タスク</td>
+</tr>
+<tr>
+<td>E-3.5</td>
+<td>VSCode タスク統合</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>.vscode/tasks.json の設定</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story-e-4-12">Story E-4: テスト環境の構築 (12 時間)<a class="headerlink" href="#story-e-4-12" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] xUnit テストプロジェクトが動作する
+- [ ] FsUnit.xUnit によるアサーションが使える
+- [ ] サンプルテストが成功する
+- [ ] カバレッジが測定できる</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-4.1</td>
+<td>xUnit パッケージ追加</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>xUnit, xunit.runner.visualstudio の追加</td>
+</tr>
+<tr>
+<td>E-4.2</td>
+<td>FsUnit.xUnit パッケージ追加</td>
+<td>開発者 A</td>
+<td>1h</td>
+<td>FsUnit.xUnit の追加と設定</td>
+</tr>
+<tr>
+<td>E-4.3</td>
+<td>サンプルテスト作成</td>
+<td>開発者 B</td>
+<td>4h</td>
+<td>基本的なテストケースの作成</td>
+</tr>
+<tr>
+<td>E-4.4</td>
+<td>カバレッジ設定</td>
+<td>開発者 B</td>
+<td>3h</td>
+<td>coverlet.collector の設定とレポート生成</td>
+</tr>
+<tr>
+<td>E-4.5</td>
+<td>テスト実行確認</td>
+<td>全員</td>
+<td>2h</td>
+<td>dotnet test でテスト実行とカバレッジ確認</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story-e-5-10">Story E-5: 静的解析・品質管理ツールの導入 (10 時間)<a class="headerlink" href="#story-e-5-10" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] FSharpLint が動作する
+- [ ] Fantomas によるコードフォーマットが動作する
+- [ ] 品質ルールが設定されている
+- [ ] Cake タスクに統合されている</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-5.1</td>
+<td>FSharpLint 設定</td>
+<td>開発者 A</td>
+<td>3h</td>
+<td>fsharplint.json の作成とルール設定</td>
+</tr>
+<tr>
+<td>E-5.2</td>
+<td>Fantomas 設定</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>.editorconfig の作成とフォーマットルール設定</td>
+</tr>
+<tr>
+<td>E-5.3</td>
+<td>Cake Lint タスク作成</td>
+<td>開発者 B</td>
+<td>3h</td>
+<td>FSharpLint 実行タスクの実装</td>
+</tr>
+<tr>
+<td>E-5.4</td>
+<td>Cake Format タスク作成</td>
+<td>開発者 B</td>
+<td>2h</td>
+<td>Fantomas 実行タスクの実装</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story-e-6-cicd-14">Story E-6: CI/CD パイプラインの構築 (14 時間)<a class="headerlink" href="#story-e-6-cicd-14" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] GitHub Actions ワークフローが作成されている
+- [ ] プッシュ時に自動ビルド・テストが実行される
+- [ ] Pull Request 時に品質チェックが実行される
+- [ ] 品質ゲートが機能する</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-6.1</td>
+<td>GitHub Actions ワークフロー作成</td>
+<td>開発者 A</td>
+<td>4h</td>
+<td>.github/workflows/ci.yml の作成</td>
+</tr>
+<tr>
+<td>E-6.2</td>
+<td>ビルド・テストジョブ設定</td>
+<td>開発者 A</td>
+<td>3h</td>
+<td>ビルドとテスト実行の設定</td>
+</tr>
+<tr>
+<td>E-6.3</td>
+<td>品質ゲート設定</td>
+<td>開発者 B</td>
+<td>4h</td>
+<td>カバレッジ、Lint チェックの設定</td>
+</tr>
+<tr>
+<td>E-6.4</td>
+<td>PR チェック設定</td>
+<td>開発者 B</td>
+<td>2h</td>
+<td>Pull Request ステータスチェックの設定</td>
+</tr>
+<tr>
+<td>E-6.5</td>
+<td>動作確認</td>
+<td>全員</td>
+<td>1h</td>
+<td>実際のコミットで CI/CD 動作確認</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story-e-7-heroku-12">Story E-7: Heroku デプロイ設定 (12 時間)<a class="headerlink" href="#story-e-7-heroku-12" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] Heroku アプリケーションが作成されている
+- [ ] Procfile が作成されている
+- [ ] buildpack が設定されている
+- [ ] 環境変数が設定されている</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-7.1</td>
+<td>Heroku アプリ作成</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>heroku create でアプリ作成</td>
+</tr>
+<tr>
+<td>E-7.2</td>
+<td>Procfile 作成</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>Web dyno 起動コマンドの定義</td>
+</tr>
+<tr>
+<td>E-7.3</td>
+<td>.NET Buildpack 設定</td>
+<td>開発者 B</td>
+<td>3h</td>
+<td>jincod/dotnetcore-buildpack の設定</td>
+</tr>
+<tr>
+<td>E-7.4</td>
+<td>app.json 作成</td>
+<td>開発者 B</td>
+<td>2h</td>
+<td>Review Apps 用設定ファイル作成</td>
+</tr>
+<tr>
+<td>E-7.5</td>
+<td>環境変数設定</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>ASPNETCORE_ENVIRONMENT 等の設定</td>
+</tr>
+<tr>
+<td>E-7.6</td>
+<td>デプロイテスト</td>
+<td>全員</td>
+<td>1h</td>
+<td>手動デプロイで動作確認</td>
+</tr>
+</tbody>
+</table>
+<h3 id="story-e-8-6">Story E-8: ドキュメント整備 (6 時間)<a class="headerlink" href="#story-e-8-6" title="Permanent link">&para;</a></h3>
+<p><strong>受け入れ基準</strong>:
+- [ ] 環境構築手順書が作成されている
+- [ ] ビルド実行手順書が作成されている
+- [ ] トラブルシューティングガイドが作成されている
+- [ ] README.md が更新されている</p>
+<p><strong>タスク</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>タスク ID</th>
+<th>タスク名</th>
+<th>担当</th>
+<th>見積</th>
+<th>詳細</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-8.1</td>
+<td>環境構築手順書作成</td>
+<td>開発者 A</td>
+<td>2h</td>
+<td>開発環境セットアップ手順の文書化</td>
+</tr>
+<tr>
+<td>E-8.2</td>
+<td>ビルド手順書作成</td>
+<td>開発者 B</td>
+<td>2h</td>
+<td>Cake タスク実行手順の文書化</td>
+</tr>
+<tr>
+<td>E-8.3</td>
+<td>トラブルシューティング作成</td>
+<td>開発者 A</td>
+<td>1h</td>
+<td>よくある問題と解決方法の文書化</td>
+</tr>
+<tr>
+<td>E-8.4</td>
+<td>README 更新</td>
+<td>開発者 B</td>
+<td>1h</td>
+<td>プロジェクト README の更新</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">詳細スケジュール<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>gantt
+    title イテレーション 0 詳細スケジュール (2 週間)
+    dateFormat  YYYY-MM-DD
+    axisFormat  %m/%d
+
+    section Week 1
+    E-1 開発環境セットアップ        :e1, 2025-01-06, 2d
+    E-2 プロジェクト構造作成        :e2, after e1, 1d
+    E-3 ビルド自動化設定            :e3, after e2, 2d
+    E-4 テスト環境構築              :e4, 2025-01-08, 2d
+
+    section Week 2
+    E-5 静的解析ツール導入          :e5, 2025-01-13, 1.5d
+    E-6 CI/CD パイプライン構築      :e6, after e5, 2d
+    E-7 Heroku デプロイ設定         :e7, 2025-01-15, 2d
+    E-8 ドキュメント整備            :e8, after e7, 1d
+
+    section マイルストーン
+    環境構築完了                    :milestone, m1, after e4, 0d
+    CI/CD完了                       :milestone, m2, after e6, 0d
+    イテレーション 0 完了            :milestone, m3, 2025-01-19, 0d</code></pre>
+<h2 id="_7">日次計画<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h3 id="week-1">Week 1<a class="headerlink" href="#week-1" title="Permanent link">&para;</a></h3>
+<p><strong>Day 1 (2025-01-06 月)</strong>
+- AM: E-1.1, E-1.2 (.NET SDK, IDE セットアップ)
+- PM: E-1.3, E-1.4 (Git, 開発ツールインストール)</p>
+<p><strong>Day 2 (2025-01-07 火)</strong>
+- AM: E-1.5, E-2.1 (動作確認、ソリューション作成)
+- PM: E-2.2, E-2.3 (ドメイン・テストプロジェクト作成)</p>
+<p><strong>Day 3 (2025-01-08 水)</strong>
+- AM: E-2.4, E-2.5 (パッケージ管理設定、初期ビルド)
+- PM: E-3.1, E-3.2 (Cake スクリプト基礎、Clean/Build タスク)</p>
+<p><strong>Day 4 (2025-01-09 木)</strong>
+- AM: E-3.3, E-3.4 (Test/Coverage タスク実装)
+- PM: E-3.5, E-4.1 (VSCode 統合、xUnit パッケージ)</p>
+<p><strong>Day 5 (2025-01-10 金)</strong>
+- AM: E-4.2, E-4.3 (FsUnit 追加、サンプルテスト作成)
+- PM: E-4.4, E-4.5 (カバレッジ設定、テスト確認)</p>
+<h3 id="week-2">Week 2<a class="headerlink" href="#week-2" title="Permanent link">&para;</a></h3>
+<p><strong>Day 6 (2025-01-13 月)</strong>
+- AM: E-5.1, E-5.2 (FSharpLint, Fantomas 設定)
+- PM: E-5.3, E-5.4 (Cake Lint/Format タスク)</p>
+<p><strong>Day 7 (2025-01-14 火)</strong>
+- AM: E-6.1, E-6.2 (GitHub Actions ワークフロー、ビルドジョブ)
+- PM: E-6.3 (品質ゲート設定)</p>
+<p><strong>Day 8 (2025-01-15 水)</strong>
+- AM: E-6.4, E-6.5 (PR チェック、CI/CD 動作確認)
+- PM: E-7.1, E-7.2 (Heroku アプリ作成、Procfile)</p>
+<p><strong>Day 9 (2025-01-16 木)</strong>
+- AM: E-7.3, E-7.4 (Buildpack 設定、app.json)
+- PM: E-7.5, E-7.6 (環境変数、デプロイテスト)</p>
+<p><strong>Day 10 (2025-01-17 金)</strong>
+- AM: E-8.1, E-8.2 (環境構築・ビルド手順書)
+- PM: E-8.3, E-8.4 (トラブルシューティング、README 更新)</p>
+<h2 id="_8">理想時間集計<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="_9">ストーリー別<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Story</th>
+<th>理想時間</th>
+<th>実行日</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-1</td>
+<td>12h</td>
+<td>Day 1-2</td>
+</tr>
+<tr>
+<td>E-2</td>
+<td>8h</td>
+<td>Day 2-3</td>
+</tr>
+<tr>
+<td>E-3</td>
+<td>16h</td>
+<td>Day 3-4</td>
+</tr>
+<tr>
+<td>E-4</td>
+<td>12h</td>
+<td>Day 4-5</td>
+</tr>
+<tr>
+<td>E-5</td>
+<td>10h</td>
+<td>Day 6</td>
+</tr>
+<tr>
+<td>E-6</td>
+<td>14h</td>
+<td>Day 7-8</td>
+</tr>
+<tr>
+<td>E-7</td>
+<td>12h</td>
+<td>Day 8-9</td>
+</tr>
+<tr>
+<td>E-8</td>
+<td>6h</td>
+<td>Day 10</td>
+</tr>
+<tr>
+<td><strong>合計</strong></td>
+<td><strong>90h</strong></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">日別バーンダウン (想定)<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>日</th>
+<th>開始時残</th>
+<th>完了予定</th>
+<th>残予定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td>90h</td>
+<td>10h</td>
+<td>80h</td>
+</tr>
+<tr>
+<td>Day 2</td>
+<td>80h</td>
+<td>10h</td>
+<td>70h</td>
+</tr>
+<tr>
+<td>Day 3</td>
+<td>70h</td>
+<td>10h</td>
+<td>60h</td>
+</tr>
+<tr>
+<td>Day 4</td>
+<td>60h</td>
+<td>10h</td>
+<td>50h</td>
+</tr>
+<tr>
+<td>Day 5</td>
+<td>50h</td>
+<td>10h</td>
+<td>40h</td>
+</tr>
+<tr>
+<td>Day 6</td>
+<td>40h</td>
+<td>10h</td>
+<td>30h</td>
+</tr>
+<tr>
+<td>Day 7</td>
+<td>30h</td>
+<td>10h</td>
+<td>20h</td>
+</tr>
+<tr>
+<td>Day 8</td>
+<td>20h</td>
+<td>10h</td>
+<td>10h</td>
+</tr>
+<tr>
+<td>Day 9</td>
+<td>10h</td>
+<td>10h</td>
+<td>0h</td>
+</tr>
+<tr>
+<td>Day 10</td>
+<td>0h</td>
+<td>0h</td>
+<td>0h (バッファ)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_11">リスクと対策<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<h3 id="_12">技術的リスク<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>リスク</th>
+<th>影響度</th>
+<th>確率</th>
+<th>軽減策</th>
+<th>対応者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F# ツールの互換性問題</td>
+<td>高</td>
+<td>中</td>
+<td>事前に技術検証、代替ツール調査</td>
+<td>開発者 A</td>
+</tr>
+<tr>
+<td>Heroku .NET サポートの制約</td>
+<td>中</td>
+<td>中</td>
+<td>公式ドキュメント確認、コミュニティ情報収集</td>
+<td>開発者 B</td>
+</tr>
+<tr>
+<td>CI/CD 設定の複雑化</td>
+<td>中</td>
+<td>高</td>
+<td>シンプルな構成から開始、段階的拡張</td>
+<td>開発者 A</td>
+</tr>
+<tr>
+<td>環境差異によるビルド失敗</td>
+<td>中</td>
+<td>中</td>
+<td>Docker コンテナ化を検討</td>
+<td>開発者 B</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">スケジュールリスク<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>リスク</th>
+<th>影響度</th>
+<th>確率</th>
+<th>軽減策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>環境構築の遅延</td>
+<td>高</td>
+<td>中</td>
+<td>1 日目で環境を優先完了、早期問題発見</td>
+</tr>
+<tr>
+<td>ツール学習時間の過小見積もり</td>
+<td>中</td>
+<td>高</td>
+<td>ペアプログラミング、相互サポート</td>
+</tr>
+<tr>
+<td>Heroku 制約の発覚</td>
+<td>中</td>
+<td>中</td>
+<td>早期にデプロイテスト実施</td>
+</tr>
+</tbody>
+</table>
+<h2 id="definition-of-done">Definition of Done (完了の定義)<a class="headerlink" href="#definition-of-done" title="Permanent link">&para;</a></h2>
+<p>イテレーション 0 が完了したと判断する基準：</p>
+<h3 id="_14">✅ 環境構築<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> 各開発者のローカル環境で .NET 9.0 SDK が動作</li>
+<li class="task-list-item"><input type="checkbox" disabled/> IDE で F# プロジェクトが開ける</li>
+<li class="task-list-item"><input type="checkbox" disabled/> Git リポジトリが正しく設定されている</li>
+<li class="task-list-item"><input type="checkbox" disabled/> 全開発ツールがインストールされている</li>
+</ul>
+<h3 id="_15">✅ プロジェクト構造<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> ソリューションとプロジェクトファイルが作成されている</li>
+<li class="task-list-item"><input type="checkbox" disabled/> Directory.Packages.props が設定されている</li>
+<li class="task-list-item"><input type="checkbox" disabled/> dotnet build が成功する</li>
+<li class="task-list-item"><input type="checkbox" disabled/> プロジェクト構造が設計仕様に準拠している</li>
+</ul>
+<h3 id="_16">✅ ビルド自動化<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> Cake の全タスク (Clean, Build, Test, Coverage) が実行できる</li>
+<li class="task-list-item"><input type="checkbox" disabled/> VSCode タスク統合が完了している</li>
+<li class="task-list-item"><input type="checkbox" disabled/> ビルドが安定して成功する</li>
+</ul>
+<h3 id="_17">✅ テスト環境<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> xUnit + FsUnit.xUnit でテストが実行できる</li>
+<li class="task-list-item"><input type="checkbox" disabled/> サンプルテストが成功する</li>
+<li class="task-list-item"><input type="checkbox" disabled/> カバレッジレポートが生成される</li>
+<li class="task-list-item"><input type="checkbox" disabled/> カバレッジが 80% 以上 (サンプルコード)</li>
+</ul>
+<h3 id="_18">✅ 品質管理<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> FSharpLint による静的解析が実行できる</li>
+<li class="task-list-item"><input type="checkbox" disabled/> Fantomas によるコードフォーマットが実行できる</li>
+<li class="task-list-item"><input type="checkbox" disabled/> 品質ルールが設定され、違反がない</li>
+</ul>
+<h3 id="cicd">✅ CI/CD<a class="headerlink" href="#cicd" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> GitHub Actions ワークフローが動作する</li>
+<li class="task-list-item"><input type="checkbox" disabled/> プッシュ時に自動ビルド・テストが実行される</li>
+<li class="task-list-item"><input type="checkbox" disabled/> Pull Request に品質チェック結果が表示される</li>
+<li class="task-list-item"><input type="checkbox" disabled/> すべての品質ゲートをパスする</li>
+</ul>
+<h3 id="heroku">✅ Heroku デプロイ<a class="headerlink" href="#heroku" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> Heroku アプリケーションが作成されている</li>
+<li class="task-list-item"><input type="checkbox" disabled/> Procfile, app.json が作成されている</li>
+<li class="task-list-item"><input type="checkbox" disabled/> buildpack が正しく設定されている</li>
+<li class="task-list-item"><input type="checkbox" disabled/> 手動デプロイが成功する</li>
+</ul>
+<h3 id="_19">✅ ドキュメント<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> 環境構築手順書が完成している</li>
+<li class="task-list-item"><input type="checkbox" disabled/> ビルド実行手順書が完成している</li>
+<li class="task-list-item"><input type="checkbox" disabled/> トラブルシューティングガイドが完成している</li>
+<li class="task-list-item"><input type="checkbox" disabled/> README.md が更新されている</li>
+</ul>
+<h2 id="_20">チームコミットメント<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h2>
+<p><strong>開発者 A のコミットメント</strong>:
+- E-1, E-2, E-3, E-5, E-6, E-7, E-8 の主担当タスクを完了する
+- 約 50 理想時間のタスクに責任を持つ
+- ペアプログラミングで開発者 B をサポートする</p>
+<p><strong>開発者 B のコミットメント</strong>:
+- E-1, E-2, E-3, E-4, E-5, E-6, E-7, E-8 の副担当タスクを完了する
+- 約 50 理想時間のタスクに責任を持つ
+- ペアプログラミングで開発者 A をサポートする</p>
+<p><strong>チーム全体のコミットメント</strong>:
+- イテレーション終了時に全 Definition of Done を満たす
+- デイリースタンドアップで進捗と課題を共有する
+- 問題発生時は即座にエスカレーションする
+- バッファ 10 時間を活用して品質を確保する</p>
+<h2 id="_21">イテレーションレビュー計画<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h2>
+<p><strong>日時</strong>: 2025-01-17 (金) 15:00-17:00</p>
+<p><strong>アジェンダ</strong>:
+1. 環境構築デモ (30 分)
+   - ローカル環境でのビルド・テスト実行
+   - Cake タスクのデモ
+   - 静的解析・フォーマットのデモ</p>
+<ol>
+<li>CI/CD デモ (30 分)</li>
+<li>GitHub Actions ワークフローの実行結果</li>
+<li>
+<p>Pull Request チェックのデモ</p>
+</li>
+<li>
+<p>Heroku デプロイデモ (30 分)</p>
+</li>
+<li>手動デプロイの実演</li>
+<li>
+<p>Heroku ダッシュボード確認</p>
+</li>
+<li>
+<p>ドキュメントレビュー (30 分)</p>
+</li>
+<li>環境構築手順書の確認</li>
+<li>README の確認</li>
+</ol>
+<h2 id="_22">レトロスペクティブ計画<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h2>
+<p><strong>日時</strong>: 2025-01-17 (金) 17:00-18:30</p>
+<p><strong>フォーマット</strong>: KPT (Keep, Problem, Try)</p>
+<p><strong>準備事項</strong>:
+- 各自で KPT を事前に記入
+- 改善アクションを具体的に提案
+- 次イテレーション (イテレーション 1) への引き継ぎ事項を整理</p>
+<p><strong>主な振り返りポイント</strong>:
+- 環境構築で苦労した点
+- ツールの使いやすさ
+- 見積もりの精度
+- チームコラボレーション
+- 技術的な学び</p>
+<hr />
+<h2 id="_23">参照ドキュメント<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../design/tech_stack/">技術スタック定義書</a></li>
+<li><a href="../../design/architecture_infrastructure/">インフラストラクチャアーキテクチャ</a></li>
+<li><a href="../release_plan/">リリース計画</a></li>
+<li><a href="../../reference/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%BB%E3%82%A4%E3%83%86%E3%83%AC%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E8%A8%88%E7%94%BB%E3%82%AC%E3%82%A4%E3%83%89/">リリース・イテレーション計画ガイド</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/k2works" target="_blank" rel="noopener" title="GitHub Repository/claude-code-booster" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+      
+        <script src="../../docs/assets/js/extra.js"></script>
+      
+    
+  </body>
+</html>

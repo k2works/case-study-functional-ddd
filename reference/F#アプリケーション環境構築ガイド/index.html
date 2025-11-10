@@ -1015,9 +1015,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#41-ordertaking" class="md-nav__link">
+  <a href="#41-ordertakingdomain" class="md-nav__link">
     <span class="md-ellipsis">
-      4.1 ドメインライブラリ（OrderTaking）
+      4.1 ドメインライブラリ（OrderTaking.Domain）
     </span>
   </a>
   
@@ -1850,51 +1850,54 @@ code<span class="w"> </span>--install-extension<span class="w"> </span>ms-vscode
 <h2 id="3">3. プロジェクト構造のセットアップ<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
 <h3 id="31">3.1 ソリューションとプロジェクトの作成<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># ソリューションの作成</span>
-dotnet<span class="w"> </span>new<span class="w"> </span>sln<span class="w"> </span>-n<span class="w"> </span>DomainModelingMadeFunctional
+dotnet<span class="w"> </span>new<span class="w"> </span>sln<span class="w"> </span>-n<span class="w"> </span>OrderTaking
 
 <span class="c1"># ディレクトリ構造の作成</span>
-mkdir<span class="w"> </span>src
-mkdir<span class="w"> </span>tests
 mkdir<span class="w"> </span>docs
 
 <span class="c1"># メインプロジェクト（ドメインライブラリ）</span>
-<span class="nb">cd</span><span class="w"> </span>src
-dotnet<span class="w"> </span>new<span class="w"> </span>classlib<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking
+dotnet<span class="w"> </span>new<span class="w"> </span>classlib<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking.Domain
+
+<span class="c1"># Application プロジェクト</span>
+dotnet<span class="w"> </span>new<span class="w"> </span>classlib<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking.Application
+
+<span class="c1"># Infrastructure プロジェクト</span>
+dotnet<span class="w"> </span>new<span class="w"> </span>classlib<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking.Infrastructure
 
 <span class="c1"># Web API プロジェクト</span>
 dotnet<span class="w"> </span>new<span class="w"> </span>web<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking.WebApi
 
 <span class="c1"># テストプロジェクト</span>
-<span class="nb">cd</span><span class="w"> </span>../tests
 dotnet<span class="w"> </span>new<span class="w"> </span>xunit<span class="w"> </span>-lang<span class="w"> </span><span class="s2">&quot;F#&quot;</span><span class="w"> </span>-n<span class="w"> </span>OrderTaking.Tests
 
 <span class="c1"># ソリューションにプロジェクトを追加</span>
-<span class="nb">cd</span><span class="w"> </span>..
-dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>src/OrderTaking/OrderTaking.fsproj
-dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>src/OrderTaking.WebApi/OrderTaking.WebApi.fsproj
-dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>tests/OrderTaking.Tests/OrderTaking.Tests.fsproj
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>OrderTaking.Domain/OrderTaking.Domain.fsproj
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>OrderTaking.Application/OrderTaking.Application.fsproj
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>OrderTaking.Infrastructure/OrderTaking.Infrastructure.fsproj
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>OrderTaking.WebApi/OrderTaking.WebApi.fsproj
+dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </span>OrderTaking.Tests/OrderTaking.Tests.fsproj
 </code></pre></div>
 <h3 id="32">3.2 プロジェクト構造<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>DomainModelingMadeFunctional/
-├── src/
-│   ├── OrderTaking/                    # ドメインライブラリ
-│   │   ├── Common.SimpleTypes.fs       # 基本型定義
-│   │   ├── Common.CompoundTypes.fs     # 複合型定義
-│   │   ├── PlaceOrder.PublicTypes.fs   # パブリック型
-│   │   ├── PlaceOrder.Implementation.fs # ビジネスロジック
-│   │   ├── PlaceOrder.Dto.fs           # データ転送オブジェクト
-│   │   └── PlaceOrder.Api.fs           # API 層
-│   └── OrderTaking.WebApi/             # Web API プロジェクト
-│       ├── Program.fs                  # エントリーポイント
-│       └── Controllers/                # API コントローラー
-├── tests/
-│   └── OrderTaking.Tests/              # テストプロジェクト
-├── docs/                               # ドキュメント
-└── DomainModelingMadeFunctional.sln    # ソリューション
+<div class="highlight"><pre><span></span><code>app/backend/
+├── OrderTaking.Domain/                     # ドメインライブラリ
+│   ├── Common.SimpleTypes.fs               # 基本型定義
+│   ├── Common.CompoundTypes.fs             # 複合型定義
+│   ├── PlaceOrder.PublicTypes.fs           # パブリック型
+│   ├── PlaceOrder.Implementation.fs        # ビジネスロジック
+│   ├── PlaceOrder.Dto.fs                   # データ転送オブジェクト
+│   └── PlaceOrder.Api.fs                   # API 層
+├── OrderTaking.Application/                # アプリケーション層
+├── OrderTaking.Infrastructure/             # インフラストラクチャ層
+├── OrderTaking.WebApi/                     # Web API プロジェクト
+│   ├── Program.fs                          # エントリーポイント
+│   └── Controllers/                        # API コントローラー
+├── OrderTaking.Tests/                      # テストプロジェクト
+├── docs/                                   # ドキュメント（リポジトリルート）
+└── OrderTaking.sln                         # ソリューション
 </code></pre></div>
 <h2 id="4">4. 依存関係の設定<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
-<h3 id="41-ordertaking">4.1 ドメインライブラリ（OrderTaking）<a class="headerlink" href="#41-ordertaking" title="Permanent link">&para;</a></h3>
-<p><code>src/OrderTaking/OrderTaking.fsproj</code> を編集：</p>
+<h3 id="41-ordertakingdomain">4.1 ドメインライブラリ（OrderTaking.Domain）<a class="headerlink" href="#41-ordertakingdomain" title="Permanent link">&para;</a></h3>
+<p><code>OrderTaking.Domain/OrderTaking.Domain.fsproj</code> を編集：</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
 
 <span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
@@ -1916,7 +1919,7 @@ dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </s
 <span class="nt">&lt;/Project&gt;</span>
 </code></pre></div>
 <h3 id="42-web-api-ordertakingwebapi">4.2 Web API プロジェクト（OrderTaking.WebApi）<a class="headerlink" href="#42-web-api-ordertakingwebapi" title="Permanent link">&para;</a></h3>
-<p><code>src/OrderTaking.WebApi/OrderTaking.WebApi.fsproj</code> を編集：</p>
+<p><code>OrderTaking.WebApi/OrderTaking.WebApi.fsproj</code> を編集：</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk.Web&quot;</span><span class="nt">&gt;</span>
 
 <span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
@@ -1937,13 +1940,15 @@ dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </s
 <span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
 
 <span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
-<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking/OrderTaking.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking.Domain/OrderTaking.Domain.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking.Application/OrderTaking.Application.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking.Infrastructure/OrderTaking.Infrastructure.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
 
 <span class="nt">&lt;/Project&gt;</span>
 </code></pre></div>
 <h3 id="43-ordertakingtests">4.3 テストプロジェクト（OrderTaking.Tests）<a class="headerlink" href="#43-ordertakingtests" title="Permanent link">&para;</a></h3>
-<p><code>tests/OrderTaking.Tests/OrderTaking.Tests.fsproj</code> を編集：</p>
+<p><code>OrderTaking.Tests/OrderTaking.Tests.fsproj</code> を編集：</p>
 <div class="highlight"><pre><span></span><code><span class="nt">&lt;Project</span><span class="w"> </span><span class="na">Sdk=</span><span class="s">&quot;Microsoft.NET.Sdk&quot;</span><span class="nt">&gt;</span>
 
 <span class="w">  </span><span class="nt">&lt;PropertyGroup&gt;</span>
@@ -1967,7 +1972,10 @@ dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </s
 <span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
 
 <span class="w">  </span><span class="nt">&lt;ItemGroup&gt;</span>
-<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../../src/OrderTaking/OrderTaking.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking.Domain/OrderTaking.Domain.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking.Application/OrderTaking.Application.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking.Infrastructure/OrderTaking.Infrastructure.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;ProjectReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;../OrderTaking.WebApi/OrderTaking.WebApi.fsproj&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
 
 <span class="nt">&lt;/Project&gt;</span>
@@ -1989,7 +1997,7 @@ dotnet<span class="w"> </span>sln<span class="w"> </span>add<span class="w"> </s
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">&quot;testFramework&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xunit&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;testProjects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;tests/OrderTaking.Tests/OrderTaking.Tests.fsproj&quot;</span>
+<span class="w">    </span><span class="s2">&quot;OrderTaking.Tests/OrderTaking.Tests.fsproj&quot;</span>
 <span class="w">  </span><span class="p">],</span>
 <span class="w">  </span><span class="nt">&quot;coverage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
@@ -2417,7 +2425,7 @@ dotnet<span class="w"> </span>fsharplint<span class="w"> </span>lint<span class=
 </code></pre></div>
 <h2 id="10">10. 動作確認<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
 <h3 id="101">10.1 アプリケーションの起動<a class="headerlink" href="#101" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>src/OrderTaking.WebApi
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>OrderTaking.WebApi
 dotnet<span class="w"> </span>run
 </code></pre></div>
 <h3 id="102">10.2 エンドポイントの確認<a class="headerlink" href="#102" title="Permanent link">&para;</a></h3>

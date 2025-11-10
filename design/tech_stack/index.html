@@ -1893,18 +1893,21 @@
 </code></pre></div>
 <h2 id="_11">アプリケーション構成<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
 <h3 id="_12">プロジェクト構造<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>src/
-├── OrderTaking/                    # ドメインライブラリ
-│   ├── Common.SimpleTypes.fs       # 基本型定義
-│   ├── Common.CompoundTypes.fs     # 複合型定義
-│   ├── PlaceOrder.PublicTypes.fs   # パブリック型
-│   ├── PlaceOrder.Implementation.fs # ビジネスロジック
-│   ├── PlaceOrder.Dto.fs           # データ転送オブジェクト
-│   └── PlaceOrder.Api.fs           # API 層
-└── OrderTaking.WebApi/             # Web API プロジェクト（将来追加）
-    ├── Program.fs                  # エントリーポイント
-    ├── Controllers/                # API コントローラー
-    └── Configuration/              # 設定ファイル
+<div class="highlight"><pre><span></span><code>app/backend/
+├── OrderTaking.Domain/                 # ドメインライブラリ
+│   ├── Common.SimpleTypes.fs           # 基本型定義
+│   ├── Common.CompoundTypes.fs         # 複合型定義
+│   ├── PlaceOrder.PublicTypes.fs       # パブリック型
+│   ├── PlaceOrder.Implementation.fs    # ビジネスロジック
+│   ├── PlaceOrder.Dto.fs               # データ転送オブジェクト
+│   └── PlaceOrder.Api.fs               # API 層
+├── OrderTaking.Application/            # アプリケーション層
+├── OrderTaking.Infrastructure/         # インフラストラクチャ層
+├── OrderTaking.WebApi/                 # Web API プロジェクト
+│   ├── Program.fs                      # エントリーポイント
+│   ├── Controllers/                    # API コントローラー
+│   └── Configuration/                  # 設定ファイル
+└── OrderTaking.Tests/                  # テストプロジェクト
 </code></pre></div>
 <h3 id="_13">レイヤー責務<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
 <table>
@@ -2058,10 +2061,16 @@ dotnet<span class="w"> </span><span class="nb">test</span>
 <span class="n">Task</span><span class="p">(</span><span class="s">&quot;Clean&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./src/bin&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./src/obj&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./tests/bin&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./tests/obj&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Domain/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Domain/obj&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Application/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Application/obj&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Infrastructure/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Infrastructure/obj&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.WebApi/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.WebApi/obj&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Tests/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Tests/obj&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="n">Task</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
@@ -2078,7 +2087,7 @@ dotnet<span class="w"> </span><span class="nb">test</span>
 <span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./tests/OrderTaking.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
+<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Tests/OrderTaking.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span><span class="p">,</span>
 <span class="w">        </span><span class="n">NoBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span>
@@ -2089,7 +2098,7 @@ dotnet<span class="w"> </span><span class="nb">test</span>
 <span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./tests/OrderTaking.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
+<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./OrderTaking.Tests/OrderTaking.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span><span class="p">,</span>
 <span class="w">        </span><span class="n">NoBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>

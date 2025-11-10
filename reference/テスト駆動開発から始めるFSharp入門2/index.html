@@ -2266,11 +2266,11 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <h4 id="fgit_1">F#プロジェクト構造でのGit管理<a class="headerlink" href="#fgit_1" title="Permanent link">&para;</a></h4>
 <p>Phase 3で作成したFizzBuzzプロジェクトの構造：</p>
 <div class="highlight"><pre><span></span><code>fizzbuzz/
-├── src/           # アプリケーションコード
-├── tests/         # テストコード  
-├── build.cake     # ビルドスクリプト
-├── .gitignore     # Git除外ファイル
-└── README.md      # プロジェクト説明
+├── FizzBuzz/           # アプリケーションコード
+├── FizzBuzz.Tests/     # テストコード
+├── build.cake          # ビルドスクリプト
+├── .gitignore          # Git除外ファイル
+└── README.md           # プロジェクト説明
 </code></pre></div>
 <h3 id="_7">コミットのベストプラクティス<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
 <h4 id="angular">Angularコミット規約の採用<a class="headerlink" href="#angular" title="Permanent link">&para;</a></h4>
@@ -2404,11 +2404,11 @@ dotnet<span class="w"> </span><span class="nb">test</span><span class="w">  </sp
 <h4 id="_12">プロジェクト構造の分離<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
 <p>Phase 3で採用した構造：</p>
 <div class="highlight"><pre><span></span><code>fizzbuzz/
-├── src/
+├── FizzBuzz/
 │   ├── FizzBuzz.fsproj      # メインアプリケーション
 │   ├── FizzBuzz.fs          # ビジネスロジック
 │   └── Program.fs           # エントリーポイント
-└── tests/
+└── FizzBuzz.Tests/
     ├── FizzBuzz.Tests.fsproj # テストプロジェクト
     └── FizzBuzz.Tests.fs     # テストコード
 </code></pre></div>
@@ -2556,22 +2556,22 @@ open<span class="w"> </span>./coverage/report/index.html
 <span class="n">Task</span><span class="p">(</span><span class="s">&quot;Clean&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./src/bin&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./src/obj&quot;</span><span class="p">);</span><span class="w"> </span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./tests/bin&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./tests/obj&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./FizzBuzz/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./FizzBuzz/obj&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./FizzBuzz.Tests/bin&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CleanDirectory</span><span class="p">(</span><span class="s">&quot;./FizzBuzz.Tests/obj&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="n">Task</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Clean&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">DotNetBuild</span><span class="p">(</span><span class="s">&quot;./src/FizzBuzz.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetBuildSettings</span>
+<span class="w">    </span><span class="n">DotNetBuild</span><span class="p">(</span><span class="s">&quot;./FizzBuzz/FizzBuzz.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetBuildSettings</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span>
 <span class="w">    </span><span class="p">});</span>
 
-<span class="w">    </span><span class="n">DotNetBuild</span><span class="p">(</span><span class="s">&quot;./tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetBuildSettings</span>
+<span class="w">    </span><span class="n">DotNetBuild</span><span class="p">(</span><span class="s">&quot;./FizzBuzz.Tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetBuildSettings</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span>
 <span class="w">    </span><span class="p">});</span>
@@ -2580,15 +2580,15 @@ open<span class="w"> </span>./coverage/report/index.html
 <span class="n">Task</span><span class="p">(</span><span class="s">&quot;Format&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">StartProcess</span><span class="p">(</span><span class="s">&quot;dotnet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fantomas ./src --recurse&quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="n">StartProcess</span><span class="p">(</span><span class="s">&quot;dotnet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fantomas ./tests --recurse&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">StartProcess</span><span class="p">(</span><span class="s">&quot;dotnet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fantomas ./FizzBuzz --recurse&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">StartProcess</span><span class="p">(</span><span class="s">&quot;dotnet&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;fantomas ./FizzBuzz.Tests --recurse&quot;</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="n">Task</span><span class="p">(</span><span class="s">&quot;Test&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">IsDependentOn</span><span class="p">(</span><span class="s">&quot;Build&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="n">Does</span><span class="p">(()</span><span class="w"> </span><span class="o">=&gt;</span>
 <span class="p">{</span>
-<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
+<span class="w">    </span><span class="n">DotNetTest</span><span class="p">(</span><span class="s">&quot;./FizzBuzz.Tests/FizzBuzz.Tests.fsproj&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DotNetTestSettings</span>
 <span class="w">    </span><span class="p">{</span>
 <span class="w">        </span><span class="n">Configuration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">configuration</span><span class="p">,</span>
 <span class="w">        </span><span class="n">NoBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span>
