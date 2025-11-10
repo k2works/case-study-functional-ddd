@@ -22,14 +22,20 @@
 - レトロスペクティブ: [retrospective-1.md](./development/retrospective-1.md)
 - 13 件の改善アクションを特定
 
-### イテレーション 2 準備中
+### イテレーション 2 計画完了（2025-02-03 ~ 2025-02-16）
 
-**重点目標**:
-1. テストカバレッジ 80% 達成
-2. Story 1.1 完全実装
-3. CI/CD パイプライン改善
+**イテレーションゴール**: Story 1.1 完全実装とテストカバレッジ 80% 達成
 
-詳細: [iteration_plan-2.md](./development/iteration_plan-2.md)（準備中）
+**主要タスク**:
+- Phase 1: カバレッジ測定の自動化（Coverlet + ReportGenerator）
+- Phase 2-3: 制約付き型・複合値オブジェクトの完成（String100, String255, PersonalName, Address など）
+- Phase 4-5: エンティティ・ドメインサービスの実装（UnvalidatedOrder, ValidatedOrder, PricedOrder, 検証・価格計算）
+- Phase 6-7: PlaceOrder ワークフロー・統合テストの実装
+
+**計画時間**: 78h（バッファ 22h）
+**改善アクション**: Iteration 1 レトロスペクティブから 13 件の改善を反映
+
+詳細: [iteration_plan-2.md](./development/iteration_plan-2.md)
 
 ## まず読むべきドキュメント
 
