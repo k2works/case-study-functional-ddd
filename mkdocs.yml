@@ -70,10 +70,13 @@ nav:
     - 技術スタック: design/tech_stack.md
     - テスト戦略: design/test_strategy.md
   - 開発プロセス:
+    - リリース計画: development/release_plan.md
     - イテレーション計画:
+      - Iteration 0 (環境構築): development/iteration_plan-0.md
       - Iteration 1: development/iteration_plan-1.md
       - Iteration 2: development/iteration_plan-2.md
     - レトロスペクティブ:
+      - Retrospective 0: development/retrospective-0.md
       - Retrospective 1: development/retrospective-1.md
     - デイリースタンドアップ:
       - スタンドアップガイド: operation/process/daily-standup-guide.md

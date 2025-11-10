@@ -78,11 +78,44 @@
 
 ## プロジェクト管理
 
+### 📅 リリース計画
+
+**計画期間**: 6.5 ヶ月（26 週間、13 イテレーション）
+**総ストーリーポイント**: 87 SP
+**計画ベロシティ**: 18 SP / イテレーション
+
+#### マイルストーン
+
+| リリース | 目標日 | 主要機能 | 状況 |
+|---------|--------|---------|------|
+| **Iteration 0** | 2025-01-19 | 環境構築 | ✅ 完了 |
+| **Iteration 1** | 2025-02-02 | 制約付き型、開発基盤 | ✅ 完了（100%） |
+| **Release 1.0 (MVP)** | 2025-03-15 | 注文受付・検証・価格計算・確定 | 🔄 進行中 |
+| **Release 1.1** | 2025-04-26 | 部門連携通知、イベントストア | 📋 計画中 |
+| **Release 1.2** | 2025-06-07 | エラーハンドリング強化 | 📋 計画中 |
+| **Release 2.0** | 2025-07-05 | 運用機能、ステータス照会 API | 📋 計画中 |
+
+**詳細**: [リリース計画](./development/release_plan.md)
+
+#### 主要機能リリース計画
+
+**Release 1.0 - MVP** (6 イテレーション、47 SP):
+- ✅ Story 1.1: 基本的な注文受付（8 SP）- Iteration 1-2
+- 📋 Story 1.2: 注文内容の検証（13 SP）- Iteration 2-3
+- 📋 Story 1.3: 価格の自動計算（5 SP）- Iteration 3
+- 📋 Story 1.4: 注文の確定処理（8 SP）- Iteration 4
+- 📋 Story 3.1: 商品コードの管理（3 SP）- Iteration 4
+- 📋 Story 4.1: 注文受付 API（5 SP）- Iteration 5
+- 📋 Story 5.1: 顧客への確認メール（5 SP）- Iteration 5-6
+
 ### 📋 開発プロセス
 - [イテレーション計画](./development/) - スプリント計画とタスク管理
-  - [Iteration 1 計画](./development/iteration_plan-1.md) - 完了（100%）
-  - [Iteration 1 レトロスペクティブ](./development/retrospective-1.md) - KPT分析と改善アクション
+  - [Iteration 0 計画](./development/iteration_plan-0.md) - 完了（環境構築）
+  - [Iteration 1 計画](./development/iteration_plan-1.md) - 完了（100%、97.4% 精度）
   - [Iteration 2 計画](./development/iteration_plan-2.md) - 準備中
+- [レトロスペクティブ](./development/) - イテレーション振り返りと改善
+  - [Retrospective 0](./development/retrospective-0.md) - 環境構築の振り返り
+  - [Retrospective 1](./development/retrospective-1.md) - KPT分析と13件の改善アクション
 - [デイリースタンドアップ記録](./operation/process/standup-logs/) - 日次進捗と課題管理
   - [2025年1月](./operation/process/standup-logs/2025-01.md)
 
