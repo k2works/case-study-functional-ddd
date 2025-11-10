@@ -187,21 +187,25 @@ let ``List reverse twice is original`` (xs: int list) =
 #### 前提条件
 - Heroku アカウント
 - Heroku CLI インストール
+- Git リポジトリ
 
-#### 初回セットアップ
+#### ローカルからの手動デプロイ
 
 ```bash
 # Heroku にログイン
 heroku login
 
-# アプリケーション作成
+# アプリケーション作成（初回のみ）
 heroku create <your-app-name>
 
-# Buildpack 設定
+# .NET Core Buildpack 設定（初回のみ）
 heroku buildpacks:set https://github.com/jincod/dotnetcore-buildpack
 
-# デプロイ
-git push heroku main
+# Heroku リモートを追加（既存アプリの場合）
+heroku git:remote -a <your-app-name>
+
+# サブディレクトリをデプロイ
+git subtree push --prefix app/backend heroku main
 ```
 
 #### GitHub Actions による自動デプロイ
@@ -213,18 +217,53 @@ git push heroku main
 - `development` ブランチ → **Staging** 環境（検証）
 
 **必要な GitHub Secrets:**
-- `HEROKU_API_KEY` - Heroku API キー（共通）
-- `HEROKU_EMAIL` - Heroku アカウントメール（共通）
-- `HEROKU_APP_NAME_PRODUCTION` - Production 用 Heroku アプリ名
-- `HEROKU_APP_NAME_STAGING` - Staging 用 Heroku アプリ名
 
-設定方法：
-1. GitHub リポジトリ → Settings → Secrets and variables → Actions
-2. New repository secret で上記 4 つを追加
+リポジトリに以下の Secrets を設定してください：
 
-**環境例:**
-- Production: `ordertaking-prod`
-- Staging: `ordertaking-staging`
+| Secret 名 | 説明 | 取得方法 |
+|-----------|------|----------|
+| `HEROKU_API_KEY` | Heroku API キー（共通） | `heroku auth:token` |
+| `HEROKU_EMAIL` | Heroku アカウントメール（共通） | Heroku 登録メール |
+| `HEROKU_APP_NAME_PRODUCTION` | Production 用 Heroku アプリ名 | 例: `case-study-function-ddd` |
+| `HEROKU_APP_NAME_STAGING` | Staging 用 Heroku アプリ名 | 例: `case-study-function-ddd-dev` |
+
+**設定手順:**
+
+1. **Heroku API キーの取得**
+   ```bash
+   heroku auth:token
+   ```
+
+2. **GitHub Secrets の登録**
+   - GitHub リポジトリ → Settings → Secrets and variables → Actions
+   - 「New repository secret」で上記 4 つを追加
+
+3. **Heroku アプリの Buildpack 設定**
+   ```bash
+   # Production 環境
+   heroku buildpacks:set https://github.com/jincod/dotnetcore-buildpack -a <production-app-name>
+
+   # Staging 環境
+   heroku buildpacks:set https://github.com/jincod/dotnetcore-buildpack -a <staging-app-name>
+   ```
+
+**デプロイフロー:**
+
+```mermaid
+graph LR
+    A[Push to GitHub] --> B{ブランチ判定}
+    B -->|main| C[Production 環境]
+    B -->|development| D[Staging 環境]
+    C --> E[ビルド & デプロイ]
+    D --> E
+    E --> F[Heroku で稼働]
+```
+
+**ワークフロー構成:**
+- ランナー: `ubuntu-22.04`（Heroku CLI 互換性のため）
+- アクション: `akhileshns/heroku-deploy@v3.13.15`
+- Buildpack: `https://github.com/jincod/dotnetcore-buildpack`
+- デプロイディレクトリ: `app/backend`
 
 ## 📁 プロジェクト構造
 
