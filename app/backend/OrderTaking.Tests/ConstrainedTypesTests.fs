@@ -31,7 +31,7 @@ let ``String50.create should reject empty string`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must not be null or empty"
+    | Error msg -> Assert.Contains("must not be null or empty", msg)
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
@@ -44,7 +44,7 @@ let ``String50.create should reject too long string`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must not be more than 50 chars"
+    | Error msg -> Assert.Contains("must not be more than 50 chars", msg)
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
@@ -86,7 +86,7 @@ let ``EmailAddress.create should reject email without @`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must contain @"
+    | Error msg -> Assert.Contains("must contain @", msg)
     | Ok _ -> failwith "Expected error"
 
 // ========================================
@@ -116,7 +116,7 @@ let ``ZipCode.create should reject non-5-digit string`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must be 5 chars"
+    | Error msg -> Assert.Contains("must be 5 chars", msg)
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
@@ -129,7 +129,7 @@ let ``ZipCode.create should reject non-numeric string`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must be all digits"
+    | Error msg -> Assert.Contains("must be all digits", msg)
     | Ok _ -> failwith "Expected error"
 
 // ========================================
@@ -159,7 +159,7 @@ let ``WidgetCode.create should reject code without W prefix`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must start with 'W'"
+    | Error msg -> Assert.Contains("must start with 'W'", msg)
     | Ok _ -> failwith "Expected error"
 
 // ========================================
@@ -189,7 +189,7 @@ let ``GizmoCode.create should reject code without G prefix`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must start with 'G'"
+    | Error msg -> Assert.Contains("must start with 'G'", msg)
     | Ok _ -> failwith "Expected error"
 
 // ========================================
@@ -219,7 +219,7 @@ let ``UnitQuantity.create should reject zero`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must be at least 1"
+    | Error msg -> Assert.Contains("must be at least 1", msg)
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
@@ -232,7 +232,7 @@ let ``UnitQuantity.create should reject too large quantity`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must not be more than 1000"
+    | Error msg -> Assert.Contains("must not be more than 1000", msg)
     | Ok _ -> failwith "Expected error"
 
 // ========================================
@@ -262,7 +262,7 @@ let ``Price.create should reject negative price`` () =
 
     // Assert
     match result with
-    | Error msg -> msg |> should contain "must not be negative"
+    | Error msg -> Assert.Contains("must not be negative", msg)
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
