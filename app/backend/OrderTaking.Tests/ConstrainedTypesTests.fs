@@ -14,7 +14,8 @@ let ``String50.create は有効な文字列を受け入れる`` () =
     let validString = "Valid String"
 
     // Act
-    let result = String50.create "TestField" validString
+    let result =
+        String50.create "TestField" validString
 
     // Assert
     match result with
@@ -27,7 +28,8 @@ let ``String50.create は空文字列を拒否する`` () =
     let emptyString = ""
 
     // Act
-    let result = String50.create "TestField" emptyString
+    let result =
+        String50.create "TestField" emptyString
 
     // Assert
     match result with
@@ -40,7 +42,8 @@ let ``String50.create は長すぎる文字列を拒否する`` () =
     let longString = System.String('a', 51)
 
     // Act
-    let result = String50.create "TestField" longString
+    let result =
+        String50.create "TestField" longString
 
     // Assert
     match result with
@@ -69,7 +72,8 @@ let ``EmailAddress.create は有効なメールアドレスを受け入れる`` 
     let validEmail = "test@example.com"
 
     // Act
-    let result = EmailAddress.create "Email" validEmail
+    let result =
+        EmailAddress.create "Email" validEmail
 
     // Assert
     match result with
@@ -82,7 +86,8 @@ let ``EmailAddress.create は @ を含まないメールアドレスを拒否す
     let invalidEmail = "invalid-email.com"
 
     // Act
-    let result = EmailAddress.create "Email" invalidEmail
+    let result =
+        EmailAddress.create "Email" invalidEmail
 
     // Assert
     match result with
@@ -142,7 +147,8 @@ let ``WidgetCode.create は有効な Widget コードを受け入れる`` () =
     let validCode = "W1234"
 
     // Act
-    let result = WidgetCode.create "ProductCode" validCode
+    let result =
+        WidgetCode.create "ProductCode" validCode
 
     // Assert
     match result with
@@ -155,7 +161,8 @@ let ``WidgetCode.create は W で始まらないコードを拒否する`` () =
     let invalidCode = "A1234"
 
     // Act
-    let result = WidgetCode.create "ProductCode" invalidCode
+    let result =
+        WidgetCode.create "ProductCode" invalidCode
 
     // Assert
     match result with
@@ -172,7 +179,8 @@ let ``GizmoCode.create は有効な Gizmo コードを受け入れる`` () =
     let validCode = "G123"
 
     // Act
-    let result = GizmoCode.create "ProductCode" validCode
+    let result =
+        GizmoCode.create "ProductCode" validCode
 
     // Assert
     match result with
@@ -185,7 +193,8 @@ let ``GizmoCode.create は G で始まらないコードを拒否する`` () =
     let invalidCode = "A123"
 
     // Act
-    let result = GizmoCode.create "ProductCode" invalidCode
+    let result =
+        GizmoCode.create "ProductCode" invalidCode
 
     // Assert
     match result with
@@ -202,7 +211,8 @@ let ``UnitQuantity.create は有効な数量を受け入れる`` () =
     let validQty = 10
 
     // Act
-    let result = UnitQuantity.create "Quantity" validQty
+    let result =
+        UnitQuantity.create "Quantity" validQty
 
     // Assert
     match result with
@@ -215,7 +225,8 @@ let ``UnitQuantity.create はゼロを拒否する`` () =
     let invalidQty = 0
 
     // Act
-    let result = UnitQuantity.create "Quantity" invalidQty
+    let result =
+        UnitQuantity.create "Quantity" invalidQty
 
     // Assert
     match result with
@@ -228,7 +239,8 @@ let ``UnitQuantity.create は大きすぎる数量を拒否する`` () =
     let invalidQty = 1001
 
     // Act
-    let result = UnitQuantity.create "Quantity" invalidQty
+    let result =
+        UnitQuantity.create "Quantity" invalidQty
 
     // Assert
     match result with
@@ -258,7 +270,8 @@ let ``Price.create は負の価格を拒否する`` () =
     let invalidPrice = -1.0m
 
     // Act
-    let result = Price.create "Price" invalidPrice
+    let result =
+        Price.create "Price" invalidPrice
 
     // Assert
     match result with
@@ -284,11 +297,10 @@ let ``Price.multiply は正しく計算する`` () =
 [<Fact>]
 let ``BillingAmount.sumPrices は合計を計算する`` () =
     // Arrange
-    let prices = [
-        Price.unsafeCreate 10.0m
-        Price.unsafeCreate 20.0m
-        Price.unsafeCreate 30.0m
-    ]
+    let prices =
+        [ Price.unsafeCreate 10.0m
+          Price.unsafeCreate 20.0m
+          Price.unsafeCreate 30.0m ]
 
     // Act
     let result = BillingAmount.sumPrices prices
@@ -306,7 +318,8 @@ let ``OrderId.create は有効な文字列を受け入れる`` () =
     let validId = "ORDER-123"
 
     // Act
-    let result = OrderId.create "OrderId" validId
+    let result =
+        OrderId.create "OrderId" validId
 
     // Assert
     match result with

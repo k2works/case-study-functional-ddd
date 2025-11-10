@@ -211,8 +211,7 @@ module ConstrainedTypes =
         let unsafeCreate price = Price price
 
         /// Price を乗算する
-        let multiply qty (Price price) =
-            Price(decimal qty * price)
+        let multiply qty (Price price) = Price(decimal qty * price)
 
     /// 請求金額（0.0-10000.00 の小数）
     type BillingAmount = private BillingAmount of decimal
