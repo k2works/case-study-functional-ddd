@@ -9,7 +9,7 @@ open OrderTaking.Domain.ConstrainedTypes
 // ========================================
 
 [<Fact>]
-let ``String50.create should accept valid string`` () =
+let ``String50.create は有効な文字列を受け入れる`` () =
     // Arrange
     let validString = "Valid String"
 
@@ -22,7 +22,7 @@ let ``String50.create should accept valid string`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``String50.create should reject empty string`` () =
+let ``String50.create は空文字列を拒否する`` () =
     // Arrange
     let emptyString = ""
 
@@ -35,7 +35,7 @@ let ``String50.create should reject empty string`` () =
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
-let ``String50.create should reject too long string`` () =
+let ``String50.create は長すぎる文字列を拒否する`` () =
     // Arrange
     let longString = System.String('a', 51)
 
@@ -48,7 +48,7 @@ let ``String50.create should reject too long string`` () =
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
-let ``String50.value should return internal value`` () =
+let ``String50.value は内部値を返す`` () =
     // Arrange
     let str = "Test"
     let string50 = String50.unsafeCreate str
@@ -64,7 +64,7 @@ let ``String50.value should return internal value`` () =
 // ========================================
 
 [<Fact>]
-let ``EmailAddress.create should accept valid email`` () =
+let ``EmailAddress.create は有効なメールアドレスを受け入れる`` () =
     // Arrange
     let validEmail = "test@example.com"
 
@@ -77,7 +77,7 @@ let ``EmailAddress.create should accept valid email`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``EmailAddress.create should reject email without @`` () =
+let ``EmailAddress.create は @ を含まないメールアドレスを拒否する`` () =
     // Arrange
     let invalidEmail = "invalid-email.com"
 
@@ -94,7 +94,7 @@ let ``EmailAddress.create should reject email without @`` () =
 // ========================================
 
 [<Fact>]
-let ``ZipCode.create should accept valid zip code`` () =
+let ``ZipCode.create は有効な郵便番号を受け入れる`` () =
     // Arrange
     let validZip = "12345"
 
@@ -107,7 +107,7 @@ let ``ZipCode.create should accept valid zip code`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``ZipCode.create should reject non-5-digit string`` () =
+let ``ZipCode.create は5桁でない文字列を拒否する`` () =
     // Arrange
     let invalidZip = "1234"
 
@@ -120,7 +120,7 @@ let ``ZipCode.create should reject non-5-digit string`` () =
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
-let ``ZipCode.create should reject non-numeric string`` () =
+let ``ZipCode.create は数字でない文字列を拒否する`` () =
     // Arrange
     let invalidZip = "ABCDE"
 
@@ -137,7 +137,7 @@ let ``ZipCode.create should reject non-numeric string`` () =
 // ========================================
 
 [<Fact>]
-let ``WidgetCode.create should accept valid widget code`` () =
+let ``WidgetCode.create は有効な Widget コードを受け入れる`` () =
     // Arrange
     let validCode = "W1234"
 
@@ -150,7 +150,7 @@ let ``WidgetCode.create should accept valid widget code`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``WidgetCode.create should reject code without W prefix`` () =
+let ``WidgetCode.create は W で始まらないコードを拒否する`` () =
     // Arrange
     let invalidCode = "A1234"
 
@@ -167,7 +167,7 @@ let ``WidgetCode.create should reject code without W prefix`` () =
 // ========================================
 
 [<Fact>]
-let ``GizmoCode.create should accept valid gizmo code`` () =
+let ``GizmoCode.create は有効な Gizmo コードを受け入れる`` () =
     // Arrange
     let validCode = "G123"
 
@@ -180,7 +180,7 @@ let ``GizmoCode.create should accept valid gizmo code`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``GizmoCode.create should reject code without G prefix`` () =
+let ``GizmoCode.create は G で始まらないコードを拒否する`` () =
     // Arrange
     let invalidCode = "A123"
 
@@ -197,7 +197,7 @@ let ``GizmoCode.create should reject code without G prefix`` () =
 // ========================================
 
 [<Fact>]
-let ``UnitQuantity.create should accept valid quantity`` () =
+let ``UnitQuantity.create は有効な数量を受け入れる`` () =
     // Arrange
     let validQty = 10
 
@@ -210,7 +210,7 @@ let ``UnitQuantity.create should accept valid quantity`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``UnitQuantity.create should reject zero`` () =
+let ``UnitQuantity.create はゼロを拒否する`` () =
     // Arrange
     let invalidQty = 0
 
@@ -223,7 +223,7 @@ let ``UnitQuantity.create should reject zero`` () =
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
-let ``UnitQuantity.create should reject too large quantity`` () =
+let ``UnitQuantity.create は大きすぎる数量を拒否する`` () =
     // Arrange
     let invalidQty = 1001
 
@@ -240,7 +240,7 @@ let ``UnitQuantity.create should reject too large quantity`` () =
 // ========================================
 
 [<Fact>]
-let ``Price.create should accept valid price`` () =
+let ``Price.create は有効な価格を受け入れる`` () =
     // Arrange
     let validPrice = 10.50m
 
@@ -253,7 +253,7 @@ let ``Price.create should accept valid price`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``Price.create should reject negative price`` () =
+let ``Price.create は負の価格を拒否する`` () =
     // Arrange
     let invalidPrice = -1.0m
 
@@ -266,7 +266,7 @@ let ``Price.create should reject negative price`` () =
     | Ok _ -> failwith "Expected error"
 
 [<Fact>]
-let ``Price.multiply should calculate correctly`` () =
+let ``Price.multiply は正しく計算する`` () =
     // Arrange
     let price = Price.unsafeCreate 10.0m
     let qty = 5
@@ -282,7 +282,7 @@ let ``Price.multiply should calculate correctly`` () =
 // ========================================
 
 [<Fact>]
-let ``BillingAmount.sumPrices should calculate total`` () =
+let ``BillingAmount.sumPrices は合計を計算する`` () =
     // Arrange
     let prices = [
         Price.unsafeCreate 10.0m
@@ -301,7 +301,7 @@ let ``BillingAmount.sumPrices should calculate total`` () =
 // ========================================
 
 [<Fact>]
-let ``OrderId.create should accept valid string`` () =
+let ``OrderId.create は有効な文字列を受け入れる`` () =
     // Arrange
     let validId = "ORDER-123"
 
@@ -314,7 +314,7 @@ let ``OrderId.create should accept valid string`` () =
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``OrderId.create should reject too long string`` () =
+let ``OrderId.create は長すぎる文字列を拒否する`` () =
     // Arrange
     let longId = System.String('a', 51)
 
