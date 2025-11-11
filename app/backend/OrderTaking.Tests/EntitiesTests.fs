@@ -218,3 +218,90 @@ let ``ValidatedOrder.create は検証済みデータを受け入れる`` () =
     |> should equal billingAddress
 
     order.Lines |> should equal lines
+
+// ========================================
+// PricedOrderLine Tests
+// ========================================
+
+[<Fact>]
+let ``PricedOrderLine.create は価格計算済みデータを受け入れる`` () =
+    // Arrange
+    let orderLineId = OrderLineId.generate ()
+
+    let productCode =
+        ProductCode.Widget(WidgetCode.unsafeCreate "W1234")
+
+    let quantity =
+        OrderQuantity.Unit(UnitQuantity.unsafeCreate 10)
+
+    let price = Price.unsafeCreate 25.50m
+    let linePrice = Price.unsafeCreate 255.00m
+
+    // Act
+    let orderLine =
+        PricedOrderLine.create orderLineId productCode quantity price linePrice
+
+    // Assert
+    orderLine.OrderLineId |> should equal orderLineId
+    orderLine.ProductCode |> should equal productCode
+    orderLine.Quantity |> should equal quantity
+    orderLine.Price |> should equal price
+    orderLine.LinePrice |> should equal linePrice
+
+// ========================================
+// PricedOrder Tests
+// ========================================
+
+[<Fact>]
+let ``PricedOrder.create は価格計算済みデータを受け入れる`` () =
+    // Arrange
+    let orderId = OrderId.generate ()
+
+    let customerInfo =
+        match CustomerInfo.create "John" "Doe" "john@example.com" with
+        | Ok c -> c
+        | Error e -> failwith e
+
+    let shippingAddress =
+        match Address.create "123 Main St" None "Tokyo" "12345" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let billingAddress =
+        match Address.create "456 Elm St" (Some "Suite 100") "Osaka" "67890" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let lines =
+        [ PricedOrderLine.create
+              (OrderLineId.generate ())
+              (ProductCode.Widget(WidgetCode.unsafeCreate "W1234"))
+              (OrderQuantity.Unit(UnitQuantity.unsafeCreate 10))
+              (Price.unsafeCreate 25.50m)
+              (Price.unsafeCreate 255.00m)
+          PricedOrderLine.create
+              (OrderLineId.generate ())
+              (ProductCode.Gizmo(GizmoCode.unsafeCreate "G5678"))
+              (OrderQuantity.Kilogram(KilogramQuantity.unsafeCreate 2.5m))
+              (Price.unsafeCreate 100.00m)
+              (Price.unsafeCreate 250.00m) ]
+
+    let amountToBill =
+        BillingAmount.unsafeCreate 505.00m
+
+    // Act
+    let order =
+        PricedOrder.create orderId customerInfo shippingAddress billingAddress lines amountToBill
+
+    // Assert
+    order.OrderId |> should equal orderId
+    order.CustomerInfo |> should equal customerInfo
+
+    order.ShippingAddress
+    |> should equal shippingAddress
+
+    order.BillingAddress
+    |> should equal billingAddress
+
+    order.Lines |> should equal lines
+    order.AmountToBill |> should equal amountToBill

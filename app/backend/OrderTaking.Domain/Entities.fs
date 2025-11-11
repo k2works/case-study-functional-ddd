@@ -122,3 +122,47 @@ module Entities =
               ShippingAddress = shippingAddress
               BillingAddress = billingAddress
               Lines = lines }
+
+    // ========================================
+    // PricedOrderLine
+    // ========================================
+
+    /// 価格計算済みの注文明細
+    type PricedOrderLine =
+        { OrderLineId: OrderLineId
+          ProductCode: ProductCode
+          Quantity: OrderQuantity
+          Price: Price
+          LinePrice: Price }
+
+    module PricedOrderLine =
+        /// PricedOrderLine を作成する
+        let create orderLineId productCode quantity price linePrice =
+            { OrderLineId = orderLineId
+              ProductCode = productCode
+              Quantity = quantity
+              Price = price
+              LinePrice = linePrice }
+
+    // ========================================
+    // PricedOrder
+    // ========================================
+
+    /// 価格計算済みの注文
+    type PricedOrder =
+        { OrderId: OrderId
+          CustomerInfo: CustomerInfo
+          ShippingAddress: Address
+          BillingAddress: Address
+          Lines: PricedOrderLine list
+          AmountToBill: BillingAmount }
+
+    module PricedOrder =
+        /// PricedOrder を作成する
+        let create orderId customerInfo shippingAddress billingAddress lines amountToBill =
+            { OrderId = orderId
+              CustomerInfo = customerInfo
+              ShippingAddress = shippingAddress
+              BillingAddress = billingAddress
+              Lines = lines
+              AmountToBill = amountToBill }
