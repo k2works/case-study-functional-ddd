@@ -188,6 +188,80 @@ let ``Address.create は無効な郵便番号を拒否する`` () =
     | Ok _ -> failwith "Expected Error for invalid zip code"
 
 // ========================================
+// OrderLineId Tests
+// ========================================
+
+[<Fact>]
+let ``OrderLineId.create は有効な GUID を受け入れる`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid()
+
+    // Act
+    let orderLineId = OrderLineId.create guid
+
+    // Assert
+    OrderLineId.value orderLineId |> should equal guid
+
+[<Fact>]
+let ``OrderLineId.generate は新しい GUID を生成する`` () =
+    // Act
+    let id1 = OrderLineId.generate ()
+    let id2 = OrderLineId.generate ()
+
+    // Assert
+    OrderLineId.value id1
+    |> should not' (equal (OrderLineId.value id2))
+
+[<Fact>]
+let ``OrderLineId: 等価性比較が正しく動作する`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid()
+    let id1 = OrderLineId.create guid
+    let id2 = OrderLineId.create guid
+    let id3 = OrderLineId.generate ()
+
+    // Assert
+    id1 |> should equal id2
+    id1 |> should not' (equal id3)
+
+// ========================================
+// OrderId Tests
+// ========================================
+
+[<Fact>]
+let ``OrderId.create は有効な GUID を受け入れる`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid()
+
+    // Act
+    let orderId = OrderId.create guid
+
+    // Assert
+    OrderId.value orderId |> should equal guid
+
+[<Fact>]
+let ``OrderId.generate は新しい GUID を生成する`` () =
+    // Act
+    let id1 = OrderId.generate ()
+    let id2 = OrderId.generate ()
+
+    // Assert
+    OrderId.value id1
+    |> should not' (equal (OrderId.value id2))
+
+[<Fact>]
+let ``OrderId: 等価性比較が正しく動作する`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid()
+    let id1 = OrderId.create guid
+    let id2 = OrderId.create guid
+    let id3 = OrderId.generate ()
+
+    // Assert
+    id1 |> should equal id2
+    id1 |> should not' (equal id3)
+
+// ========================================
 // Property-Based Tests
 // ========================================
 

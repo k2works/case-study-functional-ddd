@@ -85,3 +85,39 @@ module CompoundTypes =
 
         /// Address の値を取得する
         let value (Address(line1, line2, city, zipCode)) = (line1, line2, city, zipCode)
+
+    // ========================================
+    // OrderLineId
+    // ========================================
+
+    /// 注文明細 ID（GUID ベース）
+    [<Struct>]
+    type OrderLineId = private OrderLineId of System.Guid
+
+    module OrderLineId =
+        /// 指定された GUID から OrderLineId を作成する
+        let create guid = OrderLineId guid
+
+        /// 新しい OrderLineId を生成する
+        let generate () = OrderLineId(System.Guid.NewGuid())
+
+        /// OrderLineId の値を取得する
+        let value (OrderLineId guid) = guid
+
+    // ========================================
+    // OrderId
+    // ========================================
+
+    /// 注文 ID（GUID ベース）
+    [<Struct>]
+    type OrderId = private OrderId of System.Guid
+
+    module OrderId =
+        /// 指定された GUID から OrderId を作成する
+        let create guid = OrderId guid
+
+        /// 新しい OrderId を生成する
+        let generate () = OrderId(System.Guid.NewGuid())
+
+        /// OrderId の値を取得する
+        let value (OrderId guid) = guid
