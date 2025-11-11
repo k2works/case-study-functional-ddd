@@ -199,7 +199,7 @@ let ``EmailAddress.create は有効なメールアドレスを受け入れる`` 
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``EmailAddress.create は @ を含まないメールアドレスを拒否する`` () =
+let ``EmailAddress.create はアットマークを含まないメールアドレスを拒否する`` () =
     // Arrange
     let invalidEmail = "invalid-email.com"
 
