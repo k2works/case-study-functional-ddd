@@ -153,3 +153,51 @@ let ``validateOrder は複数のバリデーションエラーを集約する`` 
         // 複数のエラーが返される
         errors.Length |> should be (greaterThan 1)
     | Ok _ -> failwith "Expected multiple validation errors"
+
+// ========================================
+// ProductCodeService Tests
+// ========================================
+
+[<Fact>]
+let ``ProductCodeService.checkProductCodeExists は Widget コードを受け入れる`` () =
+    // Arrange
+    let widgetCode = "W1234"
+
+    // Act
+    let result =
+        ProductCodeService.checkProductCodeExists widgetCode
+
+    // Assert
+    match result with
+    | Ok(ProductCode.Widget wc) -> WidgetCode.value wc |> should equal widgetCode
+    | Ok(ProductCode.Gizmo _) -> failwith "Expected Widget, got Gizmo"
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``ProductCodeService.checkProductCodeExists は Gizmo コードを受け入れる`` () =
+    // Arrange
+    let gizmoCode = "G5678"
+
+    // Act
+    let result =
+        ProductCodeService.checkProductCodeExists gizmoCode
+
+    // Assert
+    match result with
+    | Ok(ProductCode.Gizmo gc) -> GizmoCode.value gc |> should equal gizmoCode
+    | Ok(ProductCode.Widget _) -> failwith "Expected Gizmo, got Widget"
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``ProductCodeService.checkProductCodeExists は無効なコードを拒否する`` () =
+    // Arrange
+    let invalidCode = "INVALID"
+
+    // Act
+    let result =
+        ProductCodeService.checkProductCodeExists invalidCode
+
+    // Assert
+    match result with
+    | Error _ -> ()
+    | Ok _ -> failwith "Expected Error for invalid product code"

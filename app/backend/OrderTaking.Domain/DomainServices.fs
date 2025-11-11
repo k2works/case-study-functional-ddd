@@ -185,3 +185,31 @@ module DomainServices =
                       | Ok _ -> () ]
 
                 Error allErrors
+
+    // ========================================
+    // ProductCodeService (Stub)
+    // ========================================
+
+    module ProductCodeService =
+
+        /// 有効な商品コードのリスト（テスト用スタブ）
+        let private validProductCodes =
+            [ "W1234"
+              "W5678"
+              "W9012" // Widget codes
+              "G5678"
+              "G1234"
+              "G9012" ] // Gizmo codes
+
+        /// 商品コードが存在するかチェックする（スタブ実装）
+        let checkProductCodeExists (code: string) : Result<ProductCode, string> =
+            if validProductCodes |> List.contains code then
+                // コードの最初の文字で Widget か Gizmo か判定
+                if code.StartsWith("W") then
+                    Ok(ProductCode.Widget(WidgetCode.unsafeCreate code))
+                elif code.StartsWith("G") then
+                    Ok(ProductCode.Gizmo(GizmoCode.unsafeCreate code))
+                else
+                    Error $"Invalid product code format: {code}"
+            else
+                Error $"Product code not found: {code}"
