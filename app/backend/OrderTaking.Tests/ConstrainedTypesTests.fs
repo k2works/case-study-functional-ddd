@@ -400,7 +400,7 @@ let ``Price.create は負の価格を拒否する`` () =
 let ``Price.multiply は正しく計算する`` () =
     // Arrange
     let price = Price.unsafeCreate 10.0m
-    let qty = 5
+    let qty = 5.0m
 
     // Act
     let result = Price.multiply qty price

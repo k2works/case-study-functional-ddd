@@ -213,3 +213,84 @@ module DomainServices =
                     Error $"Invalid product code format: {code}"
             else
                 Error $"Product code not found: {code}"
+
+    // ========================================
+    // PriceService (Stub)
+    // ========================================
+
+    module PriceService =
+
+        /// 商品の単価を取得する（スタブ実装）
+        let getProductPrice (productCode: ProductCode) : Result<Price, string> =
+            // スタブとして固定価格を返す
+            match productCode with
+            | ProductCode.Widget _ -> Ok(Price.unsafeCreate 25.50m)
+            | ProductCode.Gizmo _ -> Ok(Price.unsafeCreate 100.00m)
+
+    // ========================================
+    // Pricing Service
+    // ========================================
+
+    module Pricing =
+
+        /// 単価取得の依存性
+        type GetProductPrice = ProductCode -> Result<Price, string>
+
+        /// 数量から int または decimal を取得する
+        let private getQuantityValue (quantity: OrderQuantity) : decimal =
+            match quantity with
+            | OrderQuantity.Unit uq -> decimal (UnitQuantity.value uq)
+            | OrderQuantity.Kilogram kq -> KilogramQuantity.value kq
+
+        /// 注文明細の価格を計算する
+        let private priceOrderLine (getProductPrice: GetProductPrice) (line: ValidatedOrderLine) =
+            match getProductPrice line.ProductCode with
+            | Error msg -> Error msg
+            | Ok price ->
+                let quantity =
+                    getQuantityValue line.Quantity
+
+                let linePrice =
+                    Price.multiply quantity price
+
+                Ok(PricedOrderLine.create line.OrderLineId line.ProductCode line.Quantity price linePrice)
+
+        /// 注文全体の価格を計算する
+        let priceOrder
+            (getProductPrice: GetProductPrice)
+            (validatedOrder: ValidatedOrder)
+            : Result<PricedOrder, string> =
+            // すべての明細を価格計算
+            let pricedLinesResult =
+                validatedOrder.Lines
+                |> List.map (priceOrderLine getProductPrice)
+                |> List.fold
+                    (fun acc result ->
+                        match acc, result with
+                        | Ok lines, Ok line -> Ok(lines @ [ line ])
+                        | Error msg, _ -> Error msg
+                        | _, Error msg -> Error msg)
+                    (Ok [])
+
+            match pricedLinesResult with
+            | Error msg -> Error msg
+            | Ok pricedLines ->
+                // 合計金額を計算
+                let totalAmount =
+                    pricedLines
+                    |> List.map (fun line -> Price.value line.LinePrice)
+                    |> List.sum
+
+                // BillingAmount を作成
+                match BillingAmount.create "AmountToBill" totalAmount with
+                | Error msg -> Error msg
+                | Ok amountToBill ->
+                    Ok(
+                        PricedOrder.create
+                            validatedOrder.OrderId
+                            validatedOrder.CustomerInfo
+                            validatedOrder.ShippingAddress
+                            validatedOrder.BillingAddress
+                            pricedLines
+                            amountToBill
+                    )

@@ -201,3 +201,123 @@ let ``ProductCodeService.checkProductCodeExists は無効なコードを拒否�
     match result with
     | Error _ -> ()
     | Ok _ -> failwith "Expected Error for invalid product code"
+
+// ========================================
+// Pricing Tests
+// ========================================
+
+[<Fact>]
+let ``priceOrder は有効な注文を価格計算する`` () =
+    // Arrange
+    let orderId = OrderId.generate ()
+
+    let customerInfo =
+        match CustomerInfo.create "John" "Doe" "john@example.com" with
+        | Ok c -> c
+        | Error e -> failwith e
+
+    let shippingAddress =
+        match Address.create "123 Main St" None "Tokyo" "12345" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let validatedOrder =
+        ValidatedOrder.create
+            orderId
+            customerInfo
+            shippingAddress
+            shippingAddress
+            [ ValidatedOrderLine.create
+                  (OrderLineId.generate ())
+                  (ProductCode.Widget(WidgetCode.unsafeCreate "W1234"))
+                  (OrderQuantity.Unit(UnitQuantity.unsafeCreate 10)) ]
+
+    // Mock dependency
+    let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
+
+    // Act
+    let result =
+        Pricing.priceOrder getProductPrice validatedOrder
+
+    // Assert
+    match result with
+    | Ok pricedOrder ->
+        pricedOrder.Lines.Length |> should equal 1
+
+        pricedOrder.Lines.[0].Price
+        |> should equal (Price.unsafeCreate 25.50m)
+
+        pricedOrder.Lines.[0].LinePrice
+        |> should equal (Price.unsafeCreate 255.00m)
+
+        pricedOrder.AmountToBill
+        |> should equal (BillingAmount.unsafeCreate 255.00m)
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``priceOrder は複数明細の合計金額を計算する`` () =
+    // Arrange
+    let orderId = OrderId.generate ()
+
+    let customerInfo =
+        match CustomerInfo.create "John" "Doe" "john@example.com" with
+        | Ok c -> c
+        | Error e -> failwith e
+
+    let shippingAddress =
+        match Address.create "123 Main St" None "Tokyo" "12345" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let validatedOrder =
+        ValidatedOrder.create
+            orderId
+            customerInfo
+            shippingAddress
+            shippingAddress
+            [ ValidatedOrderLine.create
+                  (OrderLineId.generate ())
+                  (ProductCode.Widget(WidgetCode.unsafeCreate "W1234"))
+                  (OrderQuantity.Unit(UnitQuantity.unsafeCreate 10))
+              ValidatedOrderLine.create
+                  (OrderLineId.generate ())
+                  (ProductCode.Gizmo(GizmoCode.unsafeCreate "G5678"))
+                  (OrderQuantity.Kilogram(KilogramQuantity.unsafeCreate 2.5m)) ]
+
+    // Mock dependency - 商品コードに応じて価格を返す
+    let getProductPrice productCode =
+        match productCode with
+        | ProductCode.Widget _ -> Ok(Price.unsafeCreate 25.50m)
+        | ProductCode.Gizmo _ -> Ok(Price.unsafeCreate 100.00m)
+
+    // Act
+    let result =
+        Pricing.priceOrder getProductPrice validatedOrder
+
+    // Assert
+    match result with
+    | Ok pricedOrder ->
+        pricedOrder.Lines.Length |> should equal 2
+        // 255.00 + 250.00 = 505.00
+        pricedOrder.AmountToBill
+        |> should equal (BillingAmount.unsafeCreate 505.00m)
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+// ========================================
+// PriceService Tests
+// ========================================
+
+[<Fact>]
+let ``PriceService.getProductPrice は商品の価格を返す`` () =
+    // Arrange
+    let widgetCode =
+        ProductCode.Widget(WidgetCode.unsafeCreate "W1234")
+
+    // Act
+    let result =
+        PriceService.getProductPrice widgetCode
+
+    // Assert
+    match result with
+    | Ok price -> Price.value price |> should be (greaterThan 0.0m)
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
