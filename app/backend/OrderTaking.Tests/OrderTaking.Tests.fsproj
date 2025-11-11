@@ -11,6 +11,7 @@
     <Compile Include="CompoundTypesTests.fs" />
     <Compile Include="EntitiesTests.fs" />
     <Compile Include="DomainServicesTests.fs" />
+    <Compile Include="IntegrationTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
   <ItemGroup>
