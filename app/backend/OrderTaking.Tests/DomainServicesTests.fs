@@ -321,3 +321,133 @@ let ``PriceService.getProductPrice は商品の価格を返す`` () =
     match result with
     | Ok price -> Price.value price |> should be (greaterThan 0.0m)
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+// ========================================
+// Acknowledgment Tests
+// ========================================
+
+[<Fact>]
+let ``acknowledgeOrder は注文確認イベントを生成する`` () =
+    // Arrange
+    let orderId = OrderId.generate ()
+
+    let customerInfo =
+        match CustomerInfo.create "John" "Doe" "john@example.com" with
+        | Ok c -> c
+        | Error e -> failwith e
+
+    let shippingAddress =
+        match Address.create "123 Main St" None "Tokyo" "12345" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let pricedOrder =
+        PricedOrder.create
+            orderId
+            customerInfo
+            shippingAddress
+            shippingAddress
+            [ PricedOrderLine.create
+                  (OrderLineId.generate ())
+                  (ProductCode.Widget(WidgetCode.unsafeCreate "W1234"))
+                  (OrderQuantity.Unit(UnitQuantity.unsafeCreate 10))
+                  (Price.unsafeCreate 25.50m)
+                  (Price.unsafeCreate 255.00m) ]
+            (BillingAmount.unsafeCreate 255.00m)
+
+    // Mock dependency - always succeeds
+    let sendAcknowledgment orderAcknowledgment = Ok()
+
+    // Act
+    let result =
+        Acknowledgment.acknowledgeOrder sendAcknowledgment pricedOrder
+
+    // Assert
+    match result with
+    | Ok events ->
+        // OrderPlaced, BillableOrderPlaced, AcknowledgmentSent の 3 つのイベントが生成される
+        events.Length |> should equal 3
+
+        // 最初は OrderPlaced
+        match events.[0] with
+        | PlaceOrderEvent.OrderPlaced _ -> ()
+        | _ -> failwith "Expected OrderPlaced event"
+
+        // 2 番目は BillableOrderPlaced（AmountToBill > 0 のため）
+        match events.[1] with
+        | PlaceOrderEvent.BillableOrderPlaced _ -> ()
+        | _ -> failwith "Expected BillableOrderPlaced event"
+
+        // 3 番目は AcknowledgmentSent
+        match events.[2] with
+        | PlaceOrderEvent.AcknowledgmentSent _ -> ()
+        | _ -> failwith "Expected AcknowledgmentSent event"
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``acknowledgeOrder はメール送信失敗時にエラーを返す`` () =
+    // Arrange
+    let orderId = OrderId.generate ()
+
+    let customerInfo =
+        match CustomerInfo.create "John" "Doe" "john@example.com" with
+        | Ok c -> c
+        | Error e -> failwith e
+
+    let shippingAddress =
+        match Address.create "123 Main St" None "Tokyo" "12345" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let pricedOrder =
+        PricedOrder.create orderId customerInfo shippingAddress shippingAddress [] (BillingAmount.unsafeCreate 0.0m)
+
+    // Mock dependency - always fails
+    let sendAcknowledgment orderAcknowledgment = Error "Email service unavailable"
+
+    // Act
+    let result =
+        Acknowledgment.acknowledgeOrder sendAcknowledgment pricedOrder
+
+    // Assert
+    match result with
+    | Error _ -> () // エラーが返されることを期待
+    | Ok _ -> failwith "Expected Error for email sending failure"
+
+[<Fact>]
+let ``acknowledgeOrder は AmountToBill が 0 の場合 BillableOrderPlaced を生成しない`` () =
+    // Arrange
+    let orderId = OrderId.generate ()
+
+    let customerInfo =
+        match CustomerInfo.create "John" "Doe" "john@example.com" with
+        | Ok c -> c
+        | Error e -> failwith e
+
+    let shippingAddress =
+        match Address.create "123 Main St" None "Tokyo" "12345" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let pricedOrder =
+        PricedOrder.create orderId customerInfo shippingAddress shippingAddress [] (BillingAmount.unsafeCreate 0.0m)
+
+    let sendAcknowledgment orderAcknowledgment = Ok()
+
+    // Act
+    let result =
+        Acknowledgment.acknowledgeOrder sendAcknowledgment pricedOrder
+
+    // Assert
+    match result with
+    | Ok events ->
+        // OrderPlaced と AcknowledgmentSent の 2 つのイベントのみ
+        events.Length |> should equal 2
+
+        // BillableOrderPlaced は含まれない
+        events
+        |> List.exists (function
+            | PlaceOrderEvent.BillableOrderPlaced _ -> true
+            | _ -> false)
+        |> should be False
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"

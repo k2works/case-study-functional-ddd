@@ -294,3 +294,78 @@ module DomainServices =
                             pricedLines
                             amountToBill
                     )
+
+    // ========================================
+    // Events
+    // ========================================
+
+    /// 注文確認情報
+    type OrderAcknowledgment =
+        { OrderId: OrderId
+          EmailAddress: EmailAddress }
+
+    /// 注文配置イベント
+    type PlaceOrderEvent =
+        | OrderPlaced of PricedOrder
+        | BillableOrderPlaced of OrderId * BillingAmount
+        | AcknowledgmentSent of OrderAcknowledgment
+
+    // ========================================
+    // Acknowledgment Service
+    // ========================================
+
+    module Acknowledgment =
+
+        /// メール送信の依存性
+        type SendOrderAcknowledgment = OrderAcknowledgment -> Result<unit, string>
+
+        /// 注文確認を行い、イベントを生成する
+        let acknowledgeOrder
+            (sendAcknowledgment: SendOrderAcknowledgment)
+            (pricedOrder: PricedOrder)
+            : Result<PlaceOrderEvent list, string> =
+
+            // 1. OrderPlaced イベントを生成
+            let orderPlacedEvent =
+                OrderPlaced pricedOrder
+
+            // 2. BillableOrderPlaced イベントを生成（AmountToBill > 0 の場合）
+            let billableEvents =
+                if BillingAmount.value pricedOrder.AmountToBill > 0.0m then
+                    [ BillableOrderPlaced(pricedOrder.OrderId, pricedOrder.AmountToBill) ]
+                else
+                    []
+
+            // 3. メール送信を試行
+            let (_, email) =
+                CustomerInfo.value pricedOrder.CustomerInfo
+
+            let acknowledgment =
+                { OrderId = pricedOrder.OrderId
+                  EmailAddress = email }
+
+            match sendAcknowledgment acknowledgment with
+            | Error msg -> Error msg
+            | Ok() ->
+                // 4. AcknowledgmentSent イベントを生成
+                let acknowledgmentEvent =
+                    AcknowledgmentSent acknowledgment
+
+                // すべてのイベントを結合
+                Ok(
+                    [ orderPlacedEvent ]
+                    @ billableEvents
+                    @ [ acknowledgmentEvent ]
+                )
+
+    // ========================================
+    // SendOrderAcknowledgment Service (Stub)
+    // ========================================
+
+    module SendOrderAcknowledgmentService =
+
+        /// メール送信サービス（スタブ実装）
+        let sendOrderAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> =
+            // スタブとして常に成功を返す
+            // 実際の実装では SMTP や外部 API を使用してメールを送信
+            Ok()
