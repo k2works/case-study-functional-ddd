@@ -9,7 +9,10 @@ open OrderTaking.Domain.ConstrainedTypes
 
 [<Property>]
 let ``String50: 有効な文字列（1-50文字）のラウンドトリップテスト`` (str: string) =
-    if str <> null && str.Length > 0 && str.Length <= 50 then
+    if
+        not (System.String.IsNullOrWhiteSpace(str))
+        && str.Length <= 50
+    then
         match String50.create "Field" str with
         | Ok s50 ->
             let value = String50.value s50
@@ -20,7 +23,10 @@ let ``String50: 有効な文字列（1-50文字）のラウンドトリップテ
 
 [<Property>]
 let ``String50: 値の長さは常に 50 文字以下`` (str: string) =
-    if str <> null && str.Length > 0 && str.Length <= 50 then
+    if
+        not (System.String.IsNullOrWhiteSpace(str))
+        && str.Length <= 50
+    then
         match String50.create "Field" str with
         | Ok s50 ->
             let value = String50.value s50
@@ -50,7 +56,10 @@ let ``String50: 51文字以上は作成失敗`` (str: string) =
 
 [<Property>]
 let ``String100: 有効な文字列（1-100文字）のラウンドトリップテスト`` (str: string) =
-    if str <> null && str.Length > 0 && str.Length <= 100 then
+    if
+        not (System.String.IsNullOrWhiteSpace(str))
+        && str.Length <= 100
+    then
         match String100.create "Field" str with
         | Ok s100 ->
             let value = String100.value s100
@@ -61,7 +70,10 @@ let ``String100: 有効な文字列（1-100文字）のラウンドトリップ�
 
 [<Property>]
 let ``String100: 値の長さは常に 100 文字以下`` (str: string) =
-    if str <> null && str.Length > 0 && str.Length <= 100 then
+    if
+        not (System.String.IsNullOrWhiteSpace(str))
+        && str.Length <= 100
+    then
         match String100.create "Field" str with
         | Ok s100 ->
             let value = String100.value s100
@@ -76,7 +88,10 @@ let ``String100: 値の長さは常に 100 文字以下`` (str: string) =
 
 [<Property>]
 let ``String255: 有効な文字列（1-255文字）のラウンドトリップテスト`` (str: string) =
-    if str <> null && str.Length > 0 && str.Length <= 255 then
+    if
+        not (System.String.IsNullOrWhiteSpace(str))
+        && str.Length <= 255
+    then
         match String255.create "Field" str with
         | Ok s255 ->
             let value = String255.value s255
@@ -87,7 +102,10 @@ let ``String255: 有効な文字列（1-255文字）のラウンドトリップ�
 
 [<Property>]
 let ``String255: 値の長さは常に 255 文字以下`` (str: string) =
-    if str <> null && str.Length > 0 && str.Length <= 255 then
+    if
+        not (System.String.IsNullOrWhiteSpace(str))
+        && str.Length <= 255
+    then
         match String255.create "Field" str with
         | Ok s255 ->
             let value = String255.value s255
@@ -181,7 +199,10 @@ let ``Price: 負の値は作成失敗`` (price: decimal) =
 
 [<Property>]
 let ``EmailAddress: アットマークを含む文字列は作成可能`` (str: string) =
-    if str <> null && str.Length > 0 && str.Length <= 50 then
+    if
+        not (System.String.IsNullOrWhiteSpace(str))
+        && str.Length <= 50
+    then
         let email = $"{str}@example.com"
 
         if email.Length <= 100 then
@@ -198,8 +219,7 @@ let ``EmailAddress: アットマークを含む文字列は作成可能`` (str: 
 [<Property>]
 let ``EmailAddress: アットマークを含まない文字列は作成失敗`` (str: string) =
     if
-        str <> null
-        && str.Length > 0
+        not (System.String.IsNullOrWhiteSpace(str))
         && str.Length <= 100
         && not (str.Contains("@"))
     then
