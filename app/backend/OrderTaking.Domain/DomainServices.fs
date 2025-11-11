@@ -1,0 +1,187 @@
+namespace OrderTaking.Domain
+
+open OrderTaking.Domain.ConstrainedTypes
+open OrderTaking.Domain.CompoundTypes
+open OrderTaking.Domain.Entities
+
+// ========================================
+// ドメインサービス
+//
+// ビジネスロジックを実装するサービス
+// ========================================
+
+module DomainServices =
+
+    // ========================================
+    // ValidationError
+    // ========================================
+
+    /// バリデーションエラー
+    type ValidationError = private ValidationError of FieldName: string * Message: string
+
+    module ValidationError =
+        /// ValidationError を作成する
+        let create fieldName message = ValidationError(fieldName, message)
+
+        /// ValidationError を文字列に変換する
+        let toString (ValidationError(fieldName, message)) = $"{fieldName}: {message}"
+
+    // ========================================
+    // Validation Service
+    // ========================================
+
+    module Validation =
+
+        /// 商品コード検証の依存性
+        type CheckProductCodeExists = string -> Result<ProductCode, string>
+
+        /// 住所検証の依存性
+        type CheckAddressExists = UnvalidatedAddress -> Result<UnvalidatedAddress, string>
+
+        /// 顧客情報を検証する
+        let private validateCustomerInfo (unvalidatedCustomer: UnvalidatedCustomerInfo) =
+            match
+                CustomerInfo.create
+                    unvalidatedCustomer.FirstName
+                    unvalidatedCustomer.LastName
+                    unvalidatedCustomer.EmailAddress
+            with
+            | Ok customerInfo -> Ok customerInfo
+            | Error msg -> Error [ ValidationError.create "CustomerInfo" msg ]
+
+        /// 住所を検証する
+        let private validateAddress
+            fieldName
+            (checkAddressExists: CheckAddressExists)
+            (unvalidatedAddress: UnvalidatedAddress)
+            =
+            // まず外部サービスで住所をチェック
+            match checkAddressExists unvalidatedAddress with
+            | Error msg -> Error [ ValidationError.create fieldName msg ]
+            | Ok _ ->
+                // 次に制約付き型で検証
+                match
+                    Address.create
+                        unvalidatedAddress.AddressLine1
+                        unvalidatedAddress.AddressLine2
+                        unvalidatedAddress.City
+                        unvalidatedAddress.ZipCode
+                with
+                | Ok address -> Ok address
+                | Error msg -> Error [ ValidationError.create fieldName msg ]
+
+        /// 商品コードを検証する
+        let private validateProductCode (checkProductCodeExists: CheckProductCodeExists) (productCodeStr: string) =
+            match checkProductCodeExists productCodeStr with
+            | Ok productCode -> Ok productCode
+            | Error msg -> Error [ ValidationError.create "ProductCode" msg ]
+
+        /// 数量を検証する
+        let private validateQuantity (productCode: ProductCode) (quantityDecimal: decimal) =
+            match productCode with
+            | ProductCode.Widget _ ->
+                // Widget は単位数量
+                let quantityInt = int quantityDecimal
+
+                match UnitQuantity.create "Quantity" quantityInt with
+                | Ok qty -> Ok(OrderQuantity.Unit qty)
+                | Error msg -> Error [ ValidationError.create "Quantity" msg ]
+            | ProductCode.Gizmo _ ->
+                // Gizmo は重量数量
+                match KilogramQuantity.create "Quantity" quantityDecimal with
+                | Ok qty -> Ok(OrderQuantity.Kilogram qty)
+                | Error msg -> Error [ ValidationError.create "Quantity" msg ]
+
+        /// 注文明細を検証する
+        let private validateOrderLine
+            (checkProductCodeExists: CheckProductCodeExists)
+            (unvalidatedLine: UnvalidatedOrderLine)
+            =
+            // OrderLineId の検証（GUID に変換）
+            let orderLineIdResult =
+                try
+                    Ok(OrderLineId.create (System.Guid.Parse(unvalidatedLine.OrderLineId)))
+                with _ ->
+                    Error [ ValidationError.create "OrderLineId" "Invalid GUID format" ]
+
+            // ProductCode の検証
+            let productCodeResult =
+                validateProductCode checkProductCodeExists unvalidatedLine.ProductCode
+
+            // 両方の結果を組み合わせる
+            match orderLineIdResult, productCodeResult with
+            | Ok orderLineId, Ok productCode ->
+                // Quantity の検証
+                match validateQuantity productCode unvalidatedLine.Quantity with
+                | Ok quantity -> Ok(ValidatedOrderLine.create orderLineId productCode quantity)
+                | Error errors -> Error errors
+            | Error errors1, Error errors2 -> Error(errors1 @ errors2)
+            | Error errors, Ok _ -> Error errors
+            | Ok _, Error errors -> Error errors
+
+        /// 注文を検証する
+        let validateOrder
+            (checkProductCodeExists: CheckProductCodeExists)
+            (checkAddressExists: CheckAddressExists)
+            (unvalidatedOrder: UnvalidatedOrder)
+            : Result<ValidatedOrder, ValidationError list> =
+
+            // OrderId の検証（GUID に変換）
+            let orderIdResult =
+                try
+                    Ok(OrderId.create (System.Guid.Parse(unvalidatedOrder.OrderId)))
+                with _ ->
+                    Error [ ValidationError.create "OrderId" "Invalid GUID format" ]
+
+            // CustomerInfo の検証
+            let customerInfoResult =
+                validateCustomerInfo unvalidatedOrder.CustomerInfo
+
+            // ShippingAddress の検証
+            let shippingAddressResult =
+                validateAddress "ShippingAddress" checkAddressExists unvalidatedOrder.ShippingAddress
+
+            // BillingAddress の検証
+            let billingAddressResult =
+                validateAddress "BillingAddress" checkAddressExists unvalidatedOrder.BillingAddress
+
+            // Lines の検証
+            let linesResult =
+                let validateLine =
+                    validateOrderLine checkProductCodeExists
+
+                unvalidatedOrder.Lines
+                |> List.map validateLine
+                |> List.fold
+                    (fun acc result ->
+                        match acc, result with
+                        | Ok lines, Ok line -> Ok(lines @ [ line ])
+                        | Error errors, Ok _ -> Error errors
+                        | Ok _, Error errors -> Error errors
+                        | Error errors1, Error errors2 -> Error(errors1 @ errors2))
+                    (Ok [])
+
+            // すべての結果を組み合わせる
+            match orderIdResult, customerInfoResult, shippingAddressResult, billingAddressResult, linesResult with
+            | Ok orderId, Ok customerInfo, Ok shippingAddress, Ok billingAddress, Ok lines ->
+                Ok(ValidatedOrder.create orderId customerInfo shippingAddress billingAddress lines)
+            | _ ->
+                // すべてのエラーを集約
+                let allErrors =
+                    [ match orderIdResult with
+                      | Error errors -> yield! errors
+                      | Ok _ -> ()
+                      match customerInfoResult with
+                      | Error errors -> yield! errors
+                      | Ok _ -> ()
+                      match shippingAddressResult with
+                      | Error errors -> yield! errors
+                      | Ok _ -> ()
+                      match billingAddressResult with
+                      | Error errors -> yield! errors
+                      | Ok _ -> ()
+                      match linesResult with
+                      | Error errors -> yield! errors
+                      | Ok _ -> () ]
+
+                Error allErrors
