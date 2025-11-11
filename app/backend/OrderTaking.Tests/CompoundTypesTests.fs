@@ -119,6 +119,75 @@ let ``CustomerInfo.value は元の値を返す`` () =
     | Error _ -> failwith "Expected Ok"
 
 // ========================================
+// Address Tests
+// ========================================
+
+[<Fact>]
+let ``Address.create は有効な住所を受け入れる`` () =
+    // Arrange
+    let line1 = "123 Main St"
+    let city = "Tokyo"
+    let zipCode = "12345"
+
+    // Act
+    let result =
+        Address.create line1 None city zipCode
+
+    // Assert
+    match result with
+    | Ok address ->
+        let (l1, l2, c, z) = Address.value address
+        String50.value l1 |> should equal line1
+        l2 |> should equal None
+        String50.value c |> should equal city
+        ZipCode.value z |> should equal zipCode
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``Address.create は AddressLine2 が Some の場合も受け入れる`` () =
+    // Arrange
+    let line1 = "123 Main St"
+    let line2 = Some "Apt 456"
+    let city = "Tokyo"
+    let zipCode = "12345"
+
+    // Act
+    let result =
+        Address.create line1 line2 city zipCode
+
+    // Assert
+    match result with
+    | Ok address ->
+        let (l1, l2opt, c, z) =
+            Address.value address
+
+        String50.value l1 |> should equal line1
+
+        match l2opt with
+        | Some l2 -> String50.value l2 |> should equal "Apt 456"
+        | None -> failwith "Expected Some AddressLine2"
+
+        String50.value c |> should equal city
+        ZipCode.value z |> should equal zipCode
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``Address.create は無効な郵便番号を拒否する`` () =
+    // Arrange
+    let line1 = "123 Main St"
+    let city = "Tokyo"
+    let invalidZip = "ABC"
+
+    // Act
+    let result =
+        Address.create line1 None city invalidZip
+
+    // Assert
+    match result with
+    | Error _ -> ()
+    | Ok _ -> failwith "Expected Error for invalid zip code"
+
+// ========================================
 // Property-Based Tests
 // ========================================
 
