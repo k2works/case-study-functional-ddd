@@ -63,6 +63,124 @@ let ``String50.value は内部値を返す`` () =
     value |> should equal str
 
 // ========================================
+// String100 Tests
+// ========================================
+
+[<Fact>]
+let ``String100.create は有効な文字列を受け入れる`` () =
+    // Arrange
+    let validString =
+        "Valid String for String100"
+
+    // Act
+    let result =
+        String100.create "TestField" validString
+
+    // Assert
+    match result with
+    | Ok _ -> ()
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``String100.create は空文字列を拒否する`` () =
+    // Arrange
+    let emptyString = ""
+
+    // Act
+    let result =
+        String100.create "TestField" emptyString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be null or empty", msg)
+    | Ok _ -> failwith "Expected error"
+
+[<Fact>]
+let ``String100.create は長すぎる文字列を拒否する`` () =
+    // Arrange
+    let longString = System.String('a', 101)
+
+    // Act
+    let result =
+        String100.create "TestField" longString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be more than 100 chars", msg)
+    | Ok _ -> failwith "Expected error"
+
+[<Fact>]
+let ``String100.value は元の文字列を返す`` () =
+    // Arrange
+    let str = "Test String"
+    let string100 = String100.unsafeCreate str
+
+    // Act
+    let value = String100.value string100
+
+    // Assert
+    value |> should equal str
+
+// ========================================
+// String255 Tests
+// ========================================
+
+[<Fact>]
+let ``String255.create は有効な文字列を受け入れる`` () =
+    // Arrange
+    let validString =
+        "Valid String for String255"
+
+    // Act
+    let result =
+        String255.create "TestField" validString
+
+    // Assert
+    match result with
+    | Ok _ -> ()
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``String255.create は空文字列を拒否する`` () =
+    // Arrange
+    let emptyString = ""
+
+    // Act
+    let result =
+        String255.create "TestField" emptyString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be null or empty", msg)
+    | Ok _ -> failwith "Expected error"
+
+[<Fact>]
+let ``String255.create は長すぎる文字列を拒否する`` () =
+    // Arrange
+    let longString = System.String('a', 256)
+
+    // Act
+    let result =
+        String255.create "TestField" longString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be more than 255 chars", msg)
+    | Ok _ -> failwith "Expected error"
+
+[<Fact>]
+let ``String255.value は元の文字列を返す`` () =
+    // Arrange
+    let str = "Test String for String255"
+    let string255 = String255.unsafeCreate str
+
+    // Act
+    let value = String255.value string255
+
+    // Assert
+    value |> should equal str
+
+// ========================================
 // EmailAddress Tests
 // ========================================
 
