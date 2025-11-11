@@ -113,10 +113,21 @@ Task("Test")
 });
 
 Task("Coverage")
-    .Description("Run tests with code coverage collection.")
+    .Description("Run tests with code coverage collection and generate HTML report.")
     .IsDependentOn("Build")
     .Does(() =>
 {
+    // Clean previous coverage results
+    if (DirectoryExists("./TestResults"))
+    {
+        DeleteDirectory("./TestResults", new DeleteDirectorySettings
+        {
+            Recursive = true,
+            Force = true
+        });
+    }
+
+    // Run tests with coverage collection
     DotNetTest("./OrderTaking.sln", new DotNetTestSettings
     {
         Configuration = configuration,
@@ -127,9 +138,41 @@ Task("Coverage")
             .Append("--results-directory:./TestResults")
     });
 
-    Information("Coverage report generated in ./TestResults directory");
-    Information("To view coverage, use: dotnet tool install -g dotnet-reportgenerator-globaltool");
-    Information("Then run: reportgenerator -reports:./TestResults/**/coverage.cobertura.xml -targetdir:./TestResults/CoverageReport -reporttypes:Html");
+    // Generate HTML coverage report using ReportGenerator
+    var coverageFiles = GetFiles("./TestResults/**/coverage.cobertura.xml");
+    if (coverageFiles.Count == 0)
+    {
+        Warning("No coverage files found. Skipping report generation.");
+        return;
+    }
+
+    var reportPath = "./TestResults/CoverageReport";
+    var exitCode = StartProcess("reportgenerator", new ProcessSettings
+    {
+        Arguments = new ProcessArgumentBuilder()
+            .Append($"-reports:{coverageFiles.First()}")
+            .Append($"-targetdir:{reportPath}")
+            .Append("-reporttypes:Html;Cobertura")
+    });
+
+    if (exitCode != 0)
+    {
+        throw new Exception($"ReportGenerator failed with exit code {exitCode}");
+    }
+
+    // Parse and display coverage summary
+    var summaryFile = File(reportPath + "/Summary.json");
+    if (FileExists(summaryFile))
+    {
+        Information("========================================");
+        Information("Code Coverage Summary");
+        Information("========================================");
+        Information($"HTML Report: {System.IO.Path.GetFullPath(reportPath + "/index.html")}");
+    }
+    else
+    {
+        Information("Coverage report generated in: " + reportPath);
+    }
 });
 
 Task("Quality")
