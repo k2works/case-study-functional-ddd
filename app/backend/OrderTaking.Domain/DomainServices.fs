@@ -278,8 +278,7 @@ module DomainServices =
                 // 合計金額を計算
                 let totalAmount =
                     pricedLines
-                    |> List.map (fun line -> Price.value line.LinePrice)
-                    |> List.sum
+                    |> List.sumBy (fun line -> Price.value line.LinePrice)
 
                 // BillingAmount を作成
                 match BillingAmount.create "AmountToBill" totalAmount with
@@ -353,8 +352,7 @@ module DomainServices =
 
                 // すべてのイベントを結合
                 Ok(
-                    [ orderPlacedEvent ]
-                    @ billableEvents
+                    orderPlacedEvent :: billableEvents
                     @ [ acknowledgmentEvent ]
                 )
 

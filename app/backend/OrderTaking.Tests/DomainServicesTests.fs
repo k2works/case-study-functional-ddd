@@ -497,7 +497,7 @@ let ``placeOrder は有効な注文を処理する`` () =
         // 最初は OrderPlaced
         match events.[0] with
         | PlaceOrderEvent.OrderPlaced _ -> ()
-        | _ -> failwith "Expected OrderPlaced event"
+        | _ -> failwith "Expected OrderPlaced event as first event in placeOrder workflow"
     | Error error -> failwith $"Expected Ok, got Error: {error}"
 
 [<Fact>]

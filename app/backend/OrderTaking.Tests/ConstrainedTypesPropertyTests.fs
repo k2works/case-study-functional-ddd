@@ -43,7 +43,7 @@ let ``String50: 空文字列は作成失敗`` () =
 
 [<Property>]
 let ``String50: 51文字以上は作成失敗`` (str: string) =
-    if str <> null && str.Length > 50 then
+    if not (isNull str) && str.Length > 50 then
         match String50.create "Field" str with
         | Error _ -> true
         | Ok _ -> false

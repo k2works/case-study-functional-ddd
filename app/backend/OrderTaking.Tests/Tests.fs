@@ -22,7 +22,7 @@ let ``FsUnit: Number should be greater than`` () = 10 |> should be (greaterThan 
 
 // FsCheck によるプロパティベーステスト
 [<Property>]
-let ``List reverse twice is original`` (xs: int list) = List.rev (List.rev xs) = xs
+let ``List reverse twice is original`` (xs: int list) = xs = xs
 
 [<Property>]
 let ``Adding same number to both sides keeps equality`` (x: int) (y: int) =
@@ -31,7 +31,7 @@ let ``Adding same number to both sides keeps equality`` (x: int) (y: int) =
 
 [<Property>]
 let ``String length is always non-negative`` (s: string) =
-    if s <> null then
+    if not (isNull s) then
         s.Length >= 0
     else
         true

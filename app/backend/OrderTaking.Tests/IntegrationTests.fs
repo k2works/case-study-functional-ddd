@@ -130,16 +130,16 @@ let ``E2E: 境界値を含む有効な注文が正常に処理される`` () =
             // 各明細の数量を検証
             match pricedOrder.Lines.[0].Quantity with
             | OrderQuantity.Unit qty -> UnitQuantity.value qty |> should equal 1
-            | _ -> failwith "Expected Unit quantity"
+            | _ -> failwith "Expected Unit quantity for first order line"
 
             match pricedOrder.Lines.[1].Quantity with
             | OrderQuantity.Unit qty -> UnitQuantity.value qty |> should equal 100
-            | _ -> failwith "Expected Unit quantity"
+            | _ -> failwith "Expected Unit quantity for second order line"
 
             match pricedOrder.Lines.[2].Quantity with
             | OrderQuantity.Kilogram qty -> KilogramQuantity.value qty |> should equal 0.05m
-            | _ -> failwith "Expected Kilogram quantity"
-        | _ -> failwith "Expected OrderPlaced event"
+            | _ -> failwith "Expected Kilogram quantity for third order line"
+        | _ -> failwith "Expected OrderPlaced event in integration test"
     | Error error -> failwith $"Expected Ok, got Error: {PlaceOrderError.toString error}"
 
 // ========================================

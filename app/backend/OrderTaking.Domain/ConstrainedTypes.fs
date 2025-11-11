@@ -272,10 +272,7 @@ module ConstrainedTypes =
 
         /// Price のリストから BillingAmount を作成
         let sumPrices prices =
-            prices
-            |> List.map Price.value
-            |> List.sum
-            |> unsafeCreate
+            prices |> List.sumBy Price.value |> unsafeCreate
 
     // ========================================
     // 識別子
