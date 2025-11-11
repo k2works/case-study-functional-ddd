@@ -90,12 +90,12 @@ Task("Lint")
 {
     var exitCode = StartProcess("dotnet", new ProcessSettings
     {
-        Arguments = "dotnet-fsharplint lint OrderTaking.sln"
+        Arguments = "dotnet-fsharplint lint OrderTaking.sln --lint-config fsharplint.json"
     });
 
     if (exitCode != 0)
     {
-        Warning("FSharpLint found issues.");
+        throw new Exception($"FSharpLint found issues. Please fix them before committing.");
     }
 });
 
