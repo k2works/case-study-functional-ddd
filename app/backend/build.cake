@@ -147,9 +147,10 @@ Task("Coverage")
     }
 
     var reportPath = "./TestResults/CoverageReport";
-    var exitCode = StartProcess("reportgenerator", new ProcessSettings
+    var exitCode = StartProcess("dotnet", new ProcessSettings
     {
         Arguments = new ProcessArgumentBuilder()
+            .Append("reportgenerator")
             .Append($"-reports:{coverageFiles.First()}")
             .Append($"-targetdir:{reportPath}")
             .Append("-reporttypes:Html;Cobertura")
