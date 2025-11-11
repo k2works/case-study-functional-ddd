@@ -144,6 +144,28 @@ claude mcp add --transport http byterover-mcp --scope user https://mcp.byterover
 claude mcp add github npx -y @modelcontextprotocol/server-github -s project
 ```
 
+### Git Hooks のセットアップ
+
+コミット前に品質チェックを自動実行する Git hooks を設定します：
+
+```bash
+# Linux/Mac
+bash scripts/setup-hooks.sh
+
+# Windows (PowerShell)
+powershell scripts/setup-hooks.ps1
+```
+
+Pre-commit フックは以下をチェックします：
+1. **Format Check**: Fantomas によるコードフォーマット検証
+2. **Build**: 警告ゼロでのビルド成功
+3. **Tests**: 全テストの成功
+
+フックをスキップする場合：
+```bash
+git commit --no-verify
+```
+
 ### 開発ツール
 
 - **IDE**: Visual Studio Code + Ionide / JetBrains Rider
