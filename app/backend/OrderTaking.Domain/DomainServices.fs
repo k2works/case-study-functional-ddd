@@ -369,3 +369,66 @@ module DomainServices =
             // スタブとして常に成功を返す
             // 実際の実装では SMTP や外部 API を使用してメールを送信
             Ok()
+
+    // ========================================
+    // PlaceOrder Workflow
+    // ========================================
+
+    /// PlaceOrder ワークフローのエラー
+    type PlaceOrderError =
+        | ValidationError of ValidationError list
+        | PricingError of string
+        | AcknowledgmentError of string
+
+    module PlaceOrderError =
+        /// PlaceOrderError を文字列に変換する
+        let toString =
+            function
+            | ValidationError errors ->
+                let errorMessages =
+                    errors
+                    |> List.map ValidationError.toString
+                    |> String.concat "; "
+
+                $"Validation failed: {errorMessages}"
+            | PricingError msg -> $"Pricing failed: {msg}"
+            | AcknowledgmentError msg -> $"Acknowledgment failed: {msg}"
+
+    module PlaceOrderWorkflow =
+
+        /// PlaceOrder ワークフローの依存性
+        type CheckProductCodeExists = Validation.CheckProductCodeExists
+        type CheckAddressExists = Validation.CheckAddressExists
+        type GetProductPrice = Pricing.GetProductPrice
+        type SendOrderAcknowledgment = Acknowledgment.SendOrderAcknowledgment
+
+        /// 注文を処理するワークフロー
+        let placeOrder
+            (checkProductCodeExists: CheckProductCodeExists)
+            (checkAddressExists: CheckAddressExists)
+            (getProductPrice: GetProductPrice)
+            (sendAcknowledgment: SendOrderAcknowledgment)
+            (unvalidatedOrder: UnvalidatedOrder)
+            : Result<PlaceOrderEvent list, PlaceOrderError> =
+
+            // 1. Validation ステップ
+            let validatedOrderResult =
+                Validation.validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+
+            match validatedOrderResult with
+            | Error errors -> Error(PlaceOrderError.ValidationError errors)
+            | Ok validatedOrder ->
+                // 2. Pricing ステップ
+                let pricedOrderResult =
+                    Pricing.priceOrder getProductPrice validatedOrder
+
+                match pricedOrderResult with
+                | Error msg -> Error(PlaceOrderError.PricingError msg)
+                | Ok pricedOrder ->
+                    // 3. Acknowledgment ステップ
+                    let eventsResult =
+                        Acknowledgment.acknowledgeOrder sendAcknowledgment pricedOrder
+
+                    match eventsResult with
+                    | Error msg -> Error(PlaceOrderError.AcknowledgmentError msg)
+                    | Ok events -> Ok events

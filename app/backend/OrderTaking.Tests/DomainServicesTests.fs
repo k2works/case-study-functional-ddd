@@ -451,3 +451,164 @@ let ``acknowledgeOrder は AmountToBill が 0 の場合 BillableOrderPlaced を�
             | _ -> false)
         |> should be False
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+// ========================================
+// PlaceOrder Workflow Tests
+// ========================================
+
+[<Fact>]
+let ``placeOrder は有効な注文を処理する`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid().ToString()
+
+    let unvalidatedOrder =
+        UnvalidatedOrder.create
+            guid
+            (UnvalidatedCustomerInfo.create "John" "Doe" "john@example.com")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            [ UnvalidatedOrderLine.create (System.Guid.NewGuid().ToString()) "W1234" 10.0m ]
+
+    // Mock dependencies
+    let checkProductCodeExists code =
+        Ok(ProductCode.Widget(WidgetCode.unsafeCreate code))
+
+    let checkAddressExists addr = Ok addr
+
+    let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
+
+    let sendAcknowledgment acknowledgment = Ok()
+
+    // Act
+    let result =
+        PlaceOrderWorkflow.placeOrder
+            checkProductCodeExists
+            checkAddressExists
+            getProductPrice
+            sendAcknowledgment
+            unvalidatedOrder
+
+    // Assert
+    match result with
+    | Ok events ->
+        // OrderPlaced, BillableOrderPlaced, AcknowledgmentSent の 3 つのイベント
+        events.Length |> should equal 3
+
+        // 最初は OrderPlaced
+        match events.[0] with
+        | PlaceOrderEvent.OrderPlaced _ -> ()
+        | _ -> failwith "Expected OrderPlaced event"
+    | Error error -> failwith $"Expected Ok, got Error: {error}"
+
+[<Fact>]
+let ``placeOrder はバリデーションエラーを返す`` () =
+    // Arrange - 無効な名前
+    let guid = System.Guid.NewGuid().ToString()
+
+    let unvalidatedOrder =
+        UnvalidatedOrder.create
+            guid
+            (UnvalidatedCustomerInfo.create "" "Doe" "john@example.com")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            []
+
+    let checkProductCodeExists code =
+        Ok(ProductCode.Widget(WidgetCode.unsafeCreate code))
+
+    let checkAddressExists addr = Ok addr
+
+    let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
+
+    let sendAcknowledgment acknowledgment = Ok()
+
+    // Act
+    let result =
+        PlaceOrderWorkflow.placeOrder
+            checkProductCodeExists
+            checkAddressExists
+            getProductPrice
+            sendAcknowledgment
+            unvalidatedOrder
+
+    // Assert
+    match result with
+    | Error(PlaceOrderError.ValidationError _) -> () // バリデーションエラーを期待
+    | Ok _ -> failwith "Expected ValidationError"
+    | Error error -> failwith $"Expected ValidationError, got: {error}"
+
+[<Fact>]
+let ``placeOrder は価格計算エラーを返す`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid().ToString()
+
+    let unvalidatedOrder =
+        UnvalidatedOrder.create
+            guid
+            (UnvalidatedCustomerInfo.create "John" "Doe" "john@example.com")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            [ UnvalidatedOrderLine.create (System.Guid.NewGuid().ToString()) "W1234" 10.0m ]
+
+    let checkProductCodeExists code =
+        Ok(ProductCode.Widget(WidgetCode.unsafeCreate code))
+
+    let checkAddressExists addr = Ok addr
+
+    // 価格取得に失敗
+    let getProductPrice productCode = Error "Price service unavailable"
+
+    let sendAcknowledgment acknowledgment = Ok()
+
+    // Act
+    let result =
+        PlaceOrderWorkflow.placeOrder
+            checkProductCodeExists
+            checkAddressExists
+            getProductPrice
+            sendAcknowledgment
+            unvalidatedOrder
+
+    // Assert
+    match result with
+    | Error(PlaceOrderError.PricingError _) -> () // 価格計算エラーを期待
+    | Ok _ -> failwith "Expected PricingError"
+    | Error error -> failwith $"Expected PricingError, got: {error}"
+
+[<Fact>]
+let ``placeOrder は確認エラーを返す`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid().ToString()
+
+    let unvalidatedOrder =
+        UnvalidatedOrder.create
+            guid
+            (UnvalidatedCustomerInfo.create "John" "Doe" "john@example.com")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            [ UnvalidatedOrderLine.create (System.Guid.NewGuid().ToString()) "W1234" 10.0m ]
+
+    let checkProductCodeExists code =
+        Ok(ProductCode.Widget(WidgetCode.unsafeCreate code))
+
+    let checkAddressExists addr = Ok addr
+
+    let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
+
+    // メール送信に失敗
+    let sendAcknowledgment acknowledgment = Error "Email service unavailable"
+
+    // Act
+    let result =
+        PlaceOrderWorkflow.placeOrder
+            checkProductCodeExists
+            checkAddressExists
+            getProductPrice
+            sendAcknowledgment
+            unvalidatedOrder
+
+    // Assert
+    match result with
+    | Error(PlaceOrderError.AcknowledgmentError _) -> () // 確認エラーを期待
+    | Ok _ -> failwith "Expected AcknowledgmentError"
+    | Error error -> failwith $"Expected AcknowledgmentError, got: {error}"
