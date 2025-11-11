@@ -9,6 +9,7 @@
     <Compile Include="ConstrainedTypesTests.fs" />
     <Compile Include="ConstrainedTypesPropertyTests.fs" />
     <Compile Include="CompoundTypesTests.fs" />
+    <Compile Include="EntitiesTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
   <ItemGroup>
