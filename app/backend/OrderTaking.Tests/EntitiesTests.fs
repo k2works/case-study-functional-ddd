@@ -141,3 +141,80 @@ let ``UnvalidatedOrder.create は空の明細リストを受け入れる`` () =
     // Assert
     order.OrderId |> should equal orderId
     order.Lines |> should be Empty
+
+// ========================================
+// ValidatedOrderLine Tests
+// ========================================
+
+open OrderTaking.Domain.ConstrainedTypes
+open OrderTaking.Domain.CompoundTypes
+
+[<Fact>]
+let ``ValidatedOrderLine.create は検証済みデータを受け入れる`` () =
+    // Arrange
+    let orderLineId = OrderLineId.generate ()
+
+    let productCode =
+        ProductCode.Widget(WidgetCode.unsafeCreate "W1234")
+
+    let quantity =
+        OrderQuantity.Unit(UnitQuantity.unsafeCreate 10)
+
+    // Act
+    let orderLine =
+        ValidatedOrderLine.create orderLineId productCode quantity
+
+    // Assert
+    orderLine.OrderLineId |> should equal orderLineId
+    orderLine.ProductCode |> should equal productCode
+    orderLine.Quantity |> should equal quantity
+
+// ========================================
+// ValidatedOrder Tests
+// ========================================
+
+[<Fact>]
+let ``ValidatedOrder.create は検証済みデータを受け入れる`` () =
+    // Arrange
+    let orderId = OrderId.generate ()
+
+    let customerInfo =
+        match CustomerInfo.create "John" "Doe" "john@example.com" with
+        | Ok c -> c
+        | Error e -> failwith e
+
+    let shippingAddress =
+        match Address.create "123 Main St" None "Tokyo" "12345" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let billingAddress =
+        match Address.create "456 Elm St" (Some "Suite 100") "Osaka" "67890" with
+        | Ok a -> a
+        | Error e -> failwith e
+
+    let lines =
+        [ ValidatedOrderLine.create
+              (OrderLineId.generate ())
+              (ProductCode.Widget(WidgetCode.unsafeCreate "W1234"))
+              (OrderQuantity.Unit(UnitQuantity.unsafeCreate 10))
+          ValidatedOrderLine.create
+              (OrderLineId.generate ())
+              (ProductCode.Gizmo(GizmoCode.unsafeCreate "G5678"))
+              (OrderQuantity.Kilogram(KilogramQuantity.unsafeCreate 2.5m)) ]
+
+    // Act
+    let order =
+        ValidatedOrder.create orderId customerInfo shippingAddress billingAddress lines
+
+    // Assert
+    order.OrderId |> should equal orderId
+    order.CustomerInfo |> should equal customerInfo
+
+    order.ShippingAddress
+    |> should equal shippingAddress
+
+    order.BillingAddress
+    |> should equal billingAddress
+
+    order.Lines |> should equal lines

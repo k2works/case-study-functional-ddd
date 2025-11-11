@@ -1,5 +1,8 @@
 namespace OrderTaking.Domain
 
+open OrderTaking.Domain.ConstrainedTypes
+open OrderTaking.Domain.CompoundTypes
+
 // ========================================
 // エンティティ
 //
@@ -75,6 +78,44 @@ module Entities =
 
     module UnvalidatedOrder =
         /// UnvalidatedOrder を作成する
+        let create orderId customerInfo shippingAddress billingAddress lines =
+            { OrderId = orderId
+              CustomerInfo = customerInfo
+              ShippingAddress = shippingAddress
+              BillingAddress = billingAddress
+              Lines = lines }
+
+    // ========================================
+    // ValidatedOrderLine
+    // ========================================
+
+    /// 検証済みの注文明細
+    type ValidatedOrderLine =
+        { OrderLineId: OrderLineId
+          ProductCode: ProductCode
+          Quantity: OrderQuantity }
+
+    module ValidatedOrderLine =
+        /// ValidatedOrderLine を作成する
+        let create orderLineId productCode quantity =
+            { OrderLineId = orderLineId
+              ProductCode = productCode
+              Quantity = quantity }
+
+    // ========================================
+    // ValidatedOrder
+    // ========================================
+
+    /// 検証済みの注文
+    type ValidatedOrder =
+        { OrderId: OrderId
+          CustomerInfo: CustomerInfo
+          ShippingAddress: Address
+          BillingAddress: Address
+          Lines: ValidatedOrderLine list }
+
+    module ValidatedOrder =
+        /// ValidatedOrder を作成する
         let create orderId customerInfo shippingAddress billingAddress lines =
             { OrderId = orderId
               CustomerInfo = customerInfo
