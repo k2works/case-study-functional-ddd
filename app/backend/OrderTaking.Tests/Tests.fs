@@ -30,4 +30,8 @@ let ``Adding same number to both sides keeps equality`` (x: int) (y: int) =
     (x = y) = ((x + z) = (y + z))
 
 [<Property>]
-let ``String length is always non-negative`` (s: string) = s <> null ==> lazy (s.Length >= 0)
+let ``String length is always non-negative`` (s: string) =
+    if s <> null then
+        s.Length >= 0
+    else
+        true
