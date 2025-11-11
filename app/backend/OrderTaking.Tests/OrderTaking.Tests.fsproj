@@ -8,9 +8,9 @@
   <ItemGroup>
     <Compile Include="ConstrainedTypesTests.fs" />
     <Compile Include="ConstrainedTypesPropertyTests.fs" />
+    <Compile Include="CompoundTypesTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
