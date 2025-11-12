@@ -1,3 +1,5 @@
+namespace OrderTaking.WebApi
+
 open System
 open System.Text.Json
 open System.Text.Json.Serialization
@@ -10,66 +12,70 @@ open OrderTaking.Domain.DomainServices
 open OrderTaking.Infrastructure.DependencyContainer
 open OrderTaking.Infrastructure.JsonSerialization
 
-[<EntryPoint>]
-let main args =
-    let builder =
-        WebApplication.CreateBuilder(args)
+// WebApplicationFactory から参照可能にするためのダミークラス
+type Program() = class end
 
-    // Swagger/OpenAPI の設定
-    builder.Services.AddEndpointsApiExplorer()
-    |> ignore
+module Main =
+    [<EntryPoint>]
+    let main args =
+        let builder =
+            WebApplication.CreateBuilder(args)
 
-    builder.Services.AddSwaggerGen() |> ignore
+        // Swagger/OpenAPI の設定
+        builder.Services.AddEndpointsApiExplorer()
+        |> ignore
 
-    // JSON シリアライゼーションの設定
-    builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>
-        (fun (options: Microsoft.AspNetCore.Http.Json.JsonOptions) ->
-            options.SerializerOptions.PropertyNamingPolicy <- JsonNamingPolicy.CamelCase
-            options.SerializerOptions.WriteIndented <- true
-            options.SerializerOptions.DefaultIgnoreCondition <- JsonIgnoreCondition.WhenWritingNull
-            options.SerializerOptions.Converters.Add(JsonFSharpConverter()))
-    |> ignore
+        builder.Services.AddSwaggerGen() |> ignore
 
-    // DI: PlaceOrderDependencies の登録
-    let dependencies =
-        createDefaultDependencies ()
+        // JSON シリアライゼーションの設定
+        builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>
+            (fun (options: Microsoft.AspNetCore.Http.Json.JsonOptions) ->
+                options.SerializerOptions.PropertyNamingPolicy <- JsonNamingPolicy.CamelCase
+                options.SerializerOptions.WriteIndented <- true
+                options.SerializerOptions.DefaultIgnoreCondition <- JsonIgnoreCondition.WhenWritingNull
+                options.SerializerOptions.Converters.Add(JsonFSharpConverter()))
+        |> ignore
 
-    builder.Services.AddSingleton<PlaceOrderDependencies>(dependencies)
-    |> ignore
+        // DI: PlaceOrderDependencies の登録
+        let dependencies =
+            createDefaultDependencies ()
 
-    let app = builder.Build()
+        builder.Services.AddSingleton<PlaceOrderDependencies>(dependencies)
+        |> ignore
 
-    // Swagger UI の設定（開発環境のみ）
-    if app.Environment.IsDevelopment() then
-        app.UseSwagger() |> ignore
-        app.UseSwaggerUI() |> ignore
+        let app = builder.Build()
 
-    // POST /api/orders エンドポイント
-    app.MapPost(
-        "/api/orders",
-        Func<UnvalidatedOrder, PlaceOrderDependencies, IResult>
-            (fun (unvalidatedOrder: UnvalidatedOrder) (deps: PlaceOrderDependencies) ->
-                match
-                    PlaceOrderWorkflow.placeOrder
-                        deps.CheckProductCodeExists
-                        deps.CheckAddressExists
-                        deps.GetProductPrice
-                        deps.SendOrderAcknowledgment
-                        unvalidatedOrder
-                with
-                | Error error ->
-                    let errorMessage =
-                        PlaceOrderError.toString error
+        // Swagger UI の設定（開発環境のみ）
+        if app.Environment.IsDevelopment() then
+            app.UseSwagger() |> ignore
+            app.UseSwaggerUI() |> ignore
 
-                    Results.BadRequest({| error = errorMessage |})
-                | Ok events ->
-                    let eventJsons =
-                        events |> List.map serializePlaceOrderEvent
+        // POST /api/orders エンドポイント
+        app.MapPost(
+            "/api/orders",
+            Func<UnvalidatedOrder, PlaceOrderDependencies, IResult>
+                (fun (unvalidatedOrder: UnvalidatedOrder) (deps: PlaceOrderDependencies) ->
+                    match
+                        PlaceOrderWorkflow.placeOrder
+                            deps.CheckProductCodeExists
+                            deps.CheckAddressExists
+                            deps.GetProductPrice
+                            deps.SendOrderAcknowledgment
+                            unvalidatedOrder
+                    with
+                    | Error error ->
+                        let errorMessage =
+                            PlaceOrderError.toString error
 
-                    Results.Ok({| events = eventJsons |}))
-    )
-    |> ignore
+                        Results.BadRequest({| error = errorMessage |})
+                    | Ok events ->
+                        let eventJsons =
+                            events |> List.map serializePlaceOrderEvent
 
-    app.Run()
+                        Results.Ok({| events = eventJsons |}))
+        )
+        |> ignore
 
-    0 // Exit code
+        app.Run()
+
+        0 // Exit code
