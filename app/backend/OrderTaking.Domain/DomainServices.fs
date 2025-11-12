@@ -119,6 +119,34 @@ module DomainServices =
             | Error errors, Ok _ -> Error errors
             | Ok _, Error errors -> Error errors
 
+        /// エラーを抽出するヘルパー関数
+        let private extractErrors (result: Result<'T, ValidationError list>) : ValidationError list =
+            match result with
+            | Error errors -> errors
+            | Ok _ -> []
+
+        /// 注文明細リストを検証する
+        let private validateLines
+            (checkProductCodeExists: CheckProductCodeExists)
+            (unvalidatedLines: UnvalidatedOrderLine list)
+            : Result<ValidatedOrderLine list, ValidationError list> =
+            let results =
+                unvalidatedLines
+                |> List.map (validateOrderLine checkProductCodeExists)
+
+            let errors =
+                results |> List.collect extractErrors
+
+            if errors.IsEmpty then
+                results
+                |> List.choose (fun result ->
+                    match result with
+                    | Ok line -> Some line
+                    | Error _ -> None)
+                |> Ok
+            else
+                Error errors
+
         /// 注文を検証する
         let validateOrder
             (checkProductCodeExists: CheckProductCodeExists)
@@ -147,19 +175,7 @@ module DomainServices =
 
             // Lines の検証
             let linesResult =
-                let validateLine =
-                    validateOrderLine checkProductCodeExists
-
-                unvalidatedOrder.Lines
-                |> List.map validateLine
-                |> List.fold
-                    (fun acc result ->
-                        match acc, result with
-                        | Ok lines, Ok line -> Ok(lines @ [ line ])
-                        | Error errors, Ok _ -> Error errors
-                        | Ok _, Error errors -> Error errors
-                        | Error errors1, Error errors2 -> Error(errors1 @ errors2))
-                    (Ok [])
+                validateLines checkProductCodeExists unvalidatedOrder.Lines
 
             // すべての結果を組み合わせる
             match orderIdResult, customerInfoResult, shippingAddressResult, billingAddressResult, linesResult with
@@ -168,21 +184,12 @@ module DomainServices =
             | _ ->
                 // すべてのエラーを集約
                 let allErrors =
-                    [ match orderIdResult with
-                      | Error errors -> yield! errors
-                      | Ok _ -> ()
-                      match customerInfoResult with
-                      | Error errors -> yield! errors
-                      | Ok _ -> ()
-                      match shippingAddressResult with
-                      | Error errors -> yield! errors
-                      | Ok _ -> ()
-                      match billingAddressResult with
-                      | Error errors -> yield! errors
-                      | Ok _ -> ()
-                      match linesResult with
-                      | Error errors -> yield! errors
-                      | Ok _ -> () ]
+                    [ extractErrors orderIdResult
+                      extractErrors customerInfoResult
+                      extractErrors shippingAddressResult
+                      extractErrors billingAddressResult
+                      extractErrors linesResult ]
+                    |> List.concat
 
                 Error allErrors
 
