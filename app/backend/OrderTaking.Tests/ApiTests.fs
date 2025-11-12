@@ -109,6 +109,26 @@ let ``POST /api/orders with invalid order returns 400 BadRequest`` () =
     }
 
 [<Fact>]
+let ``POST /api/orders with empty body returns 400 BadRequest`` () =
+    task {
+        use factory =
+            new WebApplicationFactory<OrderTaking.WebApi.Program>()
+
+        use client = factory.CreateClient()
+
+        use content =
+            new StringContent("", Encoding.UTF8, "application/json")
+
+        let! response = client.PostAsync("/api/orders", content)
+
+        response.StatusCode
+        |> should equal HttpStatusCode.BadRequest
+
+        let! responseBody = response.Content.ReadAsStringAsync()
+        Assert.Contains("error", responseBody)
+    }
+
+[<Fact>]
 let ``POST /api/orders with invalid JSON returns 400 BadRequest`` () =
     task {
         use factory =
@@ -125,6 +145,9 @@ let ``POST /api/orders with invalid JSON returns 400 BadRequest`` () =
 
         response.StatusCode
         |> should equal HttpStatusCode.BadRequest
+
+        let! responseBody = response.Content.ReadAsStringAsync()
+        Assert.Contains("error", responseBody)
     }
 
 [<Fact>]

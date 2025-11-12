@@ -61,27 +61,31 @@ module Main =
                         use reader = new StreamReader(request.Body)
                         let! json = reader.ReadToEndAsync()
 
-                        match deserializeUnvalidatedOrder json with
-                        | Error deserializeError -> return Results.BadRequest({| error = deserializeError |})
-                        | Ok unvalidatedOrder ->
-                            match
-                                PlaceOrderWorkflow.placeOrder
-                                    deps.CheckProductCodeExists
-                                    deps.CheckAddressExists
-                                    deps.GetProductPrice
-                                    deps.SendOrderAcknowledgment
-                                    unvalidatedOrder
-                            with
-                            | Error error ->
-                                let errorMessage =
-                                    PlaceOrderError.toString error
+                        // 空のボディをチェック
+                        if System.String.IsNullOrWhiteSpace(json) then
+                            return Results.BadRequest({| error = "Request body is empty" |})
+                        else
+                            match deserializeUnvalidatedOrder json with
+                            | Error deserializeError -> return Results.BadRequest({| error = deserializeError |})
+                            | Ok unvalidatedOrder ->
+                                match
+                                    PlaceOrderWorkflow.placeOrder
+                                        deps.CheckProductCodeExists
+                                        deps.CheckAddressExists
+                                        deps.GetProductPrice
+                                        deps.SendOrderAcknowledgment
+                                        unvalidatedOrder
+                                with
+                                | Error error ->
+                                    let errorMessage =
+                                        PlaceOrderError.toString error
 
-                                return Results.BadRequest({| error = errorMessage |})
-                            | Ok events ->
-                                let eventJsons =
-                                    events |> List.map serializePlaceOrderEvent
+                                    return Results.BadRequest({| error = errorMessage |})
+                                | Ok events ->
+                                    let eventJsons =
+                                        events |> List.map serializePlaceOrderEvent
 
-                                return Results.Ok({| events = eventJsons |})
+                                    return Results.Ok({| events = eventJsons |})
                     })
         )
         |> ignore
