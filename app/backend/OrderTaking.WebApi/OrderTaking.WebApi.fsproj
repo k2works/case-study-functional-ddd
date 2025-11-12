@@ -13,4 +13,9 @@
     <ProjectReference Include="..\OrderTaking.Infrastructure\OrderTaking.Infrastructure.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.0" />
+  </ItemGroup>
+
 </Project>
