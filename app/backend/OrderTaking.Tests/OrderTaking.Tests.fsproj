@@ -13,6 +13,7 @@
     <Compile Include="DomainServicesTests.fs" />
     <Compile Include="IntegrationTests.fs" />
     <Compile Include="AdaptersTests.fs" />
+    <Compile Include="JsonSerializationTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
   <ItemGroup>

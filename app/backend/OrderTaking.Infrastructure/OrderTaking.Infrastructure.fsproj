@@ -8,11 +8,16 @@
   <ItemGroup>
     <Compile Include="Adapters.fs" />
     <Compile Include="DependencyContainer.fs" />
+    <Compile Include="JsonSerialization.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OrderTaking.Domain\OrderTaking.Domain.fsproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FSharp.SystemTextJson" Version="1.4.36" />
   </ItemGroup>
 
 </Project>
