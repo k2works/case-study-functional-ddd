@@ -1,8 +1,10 @@
 namespace OrderTaking.WebApi
 
 open System
+open System.IO
 open System.Text.Json
 open System.Text.Json.Serialization
+open System.Threading.Tasks
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.DependencyInjection
@@ -53,26 +55,34 @@ module Main =
         // POST /api/orders エンドポイント
         app.MapPost(
             "/api/orders",
-            Func<UnvalidatedOrder, PlaceOrderDependencies, IResult>
-                (fun (unvalidatedOrder: UnvalidatedOrder) (deps: PlaceOrderDependencies) ->
-                    match
-                        PlaceOrderWorkflow.placeOrder
-                            deps.CheckProductCodeExists
-                            deps.CheckAddressExists
-                            deps.GetProductPrice
-                            deps.SendOrderAcknowledgment
-                            unvalidatedOrder
-                    with
-                    | Error error ->
-                        let errorMessage =
-                            PlaceOrderError.toString error
+            Func<HttpRequest, PlaceOrderDependencies, Task<IResult>>
+                (fun (request: HttpRequest) (deps: PlaceOrderDependencies) ->
+                    task {
+                        use reader = new StreamReader(request.Body)
+                        let! json = reader.ReadToEndAsync()
 
-                        Results.BadRequest({| error = errorMessage |})
-                    | Ok events ->
-                        let eventJsons =
-                            events |> List.map serializePlaceOrderEvent
+                        match deserializeUnvalidatedOrder json with
+                        | Error deserializeError -> return Results.BadRequest({| error = deserializeError |})
+                        | Ok unvalidatedOrder ->
+                            match
+                                PlaceOrderWorkflow.placeOrder
+                                    deps.CheckProductCodeExists
+                                    deps.CheckAddressExists
+                                    deps.GetProductPrice
+                                    deps.SendOrderAcknowledgment
+                                    unvalidatedOrder
+                            with
+                            | Error error ->
+                                let errorMessage =
+                                    PlaceOrderError.toString error
 
-                        Results.Ok({| events = eventJsons |}))
+                                return Results.BadRequest({| error = errorMessage |})
+                            | Ok events ->
+                                let eventJsons =
+                                    events |> List.map serializePlaceOrderEvent
+
+                                return Results.Ok({| events = eventJsons |})
+                    })
         )
         |> ignore
 
