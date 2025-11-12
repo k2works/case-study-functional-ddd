@@ -89,6 +89,7 @@ module Main =
                                         return Results.Ok({| events = eventJsons |})
                         })
             )
+            .Accepts<UnvalidatedOrder>("application/json")
             .WithName("PlaceOrder")
             .WithTags("Orders")
             .WithSummary("Place a new order")
