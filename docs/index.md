@@ -4,7 +4,30 @@
 
 本プロジェクトは、F# の関数型プログラミングとドメイン駆動設計の原則を適用した注文受付システムです。「Domain Modeling Made Functional」の実践例として、型安全で保守性の高いソフトウェア開発のアプローチを学習できます。
 
-## 🎯 プロジェクト状況（2025-11-10）
+## 🎯 プロジェクト状況（2025-11-12）
+
+### イテレーション 2 完了（100%）
+
+**達成率**: 全 29 タスク完了（100%）、全 124 テスト成功（100%）
+
+**主な成果**:
+- ✅ Story 1.1「基本的な注文受付」完全実装
+- ✅ Phase 1-10 すべて完了（ドメイン層 + インフラ層 + Web API）
+- ✅ テストカバレッジ: 80%+ 達成（124 テスト: 単体 + プロパティ + 統合 + API）
+- ✅ Web API with Swagger UI 公開（プロダクション対応）
+- ✅ コード品質: Fantomas、FSharpLint、pre-commit フック統合
+- ✅ 見積もり精度: 100%（イテレーション平均 98.7%）
+
+**実装完了**:
+- 制約付き型 13 種類、複合値オブジェクト 5 種類、エンティティ 3 種類
+- ドメインサービス 4 種類、PlaceOrder ワークフロー
+- インフラストラクチャレイヤー、JSON シリアライゼーション（F# 対応）
+- POST /api/orders エンドポイント、Swagger UI
+
+**開発プロセス**:
+- イテレーション計画: [iteration_plan-2.md](./development/iteration_plan-2.md)
+- レトロスペクティブ: [retrospective-2.md](./development/retrospective-2.md)
+- KPT 分析と 7 件の改善アクション定義
 
 ### イテレーション 1 完了（100%）
 
@@ -15,21 +38,11 @@
 - ✅ テストカバレッジ: 29 テスト（日本語表記）すべて成功
 - ✅ コード品質: Fantomas フォーマット準拠、FSharpLint 警告ゼロ
 - ✅ ドキュメント整備: プロセス、品質ガイド、レトロスペクティブ完備
-- ⚠️ カバレッジ率: 49%（目標 80%、Iteration 2 で改善予定）
 
 **開発プロセス**:
 - イテレーション計画: [iteration_plan-1.md](./development/iteration_plan-1.md)
 - レトロスペクティブ: [retrospective-1.md](./development/retrospective-1.md)
-- 13 件の改善アクションを特定
-
-### イテレーション 2 準備中
-
-**重点目標**:
-1. テストカバレッジ 80% 達成
-2. Story 1.1 完全実装
-3. CI/CD パイプライン改善
-
-詳細: [iteration_plan-2.md](./development/iteration_plan-2.md)（準備中）
+- 13 件の改善アクションを特定（イテレーション 2 で実施）
 
 ## まず読むべきドキュメント
 
@@ -78,11 +91,45 @@
 
 ## プロジェクト管理
 
+### 📅 リリース計画
+
+**計画期間**: 6.5 ヶ月（26 週間、13 イテレーション）
+**総ストーリーポイント**: 87 SP
+**計画ベロシティ**: 18 SP / イテレーション
+
+#### マイルストーン
+
+| リリース | 目標日 | 主要機能 | 状況 |
+|---------|--------|---------|------|
+| **Iteration 0** | 2025-01-19 | 環境構築 | ✅ 完了 |
+| **Iteration 1** | 2025-02-02 | 制約付き型、開発基盤 | ✅ 完了（100%） |
+| **Release 1.0 (MVP)** | 2025-03-15 | 注文受付・検証・価格計算・確定 | 🔄 進行中 |
+| **Release 1.1** | 2025-04-26 | 部門連携通知、イベントストア | 📋 計画中 |
+| **Release 1.2** | 2025-06-07 | エラーハンドリング強化 | 📋 計画中 |
+| **Release 2.0** | 2025-07-05 | 運用機能、ステータス照会 API | 📋 計画中 |
+
+**詳細**: [リリース計画](./development/release_plan.md)
+
+#### 主要機能リリース計画
+
+**Release 1.0 - MVP** (6 イテレーション、47 SP):
+- ✅ Story 1.1: 基本的な注文受付（8 SP）- Iteration 1-2（完了）
+- 📋 Story 1.2: 注文内容の検証（13 SP）- Iteration 3
+- 📋 Story 1.3: 価格の自動計算（5 SP）- Iteration 3-4
+- 📋 Story 1.4: 注文の確定処理（8 SP）- Iteration 4
+- 📋 Story 3.1: 商品コードの管理（3 SP）- Iteration 4
+- 📋 Story 4.1: 注文受付 API（5 SP）- Iteration 5（一部完了：Web API 実装済み）
+- 📋 Story 5.1: 顧客への確認メール（5 SP）- Iteration 5-6
+
 ### 📋 開発プロセス
 - [イテレーション計画](./development/) - スプリント計画とタスク管理
-  - [Iteration 1 計画](./development/iteration_plan-1.md) - 完了（100%）
-  - [Iteration 1 レトロスペクティブ](./development/retrospective-1.md) - KPT分析と改善アクション
-  - [Iteration 2 計画](./development/iteration_plan-2.md) - 準備中
+  - [Iteration 0 計画](./development/iteration_plan-0.md) - 完了（環境構築）
+  - [Iteration 1 計画](./development/iteration_plan-1.md) - 完了（100%、97.4% 精度）
+  - [Iteration 2 計画](./development/iteration_plan-2.md) - 完了（100%、全 29 タスク）
+- [レトロスペクティブ](./development/) - イテレーション振り返りと改善
+  - [Retrospective 0](./development/retrospective-0.md) - 環境構築の振り返り
+  - [Retrospective 1](./development/retrospective-1.md) - KPT 分析と 13 件の改善アクション
+  - [Retrospective 2](./development/retrospective-2.md) - KPT 分析と 7 件の改善アクション（Story 1.1 完了）
 - [デイリースタンドアップ記録](./operation/process/standup-logs/) - 日次進捗と課題管理
   - [2025年1月](./operation/process/standup-logs/2025-01.md)
 

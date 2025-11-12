@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Pre-commit hook for OrderTaking project
+# Runs quality checks before allowing commit
+#
+
+echo "🔍 Running pre-commit quality checks..."
+
+# Navigate to backend directory
+cd "$(git rev-parse --show-toplevel)/app/backend" || exit 1
+
+# 1. Format Check (Fantomas)
+echo ""
+echo "📝 Checking F# code formatting..."
+if ! dotnet cake --target=FormatCheck; then
+    echo "❌ Format check failed!"
+    echo "💡 Run 'dotnet cake --target=Format' to fix formatting"
+    exit 1
+fi
+echo "✅ Format check passed"
+
+# 2. Build with warnings check
+echo ""
+echo "🔨 Building solution..."
+if ! dotnet build --no-restore -warnaserror 2>&1 | tee /tmp/build.log; then
+    echo "❌ Build failed!"
+    exit 1
+fi
+
+# Check for warnings in build output
+if grep -q "warning" /tmp/build.log; then
+    echo "❌ Build has warnings!"
+    grep "warning" /tmp/build.log
+    exit 1
+fi
+echo "✅ Build passed (0 warnings)"
+
+# 3. Run tests
+echo ""
+echo "🧪 Running tests..."
+if ! dotnet test --no-build --verbosity quiet; then
+    echo "❌ Tests failed!"
+    exit 1
+fi
+echo "✅ All tests passed"
+
+echo ""
+echo "✅ All pre-commit checks passed!"
+echo ""
+
+exit 0

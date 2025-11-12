@@ -7,17 +7,25 @@
 
   <ItemGroup>
     <Compile Include="ConstrainedTypesTests.fs" />
+    <Compile Include="ConstrainedTypesPropertyTests.fs" />
+    <Compile Include="CompoundTypesTests.fs" />
+    <Compile Include="EntitiesTests.fs" />
+    <Compile Include="DomainServicesTests.fs" />
+    <Compile Include="IntegrationTests.fs" />
+    <Compile Include="AdaptersTests.fs" />
+    <Compile Include="JsonSerializationTests.fs" />
+    <Compile Include="ApiTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="FsCheck" Version="2.16.6" />
-    <PackageReference Include="FsCheck.Xunit" Version="2.16.6" />
+    <PackageReference Include="FsCheck" Version="3.3.2" />
+    <PackageReference Include="FsCheck.Xunit" Version="3.3.2" />
     <PackageReference Include="FsUnit.xUnit" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />

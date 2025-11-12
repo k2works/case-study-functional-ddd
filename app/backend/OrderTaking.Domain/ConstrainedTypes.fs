@@ -28,6 +28,44 @@ module ConstrainedTypes =
         /// 安全でない作成（テスト用）
         let unsafeCreate str = String50 str
 
+    /// 100 文字以内の非空文字列
+    type String100 = private String100 of string
+
+    module String100 =
+        /// String100 を作成する（検証付き）
+        let create fieldName str =
+            if System.String.IsNullOrWhiteSpace(str) then
+                Error $"{fieldName} must not be null or empty"
+            elif str.Length > 100 then
+                Error $"{fieldName} must not be more than 100 chars"
+            else
+                Ok(String100 str)
+
+        /// String100 の内部値を取得
+        let value (String100 str) = str
+
+        /// 安全でない作成（テスト用）
+        let unsafeCreate str = String100 str
+
+    /// 255 文字以内の非空文字列
+    type String255 = private String255 of string
+
+    module String255 =
+        /// String255 を作成する（検証付き）
+        let create fieldName str =
+            if System.String.IsNullOrWhiteSpace(str) then
+                Error $"{fieldName} must not be null or empty"
+            elif str.Length > 255 then
+                Error $"{fieldName} must not be more than 255 chars"
+            else
+                Ok(String255 str)
+
+        /// String255 の内部値を取得
+        let value (String255 str) = str
+
+        /// 安全でない作成（テスト用）
+        let unsafeCreate str = String255 str
+
     // ========================================
     // メールアドレス
     // ========================================
@@ -211,7 +249,7 @@ module ConstrainedTypes =
         let unsafeCreate price = Price price
 
         /// Price を乗算する
-        let multiply qty (Price price) = Price(decimal qty * price)
+        let multiply (qty: decimal) (Price price) = Price(qty * price)
 
     /// 請求金額（0.0-10000.00 の小数）
     type BillingAmount = private BillingAmount of decimal
@@ -234,10 +272,7 @@ module ConstrainedTypes =
 
         /// Price のリストから BillingAmount を作成
         let sumPrices prices =
-            prices
-            |> List.map Price.value
-            |> List.sum
-            |> unsafeCreate
+            prices |> List.sumBy Price.value |> unsafeCreate
 
     // ========================================
     // 識別子

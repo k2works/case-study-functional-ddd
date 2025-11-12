@@ -34,7 +34,7 @@ let ``String50.create は空文字列を拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must not be null or empty", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: String50 should reject empty string"
 
 [<Fact>]
 let ``String50.create は長すぎる文字列を拒否する`` () =
@@ -48,7 +48,7 @@ let ``String50.create は長すぎる文字列を拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must not be more than 50 chars", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: String50 should reject string longer than 50 chars"
 
 [<Fact>]
 let ``String50.value は内部値を返す`` () =
@@ -58,6 +58,124 @@ let ``String50.value は内部値を返す`` () =
 
     // Act
     let value = String50.value string50
+
+    // Assert
+    value |> should equal str
+
+// ========================================
+// String100 Tests
+// ========================================
+
+[<Fact>]
+let ``String100.create は有効な文字列を受け入れる`` () =
+    // Arrange
+    let validString =
+        "Valid String for String100"
+
+    // Act
+    let result =
+        String100.create "TestField" validString
+
+    // Assert
+    match result with
+    | Ok _ -> ()
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``String100.create は空文字列を拒否する`` () =
+    // Arrange
+    let emptyString = ""
+
+    // Act
+    let result =
+        String100.create "TestField" emptyString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be null or empty", msg)
+    | Ok _ -> failwith "Expected error: String100 should reject empty string"
+
+[<Fact>]
+let ``String100.create は長すぎる文字列を拒否する`` () =
+    // Arrange
+    let longString = System.String('a', 101)
+
+    // Act
+    let result =
+        String100.create "TestField" longString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be more than 100 chars", msg)
+    | Ok _ -> failwith "Expected error: String100 should reject string longer than 100 chars"
+
+[<Fact>]
+let ``String100.value は元の文字列を返す`` () =
+    // Arrange
+    let str = "Test String"
+    let string100 = String100.unsafeCreate str
+
+    // Act
+    let value = String100.value string100
+
+    // Assert
+    value |> should equal str
+
+// ========================================
+// String255 Tests
+// ========================================
+
+[<Fact>]
+let ``String255.create は有効な文字列を受け入れる`` () =
+    // Arrange
+    let validString =
+        "Valid String for String255"
+
+    // Act
+    let result =
+        String255.create "TestField" validString
+
+    // Assert
+    match result with
+    | Ok _ -> ()
+    | Error msg -> failwith $"Expected Ok, got Error: {msg}"
+
+[<Fact>]
+let ``String255.create は空文字列を拒否する`` () =
+    // Arrange
+    let emptyString = ""
+
+    // Act
+    let result =
+        String255.create "TestField" emptyString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be null or empty", msg)
+    | Ok _ -> failwith "Expected error: String255 should reject empty string"
+
+[<Fact>]
+let ``String255.create は長すぎる文字列を拒否する`` () =
+    // Arrange
+    let longString = System.String('a', 256)
+
+    // Act
+    let result =
+        String255.create "TestField" longString
+
+    // Assert
+    match result with
+    | Error msg -> Assert.Contains("must not be more than 255 chars", msg)
+    | Ok _ -> failwith "Expected error: String255 should reject string longer than 255 chars"
+
+[<Fact>]
+let ``String255.value は元の文字列を返す`` () =
+    // Arrange
+    let str = "Test String for String255"
+    let string255 = String255.unsafeCreate str
+
+    // Act
+    let value = String255.value string255
 
     // Assert
     value |> should equal str
@@ -81,7 +199,7 @@ let ``EmailAddress.create は有効なメールアドレスを受け入れる`` 
     | Error msg -> failwith $"Expected Ok, got Error: {msg}"
 
 [<Fact>]
-let ``EmailAddress.create は @ を含まないメールアドレスを拒否する`` () =
+let ``EmailAddress.create はアットマークを含まないメールアドレスを拒否する`` () =
     // Arrange
     let invalidEmail = "invalid-email.com"
 
@@ -92,7 +210,7 @@ let ``EmailAddress.create は @ を含まないメールアドレスを拒否す
     // Assert
     match result with
     | Error msg -> Assert.Contains("must contain @", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: EmailAddress should reject email without @ symbol"
 
 // ========================================
 // ZipCode Tests
@@ -122,7 +240,7 @@ let ``ZipCode.create は5桁でない文字列を拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must be 5 chars", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: ZipCode should reject non-5-digit string"
 
 [<Fact>]
 let ``ZipCode.create は数字でない文字列を拒否する`` () =
@@ -135,7 +253,7 @@ let ``ZipCode.create は数字でない文字列を拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must be all digits", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: ZipCode should reject non-numeric string"
 
 // ========================================
 // WidgetCode Tests
@@ -167,7 +285,7 @@ let ``WidgetCode.create は W で始まらないコードを拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must start with 'W'", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: WidgetCode should reject code not starting with W"
 
 // ========================================
 // GizmoCode Tests
@@ -199,7 +317,7 @@ let ``GizmoCode.create は G で始まらないコードを拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must start with 'G'", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: GizmoCode should reject code not starting with G"
 
 // ========================================
 // UnitQuantity Tests
@@ -231,7 +349,7 @@ let ``UnitQuantity.create はゼロを拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must be at least 1", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: UnitQuantity should reject zero"
 
 [<Fact>]
 let ``UnitQuantity.create は大きすぎる数量を拒否する`` () =
@@ -245,7 +363,7 @@ let ``UnitQuantity.create は大きすぎる数量を拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must not be more than 1000", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: UnitQuantity should reject quantity greater than 1000"
 
 // ========================================
 // Price Tests
@@ -276,13 +394,13 @@ let ``Price.create は負の価格を拒否する`` () =
     // Assert
     match result with
     | Error msg -> Assert.Contains("must not be negative", msg)
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: Price should reject negative value"
 
 [<Fact>]
 let ``Price.multiply は正しく計算する`` () =
     // Arrange
     let price = Price.unsafeCreate 10.0m
-    let qty = 5
+    let qty = 5.0m
 
     // Act
     let result = Price.multiply qty price
@@ -337,4 +455,4 @@ let ``OrderId.create は長すぎる文字列を拒否する`` () =
     // Assert
     match result with
     | Error _ -> ()
-    | Ok _ -> failwith "Expected error"
+    | Ok _ -> failwith "Expected error: OrderId should reject string longer than 50 chars"

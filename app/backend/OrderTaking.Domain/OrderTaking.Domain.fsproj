@@ -7,6 +7,9 @@
 
   <ItemGroup>
     <Compile Include="ConstrainedTypes.fs" />
+    <Compile Include="CompoundTypes.fs" />
+    <Compile Include="Entities.fs" />
+    <Compile Include="DomainServices.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 

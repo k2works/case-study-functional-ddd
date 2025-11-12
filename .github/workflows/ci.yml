@@ -63,3 +63,55 @@ jobs:
     - name: Run Cake Quality Task
       run: dotnet cake build.cake --target=Quality
       continue-on-error: true  # FSharpLint の既知の問題のため警告扱い
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: build
+
+    defaults:
+      run:
+        working-directory: ./app/backend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore tools
+      run: dotnet tool restore
+
+    - name: Run Coverage
+      run: dotnet cake build.cake --target=Coverage
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: ./app/backend/TestResults/CoverageReport/
+        retention-days: 30
+
+    - name: Upload Cobertura XML
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-cobertura
+        path: ./app/backend/TestResults/CoverageReport/Cobertura.xml
+        retention-days: 30
+
+    - name: Check Coverage Threshold
+      run: |
+        # Extract line coverage percentage from Cobertura.xml
+        COVERAGE=$(grep -oP 'line-rate="\K[0-9.]+' ./TestResults/CoverageReport/Cobertura.xml | head -1)
+        COVERAGE_PERCENT=$(echo "$COVERAGE * 100" | bc)
+        COVERAGE_INT=${COVERAGE_PERCENT%.*}
+
+        echo "Current Coverage: ${COVERAGE_INT}%"
+        echo "Target Coverage: 80%"
+
+        if [ "$COVERAGE_INT" -lt 80 ]; then
+          echo "::warning::Coverage (${COVERAGE_INT}%) is below target (80%)"
+        else
+          echo "::notice::Coverage (${COVERAGE_INT}%) meets target (80%)"
+        fi
