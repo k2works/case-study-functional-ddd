@@ -78,6 +78,7 @@ nav:
     - レトロスペクティブ:
       - Retrospective 0: development/retrospective-0.md
       - Retrospective 1: development/retrospective-1.md
+      - Retrospective 2: development/retrospective-2.md
     - デイリースタンドアップ:
       - スタンドアップガイド: operation/process/daily-standup-guide.md
       - 記録 2025-01: operation/process/standup-logs/2025-01.md
