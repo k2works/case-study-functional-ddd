@@ -47,10 +47,15 @@ module Main =
 
         let app = builder.Build()
 
-        // Swagger UI の設定（開発環境のみ）
-        if app.Environment.IsDevelopment() then
-            app.UseSwagger() |> ignore
-            app.UseSwaggerUI() |> ignore
+        // Swagger UI の設定
+        app.UseSwagger() |> ignore
+        app.UseSwaggerUI() |> ignore
+
+        // ルートから Swagger UI へリダイレクト
+        app
+            .MapGet("/", Func<IResult>(fun () -> Results.Redirect("/swagger")))
+            .ExcludeFromDescription()
+        |> ignore
 
         // POST /api/orders エンドポイント
         app
