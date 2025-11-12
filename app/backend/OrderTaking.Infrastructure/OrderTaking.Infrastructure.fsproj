@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Adapters.fs" />
+    <Compile Include="DependencyContainer.fs" />
     <Compile Include="Library.fs" />
   </ItemGroup>
 
