@@ -645,9 +645,9 @@
 - エラーレスポンスのスキーマ定義
 
 **受け入れ基準**:
-- [ ] レスポンススキーマが Swagger に表示される
-- [ ] 成功レスポンスが正しく記載されている
-- [ ] エラーレスポンスが詳細化されている
+- [x] レスポンススキーマが Swagger に表示される
+- [x] 成功レスポンスが正しく記載されている
+- [x] エラーレスポンスが詳細化されている
 
 **改善アクション**: A4（レスポンススキーマの追加）
 **依存関係**: なし（並行実施可能）
@@ -667,9 +667,9 @@
 - エラーメッセージの国際化準備
 
 **受け入れ基準**:
-- [ ] フィールド別のエラー情報が返される
-- [ ] エラーコードが定義されている
-- [ ] エラーレスポンスが構造化されている
+- [x] フィールド別のエラー情報が返される
+- [x] エラーコードが定義されている
+- [x] エラーレスポンスが構造化されている
 
 **改善アクション**: A4（レスポンススキーマの追加）
 **依存関係**: T8.1
@@ -689,9 +689,9 @@
 - デプロイ手順の更新
 
 **受け入れ基準**:
-- [ ] README が最新化されている
-- [ ] Swagger UI のサンプルが動作する
-- [ ] デプロイ手順が正しい
+- [x] README が最新化されている
+- [x] Swagger UI のサンプルが動作する
+- [x] デプロイ手順が正しい
 
 **改善アクション**: A4（レスポンススキーマの追加）
 **依存関係**: T8.1, T8.2
@@ -1035,6 +1035,50 @@ gantt
 - Dapper の F# 対応方法
 - FluentMigrator のベストプラクティス
 - SQLite と PostgreSQL の動作差異
+
+---
+
+## 実績記録
+
+### Phase 8: API 改善（完了）
+
+**完了日時**: 2025-11-19
+
+**実装内容**:
+
+#### T8.1: Swagger レスポンススキーマの追加 ✅
+- ResponseTypes.fs を作成
+  - PlaceOrderSuccessResponse 型を定義
+  - ErrorResponse 型を定義
+  - ValidationErrorDetail 型を定義
+  - StructuredErrorResponse 型を定義
+- Program.fs に `.Produces<PlaceOrderSuccessResponse>(200)` と `.Produces<StructuredErrorResponse>(400)` を追加
+- Swagger ドキュメントに成功・エラーレスポンスの例を追加
+
+#### T8.2: エラーレスポンスの詳細化 ✅
+- ErrorResponseHelper モジュールを作成
+- ValidationError を ValidationErrorDetail に変換する関数を実装
+- PlaceOrderError を StructuredErrorResponse に変換する関数を実装
+- 各エラータイプ（ValidationError, PricingError, DatabaseError, AcknowledgmentError）に対応
+- フィールド別のエラー情報（field, message, errorCode）を返すように実装
+
+#### T8.3: API ドキュメントの更新 ✅
+- README.md に API セクションを追加
+  - POST /api/orders エンドポイントのドキュメント
+  - リクエスト・レスポンスの例
+  - エラーレスポンスの例（バリデーションエラーとその他のエラー）
+  - 有効な商品コードのリスト
+  - エラーの種類の説明
+- Swagger UI の使い方を追加
+
+**テスト結果**:
+- ビルド: ✅ 成功（警告 0、エラー 0）
+- テスト: ✅ 成功（148 テスト合格、失敗 0）
+
+**成果物**:
+- `app/backend/OrderTaking.WebApi/ResponseTypes.fs` - レスポンス型定義
+- `app/backend/OrderTaking.WebApi/Program.fs` - ErrorResponseHelper モジュールと Swagger 設定更新
+- `README.md` - API ドキュメント追加
 
 ---
 
