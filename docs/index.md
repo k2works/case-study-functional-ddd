@@ -4,7 +4,35 @@
 
 本プロジェクトは、F# の関数型プログラミングとドメイン駆動設計の原則を適用した注文受付システムです。「Domain Modeling Made Functional」の実践例として、型安全で保守性の高いソフトウェア開発のアプローチを学習できます。
 
-## 🎯 プロジェクト状況（2025-11-12）
+## 🎯 プロジェクト状況（2025-11-19）
+
+### イテレーション 3 部分完了（Phase 8）
+
+**達成率**: Phase 8 完了（3/3 タスク）、全 148 テスト成功（100%）
+
+**主な成果**:
+- ✅ Phase 8「API 改善」完全実装（Swagger レスポンススキーマ、エラーレスポンス詳細化）
+- ✅ Swagger UI: レスポンススキーマ定義、構造化エラーレスポンス
+- ✅ README.md: 包括的な API ドキュメント追加
+- ✅ UNIQUE 制約エラーメッセージ改善
+- ✅ セマンティックコミット: 4 コミット（feat/docs 分離）
+- ✅ コード品質: Fantomas、pre-commit フック 100% 合格
+
+**実装完了**:
+- ResponseTypes.fs（4 種類のレスポンス型定義）
+- ErrorResponseHelper モジュール（構造化エラーレスポンス）
+- Swagger `.Produces<>()` 設定
+- API ドキュメント（README.md）
+
+**課題**:
+- Phase 1-7 未着手（Dapper + FluentMigrator 基盤構築、Story 1.2-1.4）
+- イテレーションゴール未達成
+- ベロシティ未計測
+
+**開発プロセス**:
+- イテレーション計画: [iteration_plan-3.md](./development/iteration_plan-3.md)
+- レトロスペクティブ: [retrospective-3.md](./development/retrospective-3.md)
+- KPT 分析と 5 件の改善アクション定義（イテレーション 4 へ）
 
 ### イテレーション 2 完了（100%）
 
@@ -126,10 +154,12 @@
   - [Iteration 0 計画](./development/iteration_plan-0.md) - 完了（環境構築）
   - [Iteration 1 計画](./development/iteration_plan-1.md) - 完了（100%、97.4% 精度）
   - [Iteration 2 計画](./development/iteration_plan-2.md) - 完了（100%、全 29 タスク）
+  - [Iteration 3 計画](./development/iteration_plan-3.md) - 部分完了（Phase 8 のみ、Phase 1-7 未着手）
 - [レトロスペクティブ](./development/) - イテレーション振り返りと改善
   - [Retrospective 0](./development/retrospective-0.md) - 環境構築の振り返り
   - [Retrospective 1](./development/retrospective-1.md) - KPT 分析と 13 件の改善アクション
   - [Retrospective 2](./development/retrospective-2.md) - KPT 分析と 7 件の改善アクション（Story 1.1 完了）
+  - [Retrospective 3](./development/retrospective-3.md) - KPT 分析と 5 件の改善アクション（Phase 8 完了）
 - [デイリースタンドアップ記録](./operation/process/standup-logs/) - 日次進捗と課題管理
   - [2025年1月](./operation/process/standup-logs/2025-01.md)
 
