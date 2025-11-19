@@ -36,7 +36,17 @@ module DependencyContainer =
                     let! savedOrderId = repository.SaveAsync pricedOrder
                     return Ok savedOrderId
                 with ex ->
-                    return Error $"Database error: {ex.Message}"
+                    // UNIQUE 制約違反を検出
+                    let errorMessage =
+                        if ex.Message.Contains("UNIQUE constraint failed: Orders.order_id") then
+                            let orderIdValue =
+                                OrderId.value pricedOrder.OrderId
+
+                            $"Order with ID '{orderIdValue}' already exists. Please use a different order ID."
+                        else
+                            $"Database error: {ex.Message}"
+
+                    return Error errorMessage
             }
 
         { CheckProductCodeExists = Adapters.ProductCodeAdapter.checkProductCodeExists
