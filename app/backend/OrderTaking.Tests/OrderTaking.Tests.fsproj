@@ -15,6 +15,7 @@
     <Compile Include="AdaptersTests.fs" />
     <Compile Include="JsonSerializationTests.fs" />
     <Compile Include="MigrationTests.fs" />
+    <Compile Include="OrderRepositoryTests.fs" />
     <Compile Include="ApiTests.fs" />
     <Compile Include="Tests.fs" />
   </ItemGroup>
