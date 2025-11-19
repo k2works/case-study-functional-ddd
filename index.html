@@ -477,16 +477,27 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2025-11-12" class="md-nav__link">
+  <a href="#2025-11-19" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎯 プロジェクト状況（2025-11-12）
+        🎯 プロジェクト状況（2025-11-19）
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🎯 プロジェクト状況（2025-11-12）">
+    <nav class="md-nav" aria-label="🎯 プロジェクト状況（2025-11-19）">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#3-100" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        イテレーション 3 完了（100%）
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#2-100" class="md-nav__link">
@@ -1337,6 +1348,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development/iteration_plan-3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Iteration 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1468,6 +1507,34 @@
     
   
     Retrospective 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development/retrospective-3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Retrospective 3
   
 
     
@@ -2643,7 +2710,38 @@
 <h1 id="ordertaking-">注文受付システム (OrderTaking) - 関数型ドメイン駆動設計ケーススタディ<a class="headerlink" href="#ordertaking-" title="Permanent link">&para;</a></h1>
 <h2 id="_1">概要<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>本プロジェクトは、F# の関数型プログラミングとドメイン駆動設計の原則を適用した注文受付システムです。「Domain Modeling Made Functional」の実践例として、型安全で保守性の高いソフトウェア開発のアプローチを学習できます。</p>
-<h2 id="2025-11-12">🎯 プロジェクト状況（2025-11-12）<a class="headerlink" href="#2025-11-12" title="Permanent link">&para;</a></h2>
+<h2 id="2025-11-19">🎯 プロジェクト状況（2025-11-19）<a class="headerlink" href="#2025-11-19" title="Permanent link">&para;</a></h2>
+<h3 id="3-100">イテレーション 3 完了（100%）<a class="headerlink" href="#3-100" title="Permanent link">&para;</a></h3>
+<p><strong>達成率</strong>: Phase 4, 5, 6, 8 完了（全 148 テスト成功 100%）</p>
+<p><strong>主な成果</strong>:
+- ✅ <strong>Dapper + FluentMigrator 基盤構築完了</strong>（Phase 4-5）
+  - FluentMigrator によるマイグレーション管理（3 マイグレーション、6 テスト）
+  - Dapper による OrderRepository 実装（386 行、7 統合テスト）
+  - SQLite (開発) / PostgreSQL (本番) 両対応
+- ✅ <strong>Story 1.4「注文の確定処理」完全実装</strong>（Phase 6）
+  - PlaceOrder ワークフローのデータベース統合
+  - Web API のデータベース統合（環境別マイグレーション実行）
+  - E2E テスト完全対応（139 → 148 テスト）
+- ✅ <strong>API 改善</strong>（Phase 8）
+  - Swagger レスポンススキーマ、構造化エラーレスポンス
+  - README.md に包括的な API ドキュメント追加
+- ✅ コード品質: Fantomas、pre-commit フック 100% 合格、警告 0・エラー 0</p>
+<p><strong>実装完了</strong>:
+- Migration001-003（Orders/OrderLines テーブル）
+- OrderRepository.fs（IOrderRepository インターフェース、Dapper 実装）
+- PlaceOrder ワークフローのデータベース統合（DatabaseError 追加、Async 化）
+- TestWebApplicationFactory（テスト環境のデータベース分離）
+- ResponseTypes.fs（4 種類のレスポンス型定義）
+- ErrorResponseHelper モジュール（構造化エラーレスポンス）</p>
+<p><strong>技術基盤</strong>:
+- データベース: SQLite (開発)、PostgreSQL (本番)
+- マイグレーション: FluentMigrator 6.2.0
+- データアクセス: Dapper 2.1.35
+- テスト: 148 テスト（単体 + プロパティ + 統合 + データベース + API）</p>
+<p><strong>開発プロセス</strong>:
+- イテレーション計画: <a href="development/iteration_plan-3/">iteration_plan-3.md</a>
+- レトロスペクティブ: <a href="development/retrospective-3/">retrospective-3.md</a>
+- 改善アクション: <a href="development/iteration_4_improvements/">iteration_4_improvements.md</a> - 5 件の改善アクション定義</p>
 <h3 id="2-100">イテレーション 2 完了（100%）<a class="headerlink" href="#2-100" title="Permanent link">&para;</a></h3>
 <p><strong>達成率</strong>: 全 29 タスク完了（100%）、全 124 テスト成功（100%）</p>
 <p><strong>主な成果</strong>:
@@ -2780,9 +2878,9 @@
 <h4 id="_13">主要機能リリース計画<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
 <p><strong>Release 1.0 - MVP</strong> (6 イテレーション、47 SP):
 - ✅ Story 1.1: 基本的な注文受付（8 SP）- Iteration 1-2（完了）
-- 📋 Story 1.2: 注文内容の検証（13 SP）- Iteration 3
-- 📋 Story 1.3: 価格の自動計算（5 SP）- Iteration 3-4
-- 📋 Story 1.4: 注文の確定処理（8 SP）- Iteration 4
+- ✅ Story 1.2: 注文内容の検証（13 SP）- Iteration 1-2（完了）
+- ✅ Story 1.3: 価格の自動計算（5 SP）- Iteration 2（完了）
+- ✅ Story 1.4: 注文の確定処理（8 SP）- Iteration 3（完了）
 - 📋 Story 3.1: 商品コードの管理（3 SP）- Iteration 4
 - 📋 Story 4.1: 注文受付 API（5 SP）- Iteration 5（一部完了：Web API 実装済み）
 - 📋 Story 5.1: 顧客への確認メール（5 SP）- Iteration 5-6</p>
@@ -2792,10 +2890,12 @@
 <li><a href="development/iteration_plan-0/">Iteration 0 計画</a> - 完了（環境構築）</li>
 <li><a href="development/iteration_plan-1/">Iteration 1 計画</a> - 完了（100%、97.4% 精度）</li>
 <li><a href="development/iteration_plan-2/">Iteration 2 計画</a> - 完了（100%、全 29 タスク）</li>
+<li><a href="development/iteration_plan-3/">Iteration 3 計画</a> - 完了（100%、Phase 4, 5, 6, 8、Story 1.4 完了）</li>
 <li><a href="./development/">レトロスペクティブ</a> - イテレーション振り返りと改善</li>
 <li><a href="development/retrospective-0/">Retrospective 0</a> - 環境構築の振り返り</li>
 <li><a href="development/retrospective-1/">Retrospective 1</a> - KPT 分析と 13 件の改善アクション</li>
 <li><a href="development/retrospective-2/">Retrospective 2</a> - KPT 分析と 7 件の改善アクション（Story 1.1 完了）</li>
+<li><a href="development/retrospective-3/">Retrospective 3</a> - KPT 分析と 5 件の改善アクション（Phase 4, 5, 6, 8 完了、Story 1.4 完了）</li>
 <li><a href="./operation/process/standup-logs/">デイリースタンドアップ記録</a> - 日次進捗と課題管理</li>
 <li><a href="operation/process/standup-logs/2025-01/">2025年1月</a></li>
 </ul>

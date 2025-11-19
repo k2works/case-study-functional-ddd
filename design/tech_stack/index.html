@@ -1634,6 +1634,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/iteration_plan-3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Iteration 3
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1765,6 +1793,34 @@
     
   
     Retrospective 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/retrospective-3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Retrospective 3
   
 
     
@@ -3009,18 +3065,32 @@
 <td></td>
 </tr>
 <tr>
-<td>ORM</td>
-<td>Entity Framework Core</td>
-<td>9.0.3</td>
+<td>Micro ORM</td>
+<td>Dapper</td>
+<td>2.1.35</td>
 <td>データアクセス</td>
-<td>F# 対応、InMemory プロバイダー</td>
+<td>軽量、高速、F# 対応</td>
 </tr>
 <tr>
-<td>データベース</td>
-<td>InMemory Database</td>
+<td>マイグレーション</td>
+<td>FluentMigrator</td>
+<td>6.2.0</td>
+<td>スキーマ管理</td>
+<td>コードファーストマイグレーション</td>
+</tr>
+<tr>
+<td>データベース（開発）</td>
+<td>SQLite</td>
 <td>-</td>
 <td>開発・テスト用</td>
-<td>軽量、設定不要</td>
+<td>軽量、設定不要、ファイルベース</td>
+</tr>
+<tr>
+<td>データベース（本番）</td>
+<td>PostgreSQL</td>
+<td>16+</td>
+<td>本番環境</td>
+<td>信頼性、拡張性、オープンソース</td>
 </tr>
 <tr>
 <td><strong>API ドキュメント</strong></td>
@@ -3181,6 +3251,10 @@
 │   └── PlaceOrder.Api.fs               # API 層
 ├── OrderTaking.Application/            # アプリケーション層
 ├── OrderTaking.Infrastructure/         # インフラストラクチャ層
+│   ├── Adapters.fs                     # 外部システムアダプター
+│   ├── DependencyContainer.fs          # 依存性注入設定
+│   ├── JsonSerialization.fs            # JSON シリアライゼーション
+│   └── Database/                       # データベースアクセス（Dapper + FluentMigrator）
 ├── OrderTaking.WebApi/                 # Web API プロジェクト
 │   ├── Program.fs                      # エントリーポイント
 │   ├── Controllers/                    # API コントローラー
@@ -3209,8 +3283,8 @@
 </tr>
 <tr>
 <td><strong>インフラストラクチャ層</strong></td>
-<td>PlaceOrder.Api.fs</td>
-<td>外部システム連携、永続化</td>
+<td>Adapters.fs, Database/</td>
+<td>外部システム連携、Dapper による永続化、FluentMigrator マイグレーション</td>
 </tr>
 <tr>
 <td><strong>プレゼンテーション層</strong></td>
@@ -3315,6 +3389,8 @@ dotnet<span class="w"> </span><span class="nb">test</span>
 <span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;xunit&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.6.2&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;xunit.runner.visualstudio&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.5.3&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;FsUnit.xUnit&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.0.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;FsCheck&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.16.6&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;FsCheck.Xunit&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.16.6&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 
 <span class="w">    </span><span class="cm">&lt;!-- ツール関連 --&gt;</span>
 <span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Fantomas.Tool&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.2.3&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
@@ -3324,6 +3400,13 @@ dotnet<span class="w"> </span><span class="nb">test</span>
 <span class="w">    </span><span class="cm">&lt;!-- API関連 --&gt;</span>
 <span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Microsoft.AspNetCore.OpenApi&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;9.0.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;NSwag.AspNetCore&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;14.2.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- データベース関連 --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Dapper&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.1.35&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;FluentMigrator&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.2.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;FluentMigrator.Runner&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;6.2.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Microsoft.Data.Sqlite&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;9.0.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;PackageVersion</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;Npgsql&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;9.0.1&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
 <span class="w">  </span><span class="nt">&lt;/ItemGroup&gt;</span>
 <span class="nt">&lt;/Project&gt;</span>
 </code></pre></div>
@@ -3410,6 +3493,8 @@ dotnet<span class="w"> </span><span class="nb">test</span>
 <li><strong>不変性</strong>: 副作用の最小化</li>
 <li><strong>遅延評価</strong>: 必要時のみデータ処理</li>
 <li><strong>メモリ効率</strong>: 値型・レコード型の活用</li>
+<li><strong>データアクセス最適化</strong>: Dapper による高速な SQL 実行（ORM オーバーヘッド最小化）</li>
+<li><strong>接続管理</strong>: データベース接続プーリング、適切な接続ライフサイクル管理</li>
 </ul>
 <h3 id="_24">品質保証<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h3>
 <h4 id="_25">テスト戦略<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h4>
@@ -3470,14 +3555,16 @@ dotnet<span class="w"> </span><span class="nb">test</span>
 <h4 id="phase-1">Phase 1: 基本機能<a class="headerlink" href="#phase-1" title="Permanent link">&para;</a></h4>
 <ul>
 <li>ドメインモデル実装</li>
-<li>InMemory データベース</li>
+<li>SQLite データベース（開発・テスト環境）</li>
+<li>Dapper による基本的なデータアクセス</li>
 <li>基本 API エンドポイント</li>
 </ul>
 <h4 id="phase-2">Phase 2: 永続化強化<a class="headerlink" href="#phase-2" title="Permanent link">&para;</a></h4>
 <ul>
-<li>SQL Server / PostgreSQL 対応</li>
-<li>Entity Framework Core 移行</li>
-<li>データベースマイグレーション</li>
+<li>PostgreSQL 本番環境対応</li>
+<li>Dapper による高速データアクセス</li>
+<li>FluentMigrator によるスキーママイグレーション</li>
+<li>リポジトリパターン実装</li>
 </ul>
 <h4 id="phase-3">Phase 3: 開発基盤強化<a class="headerlink" href="#phase-3" title="Permanent link">&para;</a></h4>
 <ul>
