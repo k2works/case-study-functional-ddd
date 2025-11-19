@@ -477,7 +477,10 @@ let ``placeOrder は有効な注文を処理する`` () =
 
     let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -485,8 +488,10 @@ let ``placeOrder は有効な注文を処理する`` () =
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
@@ -498,7 +503,7 @@ let ``placeOrder は有効な注文を処理する`` () =
         match events.[0] with
         | PlaceOrderEvent.OrderPlaced _ -> ()
         | _ -> failwith "Expected OrderPlaced event as first event in placeOrder workflow"
-    | Error error -> failwith $"Expected Ok, got Error: {error}"
+    | Error error -> failwith $"Expected Ok, got Error: {PlaceOrderError.toString error}"
 
 [<Fact>]
 let ``placeOrder はバリデーションエラーを返す`` () =
@@ -520,7 +525,10 @@ let ``placeOrder はバリデーションエラーを返す`` () =
 
     let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -528,14 +536,16 @@ let ``placeOrder はバリデーションエラーを返す`` () =
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
     | Error(PlaceOrderError.ValidationError _) -> () // バリデーションエラーを期待
     | Ok _ -> failwith "Expected ValidationError"
-    | Error error -> failwith $"Expected ValidationError, got: {error}"
+    | Error error -> failwith $"Expected ValidationError, got: {PlaceOrderError.toString error}"
 
 [<Fact>]
 let ``placeOrder は価格計算エラーを返す`` () =
@@ -558,7 +568,10 @@ let ``placeOrder は価格計算エラーを返す`` () =
     // 価格取得に失敗
     let getProductPrice productCode = Error "Price service unavailable"
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -566,14 +579,16 @@ let ``placeOrder は価格計算エラーを返す`` () =
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
     | Error(PlaceOrderError.PricingError _) -> () // 価格計算エラーを期待
     | Ok _ -> failwith "Expected PricingError"
-    | Error error -> failwith $"Expected PricingError, got: {error}"
+    | Error error -> failwith $"Expected PricingError, got: {PlaceOrderError.toString error}"
 
 [<Fact>]
 let ``placeOrder は確認エラーを返す`` () =
@@ -595,8 +610,13 @@ let ``placeOrder は確認エラーを返す`` () =
 
     let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
 
+    // Mock saveOrder - always succeeds
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
     // メール送信に失敗
-    let sendAcknowledgment acknowledgment = Error "Email service unavailable"
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> =
+        Error "Email service unavailable"
 
     // Act
     let result =
@@ -604,11 +624,123 @@ let ``placeOrder は確認エラーを返す`` () =
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
     | Error(PlaceOrderError.AcknowledgmentError _) -> () // 確認エラーを期待
     | Ok _ -> failwith "Expected AcknowledgmentError"
     | Error error -> failwith $"Expected AcknowledgmentError, got: {error}"
+
+// ========================================
+// PlaceOrder Workflow Database Integration Tests
+// ========================================
+
+[<Fact>]
+let ``placeOrder は PricedOrder をデータベースに保存する`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid().ToString()
+
+    let unvalidatedOrder =
+        UnvalidatedOrder.create
+            guid
+            (UnvalidatedCustomerInfo.create "John" "Doe" "john@example.com")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            [ UnvalidatedOrderLine.create (System.Guid.NewGuid().ToString()) "W1234" 10.0m ]
+
+    // Mock dependencies
+    let checkProductCodeExists code =
+        Ok(ProductCode.Widget(WidgetCode.unsafeCreate code))
+
+    let checkAddressExists addr = Ok addr
+
+    let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
+
+    // Track if saveOrder was called
+    let mutable savedOrder: PricedOrder option =
+        None
+
+    let saveOrder (pricedOrder: PricedOrder) =
+        async {
+            savedOrder <- Some pricedOrder
+            return Ok(pricedOrder.OrderId)
+        }
+
+    let sendAcknowledgment acknowledgment = Ok()
+
+    // Act
+    let result =
+        PlaceOrderWorkflow.placeOrder
+            checkProductCodeExists
+            checkAddressExists
+            getProductPrice
+            saveOrder
+            sendAcknowledgment
+            unvalidatedOrder
+        |> Async.RunSynchronously
+
+    // Assert
+    match result with
+    | Ok events ->
+        // saveOrder が呼ばれたことを確認
+        savedOrder |> should not' (equal None)
+
+        // 保存された注文の内容を検証
+        match savedOrder with
+        | Some order ->
+            order.Lines.Length |> should equal 1
+
+            BillingAmount.value order.AmountToBill
+            |> should equal 255.00m
+        | None -> failwith "Expected order to be saved"
+
+        // イベントが正しく生成されることを確認
+        events.Length |> should equal 3
+    | Error error -> failwith $"Expected Ok, got Error: {PlaceOrderError.toString error}"
+
+[<Fact>]
+let ``placeOrder はデータベース保存失敗時にエラーを返す`` () =
+    // Arrange
+    let guid = System.Guid.NewGuid().ToString()
+
+    let unvalidatedOrder =
+        UnvalidatedOrder.create
+            guid
+            (UnvalidatedCustomerInfo.create "John" "Doe" "john@example.com")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            (UnvalidatedAddress.create "123 Main St" None "Tokyo" "12345")
+            [ UnvalidatedOrderLine.create (System.Guid.NewGuid().ToString()) "W1234" 10.0m ]
+
+    let checkProductCodeExists code =
+        Ok(ProductCode.Widget(WidgetCode.unsafeCreate code))
+
+    let checkAddressExists addr = Ok addr
+
+    let getProductPrice productCode = Ok(Price.unsafeCreate 25.50m)
+
+    // Mock saveOrder - always fails
+    let saveOrder pricedOrder =
+        async { return Error "Database connection failed" }
+
+    let sendAcknowledgment acknowledgment = Ok()
+
+    // Act
+    let result =
+        PlaceOrderWorkflow.placeOrder
+            checkProductCodeExists
+            checkAddressExists
+            getProductPrice
+            saveOrder
+            sendAcknowledgment
+            unvalidatedOrder
+        |> Async.RunSynchronously
+
+    // Assert
+    match result with
+    | Error(PlaceOrderError.DatabaseError _) -> () // データベースエラーを期待
+    | Ok _ -> failwith "Expected DatabaseError"
+    | Error error -> failwith $"Expected DatabaseError, got: {PlaceOrderError.toString error}"

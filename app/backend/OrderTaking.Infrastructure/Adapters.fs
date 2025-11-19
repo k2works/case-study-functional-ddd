@@ -79,3 +79,17 @@ module Adapters =
             // ダミー実装として常に成功を返す
             // 実際の実装では SMTP や外部 API を使用してメールを送信
             Ok()
+
+    // ========================================
+    // OrderRepositoryAdapter
+    // ========================================
+
+    module OrderRepositoryAdapter =
+
+        /// 注文を保存する（ダミー実装）
+        let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+            async {
+                // ダミー実装として常に成功を返す
+                // 実際の実装では OrderRepository.SaveAsync を呼び出す
+                return Ok(pricedOrder.OrderId)
+            }
