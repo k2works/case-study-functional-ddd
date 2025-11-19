@@ -17,6 +17,53 @@ open OrderTaking.Infrastructure.DependencyContainer
 open OrderTaking.Infrastructure.JsonSerialization
 open FluentMigrator.Runner
 
+// ========================================
+// エラーレスポンス変換ヘルパー
+// ========================================
+
+module ErrorResponseHelper =
+    /// ValidationError を ValidationErrorDetail に変換する
+    let private validationErrorToDetail (validationError: ValidationError) : ValidationErrorDetail =
+        let errorString =
+            ValidationError.toString validationError
+        // エラー文字列は "FieldName: Message" の形式
+        match errorString.Split(':', 2) with
+        | [| fieldName; message |] ->
+            { field = fieldName.Trim()
+              message = message.Trim()
+              errorCode = "VALIDATION_ERROR" }
+        | _ ->
+            { field = "Unknown"
+              message = errorString
+              errorCode = "VALIDATION_ERROR" }
+
+    /// PlaceOrderError を StructuredErrorResponse に変換する
+    let toStructuredResponse (error: PlaceOrderError) : StructuredErrorResponse =
+        match error with
+        | PlaceOrderError.ValidationError errors ->
+            let details =
+                errors |> List.map validationErrorToDetail
+
+            { errorType = "ValidationError"
+              message = "One or more validation errors occurred"
+              details = Some details }
+        | PlaceOrderError.PricingError msg ->
+            { errorType = "PricingError"
+              message = msg
+              details = None }
+        | PlaceOrderError.DatabaseError msg ->
+            { errorType = "DatabaseError"
+              message = msg
+              details = None }
+        | PlaceOrderError.AcknowledgmentError msg ->
+            { errorType = "AcknowledgmentError"
+              message = msg
+              details = None }
+
+    /// PlaceOrderError を ErrorResponse に変換する（後方互換性用）
+    let toSimpleResponse (error: PlaceOrderError) : ErrorResponse =
+        { error = PlaceOrderError.toString error }
+
 // WebApplicationFactory から参照可能にするためのダミークラス
 type Program() = class end
 
@@ -172,10 +219,10 @@ module Main =
 
                                     match result with
                                     | Error error ->
-                                        let errorMessage =
-                                            PlaceOrderError.toString error
+                                        let structuredError =
+                                            ErrorResponseHelper.toStructuredResponse error
 
-                                        return Results.BadRequest({| error = errorMessage |})
+                                        return Results.BadRequest(structuredError)
                                     | Ok events ->
                                         let eventJsons =
                                             events |> List.map serializePlaceOrderEvent
@@ -184,6 +231,8 @@ module Main =
                         })
             )
             .Accepts<UnvalidatedOrder>("application/json")
+            .Produces<PlaceOrderSuccessResponse>(200, "application/json")
+            .Produces<StructuredErrorResponse>(400, "application/json")
             .WithName("PlaceOrder")
             .WithTags("Orders")
             .WithSummary("Place a new order")
@@ -228,7 +277,53 @@ module Main =
 
 **Valid Product Codes:**
 - Widget codes: W1234, W5678, W9012
-- Gizmo codes: G123, G1234, G5678, G9012"""
+- Gizmo codes: G123, G1234, G5678, G9012
+
+**Success Response (200 OK):**
+```json
+{
+  "events": [
+    {
+      "OrderPlaced": {
+        "orderId": "...",
+        "customerInfo": {...},
+        "shippingAddress": {...},
+        "orderLines": [...],
+        "amountToBill": 100.00
+      }
+    }
+  ]
+}
+```
+
+**Error Response (400 Bad Request) - Validation Error:**
+```json
+{
+  "errorType": "ValidationError",
+  "message": "One or more validation errors occurred",
+  "details": [
+    {
+      "field": "ProductCode",
+      "message": "ProductCode must be 5 chars",
+      "errorCode": "VALIDATION_ERROR"
+    },
+    {
+      "field": "CustomerInfo",
+      "message": "EmailAddress must contain @",
+      "errorCode": "VALIDATION_ERROR"
+    }
+  ]
+}
+```
+
+**Error Response (400 Bad Request) - Other Errors:**
+```json
+{
+  "errorType": "PricingError",
+  "message": "Unable to calculate price for product W1234",
+  "details": null
+}
+```"""
             )
         |> ignore
 
