@@ -177,6 +177,7 @@
   - [Iteration 1 計画](./development/iteration_plan-1.md) - 完了（100%、97.4% 精度）
   - [Iteration 2 計画](./development/iteration_plan-2.md) - 完了（100%、全 29 タスク）
   - [Iteration 3 計画](./development/iteration_plan-3.md) - 完了（100%、Phase 4, 5, 6, 8、Story 1.4 完了）
+  - [Iteration 4 計画](./development/iteration_plan-4.md) - 計画中（品質基盤強化、改善アクション A1-A5）
 - [レトロスペクティブ](./development/) - イテレーション振り返りと改善
   - [Retrospective 0](./development/retrospective-0.md) - 環境構築の振り返り
   - [Retrospective 1](./development/retrospective-1.md) - KPT 分析と 13 件の改善アクション
