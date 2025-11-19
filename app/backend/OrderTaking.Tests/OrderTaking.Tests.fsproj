@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="DatabaseTestBase.fs" />
     <Compile Include="ConstrainedTypesTests.fs" />
     <Compile Include="ConstrainedTypesPropertyTests.fs" />
     <Compile Include="CompoundTypesTests.fs" />
