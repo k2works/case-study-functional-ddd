@@ -1,5 +1,11 @@
 # OrderTaking - 注文受付システム
 
+[![CI](https://github.com/k2works/case-study-functional-ddd/workflows/CI/badge.svg)](https://github.com/k2works/case-study-functional-ddd/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen.svg)](https://github.com/k2works/case-study-functional-ddd/actions/workflows/ci.yml)
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![F#](https://img.shields.io/badge/F%23-9.0-378BBA.svg)](https://fsharp.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 F# の関数型プログラミングとドメイン駆動設計による注文受付システム。
 
 ## 📋 概要
