@@ -11,7 +11,10 @@ F# の関数型プログラミングとドメイン駆動設計による注文�
 ### 言語・フレームワーク
 - **F# 9.0** / **.NET 9.0**
 - **ASP.NET Core 9.0** - Minimal API
-- **Entity Framework Core 9.0** - InMemory Provider
+- **Dapper 2.1.35** - Micro ORM（軽量・高速データアクセス）
+- **FluentMigrator 6.2.0** - データベースマイグレーション
+- **SQLite** - 開発・テスト環境
+- **PostgreSQL 16+** - 本番環境
 
 ### ビルド・品質管理
 - **Cake 5.0.0** - ビルド自動化

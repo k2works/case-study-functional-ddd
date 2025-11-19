@@ -27,8 +27,10 @@
 | **Web フレームワーク** | | | | |
 | Web API | ASP.NET Core | 9.0 | REST API 提供 | 最小 API パターン、F# 対応 |
 | **データベース・永続化** | | | | |
-| ORM | Entity Framework Core | 9.0.3 | データアクセス | F# 対応、InMemory プロバイダー |
-| データベース | InMemory Database | - | 開発・テスト用 | 軽量、設定不要 |
+| Micro ORM | Dapper | 2.1.35 | データアクセス | 軽量、高速、F# 対応 |
+| マイグレーション | FluentMigrator | 6.2.0 | スキーマ管理 | コードファーストマイグレーション |
+| データベース（開発） | SQLite | - | 開発・テスト用 | 軽量、設定不要、ファイルベース |
+| データベース（本番） | PostgreSQL | 16+ | 本番環境 | 信頼性、拡張性、オープンソース |
 | **API ドキュメント** | | | | |
 | API 仕様書 | NSwag | 14.2.0 | Swagger UI 生成 | F# サポート、OpenAPI 対応 |
 | **ライブラリ・パッケージ** | | | | |
@@ -104,6 +106,10 @@ app/backend/
 │   └── PlaceOrder.Api.fs               # API 層
 ├── OrderTaking.Application/            # アプリケーション層
 ├── OrderTaking.Infrastructure/         # インフラストラクチャ層
+│   ├── Adapters.fs                     # 外部システムアダプター
+│   ├── DependencyContainer.fs          # 依存性注入設定
+│   ├── JsonSerialization.fs            # JSON シリアライゼーション
+│   └── Database/                       # データベースアクセス（Dapper + FluentMigrator）
 ├── OrderTaking.WebApi/                 # Web API プロジェクト
 │   ├── Program.fs                      # エントリーポイント
 │   ├── Controllers/                    # API コントローラー
@@ -117,7 +123,7 @@ app/backend/
 |----------|----------|------|
 | **ドメイン層** | Common.*.fs, PlaceOrder.PublicTypes.fs | ビジネスルール、制約付き型 |
 | **アプリケーション層** | PlaceOrder.Implementation.fs | ワークフロー、ユースケース |
-| **インフラストラクチャ層** | PlaceOrder.Api.fs | 外部システム連携、永続化 |
+| **インフラストラクチャ層** | Adapters.fs, Database/ | 外部システム連携、Dapper による永続化、FluentMigrator マイグレーション |
 | **プレゼンテーション層** | PlaceOrder.Dto.fs | データ変換、API 入出力 |
 
 ## データフロー
@@ -253,6 +259,8 @@ echo "Pre-commit checks passed!"
     <PackageVersion Include="xunit" Version="2.6.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
     <PackageVersion Include="FsUnit.xUnit" Version="6.0.0" />
+    <PackageVersion Include="FsCheck" Version="2.16.6" />
+    <PackageVersion Include="FsCheck.Xunit" Version="2.16.6" />
 
     <!-- ツール関連 -->
     <PackageVersion Include="Fantomas.Tool" Version="6.2.3" />
@@ -262,6 +270,13 @@ echo "Pre-commit checks passed!"
     <!-- API関連 -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.2.0" />
+
+    <!-- データベース関連 -->
+    <PackageVersion Include="Dapper" Version="2.1.35" />
+    <PackageVersion Include="FluentMigrator" Version="6.2.0" />
+    <PackageVersion Include="FluentMigrator.Runner" Version="6.2.0" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+    <PackageVersion Include="Npgsql" Version="9.0.1" />
   </ItemGroup>
 </Project>
 ```
@@ -353,6 +368,8 @@ RunTarget(target);
 - **不変性**: 副作用の最小化
 - **遅延評価**: 必要時のみデータ処理
 - **メモリ効率**: 値型・レコード型の活用
+- **データアクセス最適化**: Dapper による高速な SQL 実行（ORM オーバーヘッド最小化）
+- **接続管理**: データベース接続プーリング、適切な接続ライフサイクル管理
 
 ### 品質保証
 
@@ -421,13 +438,15 @@ Clean → Format → Build → Lint → Test → Coverage → Report
 
 #### Phase 1: 基本機能
 - ドメインモデル実装
-- InMemory データベース
+- SQLite データベース（開発・テスト環境）
+- Dapper による基本的なデータアクセス
 - 基本 API エンドポイント
 
 #### Phase 2: 永続化強化
-- SQL Server / PostgreSQL 対応
-- Entity Framework Core 移行
-- データベースマイグレーション
+- PostgreSQL 本番環境対応
+- Dapper による高速データアクセス
+- FluentMigrator によるスキーママイグレーション
+- リポジトリパターン実装
 
 #### Phase 3: 開発基盤強化
 - **テスト自動化**: xUnit + FsUnit.xUnit + Cake による統合ビルド
