@@ -4,6 +4,9 @@
 
 本プロジェクトは、F# の関数型プログラミングとドメイン駆動設計の原則を適用した注文受付システムです。「Domain Modeling Made Functional」の実践例として、型安全で保守性の高いソフトウェア開発のアプローチを学習できます。
 
+- 本番環境: [case-study-function-ddd](https://case-study-function-ddd-9bb5f4c3697a.herokuapp.com/swagger/index.html)
+- 開発環境 [case-study-function-ddd-dev](https://case-study-function-ddd-dev-e9b7ca1c1ec6.herokuapp.com/)
+
 ## 🎯 プロジェクト状況（2025-11-19）
 
 ### イテレーション 3 完了（100%）
@@ -11,6 +14,7 @@
 **達成率**: Phase 4, 5, 6, 8 完了（全 148 テスト成功 100%）
 
 **主な成果**:
+
 - ✅ **Dapper + FluentMigrator 基盤構築完了**（Phase 4-5）
   - FluentMigrator によるマイグレーション管理（3 マイグレーション、6 テスト）
   - Dapper による OrderRepository 実装（386 行、7 統合テスト）
@@ -25,6 +29,7 @@
 - ✅ コード品質: Fantomas、pre-commit フック 100% 合格、警告 0・エラー 0
 
 **実装完了**:
+
 - Migration001-003（Orders/OrderLines テーブル）
 - OrderRepository.fs（IOrderRepository インターフェース、Dapper 実装）
 - PlaceOrder ワークフローのデータベース統合（DatabaseError 追加、Async 化）
@@ -33,12 +38,14 @@
 - ErrorResponseHelper モジュール（構造化エラーレスポンス）
 
 **技術基盤**:
+
 - データベース: SQLite (開発)、PostgreSQL (本番)
 - マイグレーション: FluentMigrator 6.2.0
 - データアクセス: Dapper 2.1.35
 - テスト: 148 テスト（単体 + プロパティ + 統合 + データベース + API）
 
 **開発プロセス**:
+
 - イテレーション計画: [iteration_plan-3.md](./development/iteration_plan-3.md)
 - レトロスペクティブ: [retrospective-3.md](./development/retrospective-3.md)
 - 改善アクション: [iteration_4_improvements.md](./development/iteration_4_improvements.md) - 5 件の改善アクション定義
@@ -48,6 +55,7 @@
 **達成率**: 全 29 タスク完了（100%）、全 124 テスト成功（100%）
 
 **主な成果**:
+
 - ✅ Story 1.1「基本的な注文受付」完全実装
 - ✅ Phase 1-10 すべて完了（ドメイン層 + インフラ層 + Web API）
 - ✅ テストカバレッジ: 80%+ 達成（124 テスト: 単体 + プロパティ + 統合 + API）
@@ -56,12 +64,14 @@
 - ✅ 見積もり精度: 100%（イテレーション平均 98.7%）
 
 **実装完了**:
+
 - 制約付き型 13 種類、複合値オブジェクト 5 種類、エンティティ 3 種類
 - ドメインサービス 4 種類、PlaceOrder ワークフロー
 - インフラストラクチャレイヤー、JSON シリアライゼーション（F# 対応）
 - POST /api/orders エンドポイント、Swagger UI
 
 **開発プロセス**:
+
 - イテレーション計画: [iteration_plan-2.md](./development/iteration_plan-2.md)
 - レトロスペクティブ: [retrospective-2.md](./development/retrospective-2.md)
 - KPT 分析と 7 件の改善アクション定義
@@ -71,12 +81,14 @@
 **達成率**: 計画時間 38.25h に対し実績 37.25h（97.4% の見積もり精度）
 
 **主な成果**:
+
 - ✅ 制約付き型（11種類）の設計・実装完了
 - ✅ テストカバレッジ: 29 テスト（日本語表記）すべて成功
 - ✅ コード品質: Fantomas フォーマット準拠、FSharpLint 警告ゼロ
 - ✅ ドキュメント整備: プロセス、品質ガイド、レトロスペクティブ完備
 
 **開発プロセス**:
+
 - イテレーション計画: [iteration_plan-1.md](./development/iteration_plan-1.md)
 - レトロスペクティブ: [retrospective-1.md](./development/retrospective-1.md)
 - 13 件の改善アクションを特定（イテレーション 2 で実施）
@@ -150,6 +162,7 @@
 #### 主要機能リリース計画
 
 **Release 1.0 - MVP** (6 イテレーション、47 SP):
+
 - ✅ Story 1.1: 基本的な注文受付（8 SP）- Iteration 1-2（完了）
 - ✅ Story 1.2: 注文内容の検証（13 SP）- Iteration 1-2（完了）
 - ✅ Story 1.3: 価格の自動計算（5 SP）- Iteration 2（完了）
