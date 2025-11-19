@@ -383,6 +383,7 @@ module DomainServices =
     type PlaceOrderError =
         | ValidationError of ValidationError list
         | PricingError of string
+        | DatabaseError of string
         | AcknowledgmentError of string
 
     module PlaceOrderError =
@@ -397,6 +398,7 @@ module DomainServices =
 
                 $"Validation failed: {errorMessages}"
             | PricingError msg -> $"Pricing failed: {msg}"
+            | DatabaseError msg -> $"Database operation failed: {msg}"
             | AcknowledgmentError msg -> $"Acknowledgment failed: {msg}"
 
     module PlaceOrderWorkflow =
@@ -405,6 +407,7 @@ module DomainServices =
         type CheckProductCodeExists = Validation.CheckProductCodeExists
         type CheckAddressExists = Validation.CheckAddressExists
         type GetProductPrice = Pricing.GetProductPrice
+        type SaveOrder = PricedOrder -> Async<Result<OrderId, string>>
         type SendOrderAcknowledgment = Acknowledgment.SendOrderAcknowledgment
 
         /// 注文を処理するワークフロー
@@ -412,28 +415,37 @@ module DomainServices =
             (checkProductCodeExists: CheckProductCodeExists)
             (checkAddressExists: CheckAddressExists)
             (getProductPrice: GetProductPrice)
+            (saveOrder: SaveOrder)
             (sendAcknowledgment: SendOrderAcknowledgment)
             (unvalidatedOrder: UnvalidatedOrder)
-            : Result<PlaceOrderEvent list, PlaceOrderError> =
+            : Async<Result<PlaceOrderEvent list, PlaceOrderError>> =
 
-            // 1. Validation ステップ
-            let validatedOrderResult =
-                Validation.validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+            async {
+                // 1. Validation ステップ
+                let validatedOrderResult =
+                    Validation.validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
 
-            match validatedOrderResult with
-            | Error errors -> Error(PlaceOrderError.ValidationError errors)
-            | Ok validatedOrder ->
-                // 2. Pricing ステップ
-                let pricedOrderResult =
-                    Pricing.priceOrder getProductPrice validatedOrder
+                match validatedOrderResult with
+                | Error errors -> return Error(PlaceOrderError.ValidationError errors)
+                | Ok validatedOrder ->
+                    // 2. Pricing ステップ
+                    let pricedOrderResult =
+                        Pricing.priceOrder getProductPrice validatedOrder
 
-                match pricedOrderResult with
-                | Error msg -> Error(PlaceOrderError.PricingError msg)
-                | Ok pricedOrder ->
-                    // 3. Acknowledgment ステップ
-                    let eventsResult =
-                        Acknowledgment.acknowledgeOrder sendAcknowledgment pricedOrder
+                    match pricedOrderResult with
+                    | Error msg -> return Error(PlaceOrderError.PricingError msg)
+                    | Ok pricedOrder ->
+                        // 3. Database ステップ
+                        let! saveResult = saveOrder pricedOrder
 
-                    match eventsResult with
-                    | Error msg -> Error(PlaceOrderError.AcknowledgmentError msg)
-                    | Ok events -> Ok events
+                        match saveResult with
+                        | Error msg -> return Error(PlaceOrderError.DatabaseError msg)
+                        | Ok _ ->
+                            // 4. Acknowledgment ステップ
+                            let eventsResult =
+                                Acknowledgment.acknowledgeOrder sendAcknowledgment pricedOrder
+
+                            match eventsResult with
+                            | Error msg -> return Error(PlaceOrderError.AcknowledgmentError msg)
+                            | Ok events -> return Ok events
+            }

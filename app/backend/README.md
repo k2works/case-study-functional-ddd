@@ -1,5 +1,11 @@
 # OrderTaking - 注文受付システム
 
+[![CI](https://github.com/k2works/case-study-functional-ddd/workflows/CI/badge.svg)](https://github.com/k2works/case-study-functional-ddd/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-80%25-brightgreen.svg)](https://github.com/k2works/case-study-functional-ddd/actions/workflows/ci.yml)
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![F#](https://img.shields.io/badge/F%23-9.0-378BBA.svg)](https://fsharp.org/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 F# の関数型プログラミングとドメイン駆動設計による注文受付システム。
 
 ## 📋 概要
@@ -11,7 +17,10 @@ F# の関数型プログラミングとドメイン駆動設計による注文�
 ### 言語・フレームワーク
 - **F# 9.0** / **.NET 9.0**
 - **ASP.NET Core 9.0** - Minimal API
-- **Entity Framework Core 9.0** - InMemory Provider
+- **Dapper 2.1.35** - Micro ORM（軽量・高速データアクセス）
+- **FluentMigrator 6.2.0** - データベースマイグレーション
+- **SQLite** - 開発・テスト環境
+- **PostgreSQL 16+** - 本番環境
 
 ### ビルド・品質管理
 - **Cake 5.0.0** - ビルド自動化

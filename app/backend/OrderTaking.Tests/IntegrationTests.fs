@@ -36,7 +36,10 @@ let ``E2E: 複数明細を含む有効な注文が正常に処理される`` () 
     let getProductPrice =
         PriceService.getProductPrice
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act - ワークフロー全体を実行
     let result =
@@ -44,8 +47,10 @@ let ``E2E: 複数明細を含む有効な注文が正常に処理される`` () 
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
@@ -107,7 +112,10 @@ let ``E2E: 境界値を含む有効な注文が正常に処理される`` () =
     let getProductPrice =
         PriceService.getProductPrice
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -115,8 +123,10 @@ let ``E2E: 境界値を含む有効な注文が正常に処理される`` () =
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
@@ -168,7 +178,10 @@ let ``E2E: 無効な商品コードでバリデーションエラーが返され
     let getProductPrice =
         PriceService.getProductPrice
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -176,8 +189,10 @@ let ``E2E: 無効な商品コードでバリデーションエラーが返され
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
@@ -212,7 +227,10 @@ let ``E2E: 範囲外の数量でバリデーションエラーが返される`` 
     let getProductPrice =
         PriceService.getProductPrice
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -220,8 +238,10 @@ let ``E2E: 範囲外の数量でバリデーションエラーが返される`` 
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
@@ -261,7 +281,10 @@ let ``E2E: アドレス検証失敗でバリデーションエラーが返され
     let getProductPrice =
         PriceService.getProductPrice
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -269,8 +292,10 @@ let ``E2E: アドレス検証失敗でバリデーションエラーが返され
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
@@ -305,7 +330,10 @@ let ``E2E: 複数のバリデーションエラーが集約される`` () =
     let getProductPrice =
         PriceService.getProductPrice
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -313,8 +341,10 @@ let ``E2E: 複数のバリデーションエラーが集約される`` () =
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with
@@ -346,7 +376,10 @@ let ``E2E: 外部サービスエラーが適切に伝播される`` () =
     // 価格サービスがエラーを返す
     let getProductPrice productCode = Error "Price service unavailable"
 
-    let sendAcknowledgment acknowledgment = Ok()
+    let saveOrder (pricedOrder: PricedOrder) : Async<Result<OrderId, string>> =
+        async { return Ok(pricedOrder.OrderId) }
+
+    let sendAcknowledgment (acknowledgment: OrderAcknowledgment) : Result<unit, string> = Ok()
 
     // Act
     let result =
@@ -354,8 +387,10 @@ let ``E2E: 外部サービスエラーが適切に伝播される`` () =
             checkProductCodeExists
             checkAddressExists
             getProductPrice
+            saveOrder
             sendAcknowledgment
             unvalidatedOrder
+        |> Async.RunSynchronously
 
     // Assert
     match result with

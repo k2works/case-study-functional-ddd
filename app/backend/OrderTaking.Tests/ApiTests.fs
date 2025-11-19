@@ -6,6 +6,99 @@ open System.Text
 open Xunit
 open FsUnit.Xunit
 open Microsoft.AspNetCore.Mvc.Testing
+open Microsoft.AspNetCore.Hosting
+open Microsoft.Extensions.Configuration
+open Microsoft.Extensions.DependencyInjection
+open FluentMigrator.Runner
+
+// ========================================
+// Test Web Application Factory
+// ========================================
+
+type TestWebApplicationFactory() =
+    inherit WebApplicationFactory<OrderTaking.WebApi.Program>()
+
+    // 各テストインスタンスごとに一意の一時データベースパスを生成
+    let uniqueDbPath =
+        System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"test_api_{System.Guid.NewGuid()}.db")
+
+    override this.ConfigureWebHost(builder: IWebHostBuilder) =
+        // テスト環境として設定し、Program.fsでマイグレーション登録をスキップさせる
+        builder.UseEnvironment("Testing") |> ignore
+
+        builder.ConfigureServices(fun services ->
+            // 既存のIOrderRepositoryを削除して、テスト用のものを登録
+            let descriptor =
+                services
+                |> Seq.tryFind (fun d -> d.ServiceType = typeof<OrderTaking.Infrastructure.IOrderRepository>)
+
+            match descriptor with
+            | Some d -> services.Remove(d) |> ignore
+            | None -> ()
+
+            // テスト用の接続文字列で新しいRepositoryを登録
+            let testConnectionString =
+                $"Data Source={uniqueDbPath}"
+
+            let testRepository =
+                OrderTaking.Infrastructure.OrderRepository(testConnectionString)
+                :> OrderTaking.Infrastructure.IOrderRepository
+
+            services.AddSingleton<OrderTaking.Infrastructure.IOrderRepository>(testRepository)
+            |> ignore
+
+            // 依存性も更新
+            let depsDescriptor =
+                services
+                |> Seq.tryFind (fun d ->
+                    d.ServiceType = typeof<OrderTaking.Infrastructure.DependencyContainer.PlaceOrderDependencies>)
+
+            match depsDescriptor with
+            | Some d -> services.Remove(d) |> ignore
+            | None -> ()
+
+            let testDependencies =
+                OrderTaking.Infrastructure.DependencyContainer.createDependenciesWithRepository testRepository
+
+            services.AddSingleton<OrderTaking.Infrastructure.DependencyContainer.PlaceOrderDependencies>(
+                testDependencies
+            )
+            |> ignore
+
+            // テスト用データベースのマイグレーション設定
+            // 一時的なサービスプロバイダーを作成してマイグレーションを実行
+            let tempServices = ServiceCollection()
+
+            tempServices
+                .AddFluentMigratorCore()
+                .ConfigureRunner(fun rb ->
+                    rb
+                        .AddSQLite()
+                        .WithGlobalConnectionString(testConnectionString)
+                        .ScanIn(typeof<OrderTaking.Infrastructure.Migrations.Migration001_InitialCreate>.Assembly)
+                        .For.Migrations()
+                    |> ignore)
+            |> ignore
+
+            use tempProvider =
+                tempServices.BuildServiceProvider()
+
+            let runner =
+                tempProvider.GetRequiredService<IMigrationRunner>()
+
+            runner.MigrateUp())
+        |> ignore
+
+    interface System.IDisposable with
+        member this.Dispose() =
+            // テスト終了後に一時データベースファイルを削除
+            try
+                if System.IO.File.Exists(uniqueDbPath) then
+                    System.IO.File.Delete(uniqueDbPath)
+            with _ ->
+                ()
+
+            (this :> WebApplicationFactory<OrderTaking.WebApi.Program>).Dispose()
 
 // ========================================
 // API Integration Tests
@@ -15,7 +108,7 @@ open Microsoft.AspNetCore.Mvc.Testing
 let ``POST /api/orders with valid order returns 200 OK`` () =
     task {
         use factory =
-            new WebApplicationFactory<OrderTaking.WebApi.Program>()
+            new TestWebApplicationFactory()
 
         use client = factory.CreateClient()
 
@@ -67,7 +160,7 @@ let ``POST /api/orders with valid order returns 200 OK`` () =
 let ``POST /api/orders with invalid order returns 400 BadRequest`` () =
     task {
         use factory =
-            new WebApplicationFactory<OrderTaking.WebApi.Program>()
+            new TestWebApplicationFactory()
 
         use client = factory.CreateClient()
 
@@ -112,7 +205,7 @@ let ``POST /api/orders with invalid order returns 400 BadRequest`` () =
 let ``POST /api/orders with empty body returns 400 BadRequest`` () =
     task {
         use factory =
-            new WebApplicationFactory<OrderTaking.WebApi.Program>()
+            new TestWebApplicationFactory()
 
         use client = factory.CreateClient()
 
@@ -132,7 +225,7 @@ let ``POST /api/orders with empty body returns 400 BadRequest`` () =
 let ``POST /api/orders with invalid JSON returns 400 BadRequest`` () =
     task {
         use factory =
-            new WebApplicationFactory<OrderTaking.WebApi.Program>()
+            new TestWebApplicationFactory()
 
         use client = factory.CreateClient()
 
@@ -154,7 +247,7 @@ let ``POST /api/orders with invalid JSON returns 400 BadRequest`` () =
 let ``POST /api/orders with product code not found returns 400 BadRequest`` () =
     task {
         use factory =
-            new WebApplicationFactory<OrderTaking.WebApi.Program>()
+            new TestWebApplicationFactory()
 
         use client = factory.CreateClient()
 

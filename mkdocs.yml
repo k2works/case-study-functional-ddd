@@ -75,10 +75,12 @@ nav:
       - Iteration 0 (環境構築): development/iteration_plan-0.md
       - Iteration 1: development/iteration_plan-1.md
       - Iteration 2: development/iteration_plan-2.md
+      - Iteration 3: development/iteration_plan-3.md
     - レトロスペクティブ:
       - Retrospective 0: development/retrospective-0.md
       - Retrospective 1: development/retrospective-1.md
       - Retrospective 2: development/retrospective-2.md
+      - Retrospective 3: development/retrospective-3.md
     - デイリースタンドアップ:
       - スタンドアップガイド: operation/process/daily-standup-guide.md
       - 記録 2025-01: operation/process/standup-logs/2025-01.md
