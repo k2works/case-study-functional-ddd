@@ -188,11 +188,100 @@ dotnet cake --target=Build
 dotnet cake --target=Test
 ```
 
+### Q7: テストデータベースファイルが削除されない
+
+**症状**: テスト実行後に一時ディレクトリに `.db` ファイルが残る
+
+**原因**: テストが異常終了し、IDisposable.Dispose() が呼ばれなかった
+
+**対処法**:
+
+1. 一時ディレクトリの `.db` ファイルを手動削除:
+```bash
+# Windows
+del %TEMP%\test_db_*.db
+
+# macOS/Linux
+rm /tmp/test_db_*.db
+```
+
+2. テストを use ブロックで囲むことを確認:
+```fsharp
+[<Fact>]
+let ``テスト名`` () =
+    use testBase = { new DatabaseTestBase() }  // use を使用
+    // テストコード
+```
+
+3. テストをデバッグして異常終了の原因を特定
+
+### Q8: SQLite ファイルロックエラー
+
+**症状**:
+```
+System.IO.IOException: The process cannot access the file because it is being used by another process
+```
+
+**原因**: SQLite データベースファイルが別のプロセスで使用中
+
+**対処法**:
+
+1. 接続をすべて閉じたことを確認:
+```fsharp
+use connection = new SQLiteConnection(connectionString)
+// connection を use で自動的に閉じる
+```
+
+2. 接続プールをクリア（DatabaseTestBase.Dispose() で自動実行）:
+```fsharp
+SQLiteConnection.ClearAllPools()
+GC.Collect()
+GC.WaitForPendingFinalizers()
+```
+
+3. 既存の SQLite プロセスを終了:
+```bash
+# Windows
+tasklist | findstr sqlite
+taskkill /IM <process> /F
+
+# macOS/Linux
+ps aux | grep sqlite
+kill -9 <PID>
+```
+
+### Q9: CI 環境でテストデータベースが作成できない
+
+**症状**: GitHub Actions でテスト実行時にデータベース作成エラー
+
+**原因**: 一時ディレクトリへの書き込み権限がない、またはディスク容量不足
+
+**対処法**:
+
+1. CI ログで詳細を確認:
+```bash
+gh run list --limit 5
+gh run view <run-id> --log
+```
+
+2. 一時ディレクトリのパスを確認（DatabaseTestBase は自動的に System.IO.Path.GetTempPath() を使用）:
+   - Windows: `%TEMP%` (`C:\Users\<user>\AppData\Local\Temp`)
+   - Linux (CI): `/tmp`
+   - macOS: `/tmp` または `/var/folders/...`
+
+3. CI ワークフローでディスク容量を確認:
+```yaml
+- name: Check disk space
+  run: df -h
+```
+
+4. 不要なキャッシュをクリアしてディスク容量を確保
+
 ---
 
 ## 3. Cake タスク
 
-### Q7: Cake タスクが見つからない
+### Q10: Cake タスクが見つからない
 
 **症状**:
 ```
@@ -852,5 +941,5 @@ kill -9 <PID>
 ---
 
 **作成日**: 2025-11-10
-**最終更新**: 2025-11-10
-**バージョン**: 1.0
+**最終更新**: 2025-11-19
+**バージョン**: 1.1

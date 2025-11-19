@@ -18,7 +18,9 @@
 - **アーキテクチャ**: ポートとアダプター（ヘキサゴナルアーキテクチャ）
 - **実装言語**: F# 9.0 (.NET 9.0)
 - **Web フレームワーク**: ASP.NET Core 9.0（最小API）
-- **データベース**: Entity Framework Core 9.0（InMemory）
+- **データベース**: SQLite（開発・テスト）、PostgreSQL（本番）
+  - データアクセス: Dapper 2.1.35
+  - マイグレーション: FluentMigrator 6.2.0
 
 ### 前提条件
 
@@ -378,6 +380,48 @@ let placeOrder : PlaceOrder =
 - **単体テスト**: 純粋関数とドメインロジック
 - **統合テスト**: ワークフロー全体の動作確認
 - **プロパティベーステスト**: 型の制約確認
+
+### テストデータベース設定
+
+テストは自動的に一時データベースを使用し、テスト間の独立性を保証します：
+
+- **自動データベース作成**: 各テスト実行時に一時ディレクトリに新しいデータベースファイルを作成
+- **自動マイグレーション**: FluentMigrator によるスキーマ自動適用
+- **自動クリーンアップ**: テスト完了後にデータベースファイルを自動削除
+- **トランザクションサポート**: 明示的なトランザクション制御が可能
+
+#### DatabaseTestBase の使用例
+
+```fsharp
+[<Fact>]
+let ``テスト名`` () =
+    // DatabaseTestBase を use で使用
+    use testBase = { new DatabaseTestBase() }
+
+    // testBase.ConnectionString で接続文字列を取得
+    let repository = OrderRepository(testBase.ConnectionString)
+
+    // テスト実行
+    // ...
+    // use ブロック終了時に自動クリーンアップ
+```
+
+#### トランザクション制御
+
+テスト内で明示的にトランザクションを制御する場合：
+
+```fsharp
+[<Fact>]
+let ``トランザクションテスト`` () =
+    use testBase = { new DatabaseTestBase() }
+    use transaction = testBase.BeginTransaction()
+
+    // トランザクション内で操作
+    // ...
+
+    // ロールバックまたはコミット
+    transaction.Rollback()
+```
 
 ### テスト実行
 
