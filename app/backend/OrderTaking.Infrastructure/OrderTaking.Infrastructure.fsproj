@@ -6,6 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Database\Migrations\Migration001_InitialCreate.fs" />
+    <Compile Include="Database\Migrations\Migration002_CreateOrdersTable.fs" />
+    <Compile Include="Database\Migrations\Migration003_CreateOrderLinesTable.fs" />
     <Compile Include="Adapters.fs" />
     <Compile Include="DependencyContainer.fs" />
     <Compile Include="JsonSerialization.fs" />
