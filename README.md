@@ -61,6 +61,7 @@ app/backend/
 ## 構成
 
 - [クイックスタート](#クイックスタート)
+- [API](#api)
 - [構築](#構築)
 - [開発](#開発)
 - [テスト](#テスト)
@@ -96,7 +97,148 @@ dotnet test
 
 # API サーバーの起動
 dotnet run --project OrderTaking.WebApi/
+
+# ブラウザで Swagger UI にアクセス
+# http://localhost:5000/swagger
 ```
+
+## API
+
+### エンドポイント
+
+#### POST /api/orders
+
+注文を受け付けて処理します。
+
+**リクエスト:**
+
+```json
+{
+  "orderId": "12345678-1234-1234-1234-123456789012",
+  "customerInfo": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "emailAddress": "john@example.com"
+  },
+  "shippingAddress": {
+    "addressLine1": "123 Main St",
+    "addressLine2": "Apt 1",
+    "city": "Springfield",
+    "zipCode": "12345"
+  },
+  "billingAddress": {
+    "addressLine1": "123 Main St",
+    "addressLine2": null,
+    "city": "Springfield",
+    "zipCode": "12345"
+  },
+  "lines": [
+    {
+      "orderLineId": "87654321-4321-4321-4321-210987654321",
+      "productCode": "W1234",
+      "quantity": 2.0
+    },
+    {
+      "orderLineId": "11111111-1111-1111-1111-111111111111",
+      "productCode": "G123",
+      "quantity": 0.5
+    }
+  ]
+}
+```
+
+**有効な商品コード:**
+- Widget コード: W1234, W5678, W9012
+- Gizmo コード: G123, G1234, G5678, G9012
+
+**成功レスポンス (200 OK):**
+
+```json
+{
+  "events": [
+    {
+      "OrderPlaced": {
+        "orderId": "12345678-1234-1234-1234-123456789012",
+        "customerInfo": {
+          "firstName": "John",
+          "lastName": "Doe",
+          "emailAddress": "john@example.com"
+        },
+        "shippingAddress": {
+          "addressLine1": "123 Main St",
+          "addressLine2": "Apt 1",
+          "city": "Springfield",
+          "zipCode": "12345"
+        },
+        "orderLines": [
+          {
+            "orderLineId": "87654321-4321-4321-4321-210987654321",
+            "productCode": "W1234",
+            "quantity": 2.0,
+            "linePrice": 10.0
+          }
+        ],
+        "amountToBill": 100.00
+      }
+    }
+  ]
+}
+```
+
+**エラーレスポンス (400 Bad Request) - バリデーションエラー:**
+
+```json
+{
+  "errorType": "ValidationError",
+  "message": "One or more validation errors occurred",
+  "details": [
+    {
+      "field": "ProductCode",
+      "message": "ProductCode must be 5 chars",
+      "errorCode": "VALIDATION_ERROR"
+    },
+    {
+      "field": "CustomerInfo",
+      "message": "EmailAddress must contain @",
+      "errorCode": "VALIDATION_ERROR"
+    }
+  ]
+}
+```
+
+**エラーレスポンス (400 Bad Request) - その他のエラー:**
+
+```json
+{
+  "errorType": "PricingError",
+  "message": "Unable to calculate price for product W1234",
+  "details": null
+}
+```
+
+**エラーの種類:**
+- `ValidationError`: 入力データの検証エラー（詳細フィールド情報を含む）
+- `PricingError`: 価格計算エラー
+- `DatabaseError`: データベース操作エラー
+- `AcknowledgmentError`: 確認メッセージ送信エラー
+
+### Swagger UI
+
+API の詳細なドキュメントは Swagger UI で確認できます：
+
+```bash
+# API サーバーを起動
+cd app/backend
+dotnet run --project OrderTaking.WebApi/
+
+# ブラウザで以下にアクセス
+http://localhost:5000/swagger
+```
+
+Swagger UI では以下が可能です：
+- API エンドポイントの詳細確認
+- リクエスト/レスポンスのスキーマ確認
+- インタラクティブな API テスト実行
 
 ## 構築
 
